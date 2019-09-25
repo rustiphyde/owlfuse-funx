@@ -22,6 +22,15 @@ let db = {
       heat: 6,
       stokeCount: 2
     }
+  ],
+  stokes: [
+    {
+      alias: "Generic User",
+      clozang: ">generic-user",
+      sparkId: "9gDkPmho8hbRLf1J2IIB",
+      body: "Stoke body goes here",
+      createdAt: "2019-07-14T07:20:41:926Z"
+    }
   ]
 };
 

@@ -98,7 +98,7 @@ exports.stokeSpark = (req, res) => {
       return doc.ref.update({ stokeCount: doc.data().stokeCount + 1 });
     })
     .then(() => {
-      return db.collection("Stokes").add(newStoke);
+      return db.collection("SparkStokes").add(newStoke);
     })
     .then(() => {
       res.json(newStoke);

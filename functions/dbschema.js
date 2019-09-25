@@ -38,7 +38,7 @@ let db = {
         sender: "Other User",
         read: "true | false",
         sparkId: "9gDkPmho8hbRLf1J2IIB",
-        type: "burn | stoke",
+        type: "heat | stoke",
         createdAt: "2019-07-16T01:32:12.408Z"
     }
   ]

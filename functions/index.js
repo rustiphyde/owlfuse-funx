@@ -46,7 +46,7 @@ app.get("/user", FBAuth, getAuthenticatedUser);
 // Inform Firebase that 'app' is the container for all routes in application
 exports.api = functions.https.onRequest(app);
 
-exports.createSizzleOnBurn = functions.firestore
+exports.createSizzleOnSparkHeat = functions.firestore
   .document("SparkHeat/{id}")
   .onCreate(snap => {
     return db
@@ -67,7 +67,7 @@ exports.createSizzleOnBurn = functions.firestore
       .catch(err => console.error(err));
   });
 
-  exports.createSizzleOnStoke = functions.firestore
+  exports.createSizzleOnSparkStoke = functions.firestore
   .document("SparkStokes/{id}")
   .onCreate(snap => {
     return db
@@ -85,5 +85,14 @@ exports.createSizzleOnBurn = functions.firestore
           });
         }
       })
+      .catch(err => console.error(err));
+  });
+
+  exports.removeSparkHeatSizzle = functions.firestore
+  .document("SparkHeat/{id}")
+  .onDelete(snap => {
+    return db
+      .doc(`/Sizzles/${snap.id}`)
+      .delete()
       .catch(err => console.error(err));
   });

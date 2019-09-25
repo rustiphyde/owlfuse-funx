@@ -2,12 +2,12 @@ const functions = require("firebase-functions");
 
 const app = require("express")();
 
-const FBAuth = require("./util/fbAuth")
+const FBAuth = require("./util/fbAuth");
 
-const cors = require('cors');
+const cors = require("cors");
 app.use(cors());
 
-const { db } = require('./util/admin');
+const { db } = require("./util/admin");
 
 const { getAllSparks, postOneSpark } = require("./handlers/sparks");
 const { login, signup } = require("./handlers/users");

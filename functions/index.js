@@ -33,12 +33,46 @@ app.get("/sparks", (req, res) => {
     .catch(err => console.error(err));
 });
 
+const FBAuth = (req, res, next) => {
+  let idToken;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer ")
+  ) {
+    idToken = req.headers.authorization.split("Bearer ")[1];
+  } else {
+    console.error("No token found");
+    return res.status(403).json({ error: "Unauthorized action" });
+  }
+
+  admin
+    .auth()
+    .verifyIdToken(idToken)
+    .then(decodedToken => {
+      req.user = decodedToken;
+      console.log(decodedToken);
+      return db
+        .collection("Users")
+        .where("userId", "==", req.user.uid)
+        .limit(1)
+        .get();
+    })
+    .then(data => {
+      req.user.clozang = data.docs[0].data().clozang;
+      return next();
+    })
+    .catch(err => {
+      console.error("Error while verifying token", err);
+      return res.status(403).json(err);
+    });
+};
+
 // Function to persist data to Firebase Firestore
-app.post("/spark", (req, res) => {
+app.post("/spark", FBAuth, (req, res) => {
   const newSpark = {
     body: req.body.body,
-    clozang: req.body.clozang,
-    createdAt: admin.firestore.Timestamp.fromDate(new Date())
+    clozang: req.user.clozang,
+    createdAt: new Date().toISOString()
   };
 
   db.collection("Sparks")
@@ -89,8 +123,8 @@ app.post("/signup", (req, res) => {
     errors.confirmPassword = "Password fields must match";
   }
 
-  if (isEmpty(newUser.candle)) {
-    errors.candle = "Field must not be empty";
+  if (isEmpty(newUser.alias)) {
+    errors.alias = "Field must not be empty";
   }
 
   if (Object.keys(errors).length > 0) {
@@ -124,7 +158,7 @@ app.post("/signup", (req, res) => {
         createdAt: new Date().toISOString(),
         userId
       };
-      return db.doc(`/Users/${newUser.candle}`).set(userCredentials);
+      return db.doc(`/Users/${newUser.clozang}`).set(userCredentials);
     })
     .then(() => {
       return res.status(201).json({ token });

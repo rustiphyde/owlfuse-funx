@@ -212,7 +212,7 @@ exports.uploadImage = (req, res) => {
   busboy.end(req.rawBody);
 };
 
-exports.markSizzleRead = (req, res) => {
+exports.markSizzlesRead = (req, res) => {
   let batch = db.batch();
   req.body.forEach(sizzleId => {
     const sizzle = db.doc(`/Sizzles/${sizzleId}`);

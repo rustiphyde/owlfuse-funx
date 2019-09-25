@@ -24,7 +24,7 @@ const {
   uploadImage,
   addUserDetails,
   getAuthenticatedUser,
-  markSizzlesread
+  markSizzlesRead
 } = require("./handlers/users");
 
 // Spark routes

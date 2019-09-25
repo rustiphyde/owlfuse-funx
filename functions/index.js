@@ -1,16 +1,20 @@
 const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-const config = require("./util/config");
 
 admin.initializeApp();
 
-const express = require("express");
-const app = express();
+const app = require("express")();
+
+const FBAuth = require("./util/fbAuth")
+
+const config = require("./util/config");
+
+const cors = require('cors');
+app.use(cors());
+
+const { db } = require('./util/admin');
 
 const firebase = require("firebase");
 firebase.initializeApp(config);
-
-db = admin.firestore();
 
 // Function to fetch data from Firebase Firestore
 app.get("/sparks", (req, res) => {

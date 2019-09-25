@@ -9,7 +9,9 @@ const app = express();
 // Function to fetch data from Firebase Firestore
 app.get('/sparks', (req, res) => {
     admin
-        .firestore().collection('Sparks').get()
+        .firestore().collection('Sparks')
+        .orderBy('createdAt', 'desc')
+        .get()
         .then((data) => {
             let sparks = [];
             data.forEach((doc) => {

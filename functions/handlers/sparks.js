@@ -25,6 +25,31 @@ exports.getAllSparks = (req, res) => {
     });
 };
 
+// Fetch one spark
+exports.getSpark = (req, res) => {
+  let sparkData = {};
+  db.doc(`/Sparks/${req.params.sparkId}`).get()
+      .then((doc) => {
+          if(!doc.exists){
+              return res.status(404).json({ error: 'Spark not found'})
+          }
+          sparkData = doc.data();
+          sparkData.sparkId = doc.id;
+          return db.collection('SparkStokes').where('sparkId', '==', req.params.sparkId).get();
+      })
+      .then(data => {
+          sparkData.stokes = [];
+          data.forEach(doc => {
+              sparkData.stokes.push(doc.data())
+          });
+          return res.json(sparkData);
+      })
+      .catch(err => {
+          console.error(err);
+          res.status(500).json({ error: err.code});
+      });
+};
+
 exports.postOneSpark = (req, res) => {
   const newSpark = {
     body: req.body.body,

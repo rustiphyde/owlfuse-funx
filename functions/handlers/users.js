@@ -31,11 +31,9 @@ exports.signup = (req, res) => {
     .get()
     .then(doc => {
       if (doc.exists) {
-        return res
-          .status(400)
-          .json({
-            clozang: "This clozang has already been taken by someone else"
-          });
+        return res.status(400).json({
+          clozang: "This clozang has already been taken by someone else"
+        });
       } else {
         return firebase
           .auth()
@@ -131,11 +129,30 @@ exports.getAuthenticatedUser = (req, res) => {
       }
     })
     .then(data => {
-      userData.sparkheat = [];
+      userData.sparkHeat = [];
       data.forEach(doc => {
-        userData.sparkheat.push(doc.data());
+        userData.sparkHeat.push(doc.data());
       });
-
+      return db
+        .collection("Sizzles")
+        .where("recipient", "==", req.user.alias)
+        .orderBy("createdAt", "desc")
+        .limit(16)
+        .get();
+    })
+    .then(data => {
+      userData.sparkSizzles = [];
+      data.forEach(doc => {
+        userData.sparkSizzles.push({
+          recipient: doc.data().recipient,
+          sender: doc.data().sender,
+          createdAt: doc.data().createdAt,
+          sparkId: doc.data().sparkId,
+          type: doc.data().type,
+          read: doc.data().read,
+          sizzleId: doc.id
+        });
+      });
       return res.json(userData);
     })
     .catch(err => {

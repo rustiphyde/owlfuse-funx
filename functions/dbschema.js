@@ -24,3 +24,28 @@ let db = {
     }
   ]
 };
+
+const userDetails = {
+  // Redux data
+  credentials: {
+      userId: "WniXVQLSLyM4q5HTKVuwWFG2Pyk2",
+      email: "user@example.com",
+    alias: "Generic User",
+      clozang: ">generic-user",
+      createdAt: "2019-07-12T20:45:02.580Z",
+      imageUrl: "https://firebasestorage.googleapis.com/v0/b/owlfuse.appspot.com/o/No-owlfuse-pic.png?alt=media",
+      bio: "Hi, My name is Generic User",
+      website: "http://github.com/rustiphyde",        
+      location: "St. Louis, MO"        
+  },
+  heat: [
+      {
+          alias: 'Rusty',
+          sparkId: "9gDkPmho8hbRLf1J2IIB"
+      },
+      {
+          alias: "User 2",
+          sparkId: "lSqXGaLI4e501rFodYy5"
+      }
+  ]
+}

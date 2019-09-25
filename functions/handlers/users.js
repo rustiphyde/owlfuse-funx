@@ -32,7 +32,9 @@ exports.signup = (req, res) => {
       if (doc.exists) {
         return res
           .status(400)
-          .json({ clozang: "This clozang has already been lit by someone else" });
+          .json({
+            clozang: "This clozang has already been lit by someone else"
+          });
       } else {
         return firebase
           .auth()
@@ -49,9 +51,7 @@ exports.signup = (req, res) => {
         clozang: newUser.clozang,
         email: newUser.email,
         createdAt: new Date().toISOString(),
-        imageUrl: `https://firebasestorage.googleapis.com/v0/b/${
-          config.storageBucket
-        }/o/${noImg}?alt=media`,
+        imageUrl: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
         userId
       };
       return db.doc(`/Users/${newUser.clozang}`).set(userCredentials);
@@ -114,55 +114,81 @@ exports.addUserDetails = (req, res) => {
     });
 };
 
+// Get own user details
+exports.getAuthenticatedUser = (req, res) => {
+  let userData = {};
+  db.doc(`/Users/${req.user.clozang}`)
+    .get()
+    .then(doc => {
+      if (doc.exists) {
+        userData.credentials = doc.data();
+        return db
+          .collection("SparkHeat")
+          .where("alias", "==", req.user.alias)
+          .get();
+      }
+    })
+    .then(data => {
+      userData.sparkheat = [];
+      data.forEach(doc => {
+        userData.sparkheat.push(doc.data());
+      });
+
+      return res.json(userData);
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
 // Upload a profile image to Owlfuse
 exports.uploadImage = (req, res) => {
-    const BusBoy = require("busboy");
-    const path = require("path");
-    const os = require("os");
-    const fs = require("fs");
-  
-    const busboy = new BusBoy({ headers: req.headers });
-  
-    let imageToBeUploaded = {};
-    let imageFileName;
-    
-  
-    busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
-      if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
-        return res.status(400).json({ error: "Wrong file type submitted" });
-      }
-      const imageExtension = filename.split(".")[filename.split(".").length - 1];
-      imageFileName = `${Math.round(
-        Math.random() * 10000000000000
-      ).toString()}.${imageExtension}`;
-      const filepath = path.join(os.tmpdir(), imageFileName);
-      imageToBeUploaded = { filepath, mimetype };
-      file.pipe(fs.createWriteStream(filepath));
-    });
-    busboy.on("finish", () => {
-      const buckethead = admin
-        .storage()
-        .bucket();
-  
-        buckethead.upload(imageToBeUploaded.filepath, {
-          resumable: false,
+  const BusBoy = require("busboy");
+  const path = require("path");
+  const os = require("os");
+  const fs = require("fs");
+
+  const busboy = new BusBoy({ headers: req.headers });
+
+  let imageToBeUploaded = {};
+  let imageFileName;
+
+  busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+    if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
+      return res.status(400).json({ error: "Wrong file type submitted" });
+    }
+    const imageExtension = filename.split(".")[filename.split(".").length - 1];
+    imageFileName = `${Math.round(
+      Math.random() * 10000000000000
+    ).toString()}.${imageExtension}`;
+    const filepath = path.join(os.tmpdir(), imageFileName);
+    imageToBeUploaded = { filepath, mimetype };
+    file.pipe(fs.createWriteStream(filepath));
+  });
+  busboy.on("finish", () => {
+    const buckethead = admin.storage().bucket();
+
+    buckethead
+      .upload(imageToBeUploaded.filepath, {
+        resumable: false,
+        metadata: {
           metadata: {
-            metadata: {
-              contentType: imageToBeUploaded.mimetype
-            }
+            contentType: imageToBeUploaded.mimetype
           }
-        })
-        .then(() => {
-          const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
-          return db.doc(`/Users/${req.user.clozang}`).update({ imageUrl });
-        })
-        .then(() => {
-          return res.json({ message: "Image uploaded successfully" });
-        })
-        .catch(err => {
-          console.error(err);
-          return res.status(500).json({ error: err.code });
-        });
-    });
-    busboy.end(req.rawBody);
-  };
+        }
+      })
+      .then(() => {
+        const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
+        return db.doc(`/Users/${req.user.clozang}`).update({ imageUrl });
+      })
+      .then(() => {
+        return res.json({ message: "Image uploaded successfully" });
+      })
+      .catch(err => {
+        console.error(err);
+        return res.status(500).json({ error: err.code });
+      });
+  });
+  busboy.end(req.rawBody);
+};

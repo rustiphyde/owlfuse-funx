@@ -6,7 +6,8 @@ firebase.initializeApp(config);
 
 const {
   validateSignupData,
-  validateLoginData
+  validateLoginData,
+  reduceUserDetails
 } = require("../util/validators");
 
 // Sign up for an Owlfuse account
@@ -95,6 +96,21 @@ exports.login = (req, res) => {
       return res
         .status(403)
         .json({ general: "Wrong credentials, please try again" });
+    });
+};
+
+// Add user details to OwlFuse profile
+exports.addUserDetails = (req, res) => {
+  let userDetails = reduceUserDetails(req.body);
+
+  db.doc(`/Users/${req.user.clozang}`)
+    .update(userDetails)
+    .then(() => {
+      return res.json({ message: "Details added successfully" });
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
     });
 };
 

@@ -211,3 +211,20 @@ exports.uploadImage = (req, res) => {
   });
   busboy.end(req.rawBody);
 };
+
+exports.markSizzleRead = (req, res) => {
+  let batch = db.batch();
+  req.body.forEach(sizzleId => {
+    const sizzle = db.doc(`/Sizzles/${sizzleId}`);
+    batch.update(sizzle, { read: true });
+  });
+  batch
+    .commit()
+    .then(() => {
+      return res.json({ message: "Sizzles marked read" });
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};

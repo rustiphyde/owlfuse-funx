@@ -3,6 +3,7 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
+// Functionality to fetch data from Firebase Firestore
 exports.getSparks = functions.https.onRequest((req, res) => {
     admin
     .firestore().collection('Sparks').get()
@@ -16,10 +17,16 @@ exports.getSparks = functions.https.onRequest((req, res) => {
         .catch((err) => console.error(err));
 });
 
+// Functionality to persist data to Firebase Firestore
 exports.createSpark = functions.https.onRequest((req, res) => {
+    
+    if(req.method !== 'POST'){
+        return res.status(400).json({ error: 'Method not allowed'})
+    }
+    
     const newSpark = {
         body: req.body.body,
-        userCandle: req.body.userCandle,
+        clozang: req.body.clozang,
         createdAt: admin.firestore.Timestamp.fromDate(new Date())
     };
 

@@ -3,27 +3,31 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
-// Functionality to fetch data from Firebase Firestore
-exports.getSparks = functions.https.onRequest((req, res) => {
+const express = require('express');
+const app = express();
+
+// Function to fetch data from Firebase Firestore
+app.get('/sparks', (req, res) => {
     admin
-    .firestore().collection('Sparks').get()
-	        .then((data) => {
+        .firestore().collection('Sparks').get()
+        .then((data) => {
             let sparks = [];
             data.forEach((doc) => {
-                sparks.push(doc.data());
+                sparks.push({
+                    sparkId: doc.id,
+                    body: doc.data().body,
+                    clozang: doc.data().clozang,
+                    createdAt: doc.data().createdAt
+                });
             });
             return res.json(sparks);
         })
         .catch((err) => console.error(err));
-});
+})
 
-// Functionality to persist data to Firebase Firestore
-exports.createSpark = functions.https.onRequest((req, res) => {
-    
-    if(req.method !== 'POST'){
-        return res.status(400).json({ error: 'Method not allowed'})
-    }
-    
+// Function to persist data to Firebase Firestore
+app.post('/spark', (req, res) => {
+
     const newSpark = {
         body: req.body.body,
         clozang: req.body.clozang,
@@ -41,3 +45,6 @@ exports.createSpark = functions.https.onRequest((req, res) => {
         console.error(err);
     });
 });
+
+// Inform Firebase that 'app' is the container for all routes in application
+exports.api = functions.https.onRequest(app);

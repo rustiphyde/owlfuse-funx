@@ -16,7 +16,8 @@ exports.signup = (req, res) => {
     email: req.body.email,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
-    clozang: req.body.clozang
+    alias: req.body.alias,
+    clozang: ">" + req.body.alias.replace(/\s/g, "-").toLowerCase()
   };
 
   const { valid, errors } = validateSignupData(newUser);
@@ -33,7 +34,7 @@ exports.signup = (req, res) => {
         return res
           .status(400)
           .json({
-            clozang: "This clozang has already been lit by someone else"
+            clozang: "This clozang has already been taken by someone else"
           });
       } else {
         return firebase
@@ -48,6 +49,7 @@ exports.signup = (req, res) => {
     .then(idToken => {
       token = idToken;
       const userCredentials = {
+        alias: newUser.alias,
         clozang: newUser.clozang,
         email: newUser.email,
         createdAt: new Date().toISOString(),

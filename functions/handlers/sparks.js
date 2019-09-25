@@ -10,10 +10,11 @@ exports.getAllSparks = (req, res) => {
         sparks.push({
           sparkId: doc.id,
           body: doc.data().body,
+          alias: doc.data().alias,
           clozang: doc.data().clozang,
           createdAt: doc.data().createdAt,
           stokeCount: doc.data().stokeCount,
-          burnCount: doc.data().burnCount,
+          heat: doc.data().heat,
           userImage: doc.data().userImage
         });
       });
@@ -53,8 +54,12 @@ exports.getSpark = (req, res) => {
 exports.postOneSpark = (req, res) => {
   const newSpark = {
     body: req.body.body,
+    alias: req.user.alias,
     clozang: req.user.clozang,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    heat: 0,
+    stokeCount: 0,
+    userImage: req.user.imageUrl
   };
 
   db.collection("Sparks")
@@ -67,3 +72,33 @@ exports.postOneSpark = (req, res) => {
       console.error(err);
     });
 };
+
+// Comment on a spark
+exports.stokeSpark = (req, res) => {
+  if(req.body.body.trim() === '') return res.status(400).json({ stoke: 'Field must not be empty'});
+  const newStoke = {
+      body: req.body.body,
+      createdAt: new Date().toISOString(),
+      sparkId: req.params.sparkId,
+      alias: req.user.alias,
+      clozang: req.user.clozang,
+      userImage: req.user.imageUrl
+  };
+  db.doc(`/Sparks/${req.params.sparkId}`).get()
+      .then(doc => {
+          if(!doc.exists){
+              return res.status(404).json({ error: 'Spark has been extinguished'});
+          }
+          return doc.ref.update({ stokeCount: doc.data().stokeCount + 1});
+      })
+      .then(() => {
+          return db.collection('Stokes').add(newStoke);
+      })
+      .then(() => {
+          res.json(newStoke);
+      })
+      .catch(err => {
+          console.error(err);
+          res.status(500).json({ error: 'Something went wrong'});
+      })
+}

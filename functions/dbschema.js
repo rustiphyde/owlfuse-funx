@@ -31,6 +31,16 @@ let db = {
       body: "Stoke body goes here",
       createdAt: "2019-07-14T07:20:41:926Z"
     }
+  ],
+  sizzles: [
+    {
+        recipient: "Rusty",
+        sender: "Other User",
+        read: "true | false",
+        sparkId: "9gDkPmho8hbRLf1J2IIB",
+        type: "burn | stoke",
+        createdAt: "2019-07-16T01:32:12.408Z"
+    }
   ]
 };
 

@@ -15,7 +15,7 @@ db = admin.firestore();
 // Function to fetch data from Firebase Firestore
 app.get('/sparks', (req, res) => {
     admin
-        .firestore().collection('Sparks')
+        db.collection('Sparks')
         .orderBy('createdAt', 'desc')
         .get()
         .then((data) => {
@@ -42,8 +42,7 @@ app.post('/spark', (req, res) => {
         createdAt: admin.firestore.Timestamp.fromDate(new Date())
     };
 
-    admin.firestore()
-    .collection('Sparks')
+    db.collection('Sparks')
     .add(newSpark)
     .then((doc) => {
         res.json({ message: `document ${doc.id} created successfully`});
@@ -65,6 +64,7 @@ app.post("/signup", (req, res) => {
     };
   
     // TODO validate data
+    let token, userId;
     db.doc(`/Users/${newUser.clozang}`)
       .get()
       .then(doc => {
@@ -79,15 +79,30 @@ app.post("/signup", (req, res) => {
         }
       })
       .then(data => {
+        userId = data.user.uid;
         return data.user.getIdToken();
       })
-      .then(token => {
+      .then(idToken => {
+        token = idToken;
+        const userCredentials = {
+          clozang: newUser.clozang,
+          email: newUser.email,
+          createdAt: new Date().toISOString(),
+          userId
+        };
+        return db.doc(`/Users/${newUser.candle}`).set(userCredentials);
+      })
+      .then(() => {
         return res.status(201).json({ token });
       })
-      .catch(err=> {
-          console.error(err);
-          return res.status(500).json({ error: err.code });
-      })
+      .catch(err => {
+        console.error(err);
+        if (err.code === "auth/email-already-in-use") {
+          return res.status(400).json({ email: "Email is already in use" });
+        } else {
+          return res.status(500).json({ general: "Something went wrong, please try again" });
+        }
+      });
   });
 
 // Inform Firebase that 'app' is the container for all routes in application

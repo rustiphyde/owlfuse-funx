@@ -9,7 +9,7 @@ app.use(cors());
 
 const { db } = require("./util/admin");
 
-const { getAllSparks, postOneSpark, getSpark, stokeSpark } = require("./handlers/sparks");
+const { getAllSparks, postOneSpark, getSpark, stokeSpark, addSparkHeat, removeSparkHeat } = require("./handlers/sparks");
 const {
   signup,
   login,
@@ -22,7 +22,9 @@ const {
 app.get("/sparks", getAllSparks);
 app.post("/spark", FBAuth, postOneSpark);
 app.post("/spark/:sparkId", getSpark);
-app.post("spark/:sparkId/stoke", FBAuth, stokeSpark);
+app.post("/spark/:sparkId/stoke", FBAuth, stokeSpark);
+app.get("/spark/:sparkId/burn", FBAuth, addSparkHeat);
+app.get("/spark/:sparkId/snuff", FBAuth, removeSparkHeat);
 // User routes
 app.post("/signup", signup);
 app.post("/login", login);

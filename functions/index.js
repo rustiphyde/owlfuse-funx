@@ -24,6 +24,7 @@ const {
   uploadImage,
   addUserDetails,
   getAuthenticatedUser,
+  getUserDetails,
   markSizzlesRead
 } = require("./handlers/users");
 
@@ -43,7 +44,7 @@ app.post("/user/image", FBAuth, uploadImage);
 app.post("/user", FBAuth, addUserDetails);
 app.get("/user", FBAuth, getAuthenticatedUser);
 app.post("/sizzles", FBAuth, markSizzlesRead);
-//app.get("/user/:clozang", getUserDetails);
+app.get("/user/:clozang", getUserDetails);
 
 // Inform Firebase that 'app' is the container for all routes in application
 exports.api = functions.https.onRequest(app);

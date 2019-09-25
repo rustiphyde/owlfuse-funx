@@ -114,6 +114,46 @@ exports.addUserDetails = (req, res) => {
     });
 };
 
+// Fetch any user's details
+exports.getUserDetails = (req, res) => {
+  let userData = {};
+  db.doc(`/Users/${req.params.clozang}`)
+    .get()
+    .then(doc => {
+      if (doc.exists) {
+        userData.user = doc.data();
+        return db
+          .collection("Sparks")
+          .where("clozang", "==", req.params.clozang)
+          .orderBy("createdAt", "desc")
+          .get();
+      } else {
+        return res.status(404).json({ error: "User not found" });
+      }
+    })
+    .then(data => {
+      userData.sparks = [];
+      data.forEach(doc => {
+        userData.sparks.push({
+          body: doc.data().body,
+          createdAt: doc.data().createdAt,
+          alias: doc.data().alias,
+          clozang: doc.data().clozang,
+          userImage: doc.data().userImage,
+          heat: doc.data().heat,
+          stokeCount: doc.data().stokeCount,
+          sparkId: doc.id
+        });
+      });
+      return res.json(userData);
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
+
 // Get own user details
 exports.getAuthenticatedUser = (req, res) => {
   let userData = {};

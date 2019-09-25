@@ -198,3 +198,27 @@ exports.removeSparkHeat = (req, res) => {
       return res.status(500).json({ error: err.code });
     });
 };
+
+// Delete a spark
+exports.extinguishSpark = (req, res) => {
+  const docToExtinguish = db.doc(`/Sparks/${req.params.sparkId}`);
+  docToExtinguish.get()
+      .then(doc => {
+          if(!doc.exists){
+              return res.status(404).json({ error: 'Spark not found'});
+          } 
+          else if(doc.data().clozang !== req.user.clozang){
+              return res.status(403).json({ error: 'This action is not permitted by this account'});
+          }
+          else {
+              return docToExtinguish.delete();
+          }
+      })
+      .then(() => {
+          return res.json({ message: 'Spark extinguished completely'});
+      })
+      .catch(err => {
+          console.error(err);
+          return res.status(500).json({ error: err.code});
+      });
+};

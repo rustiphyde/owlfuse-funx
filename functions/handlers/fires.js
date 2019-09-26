@@ -27,3 +27,28 @@ exports.getAllFires = (req, res) => {
       res.status(500).json({ error: err.code });
     });
 };
+
+exports.getFire = (req, res) => {
+  let fireData = {};
+  db.doc(`/Fires/${req.params.fireId}`).get()
+      .then((doc) => {
+          if(!doc.exists){
+              return res.status(404).json({ error: 'Fire not found'})
+          }
+          fireData = doc.data();
+          fireData.fireId = doc.id;
+          return db.collection('FireStokes').where('fireId', '==', req.params.fireId).get();
+      })
+      .then(data => {
+          fireData.stokes = [];
+          data.forEach(doc => {
+              fireData.stokes.push(doc.data())
+          });
+          return res.json(fireData);
+      })
+      .catch(err => {
+          console.error(err);
+          res.status(500).json({ error: err.code});
+      });
+};
+

@@ -25,7 +25,8 @@ const {
   addUserDetails,
   getAuthenticatedUser,
   getUserDetails,
-  markSizzlesRead
+  markSizzlesRead,
+  resetPassword
 } = require("./handlers/users");
 
 // Spark routes
@@ -45,6 +46,7 @@ app.post("/user", FBAuth, addUserDetails);
 app.get("/user", FBAuth, getAuthenticatedUser);
 app.post("/sizzles", FBAuth, markSizzlesRead);
 app.get("/user/:clozang", getUserDetails);
+app.post("/reset", resetPassword);
 
 // Inform Firebase that 'app' is the container for all routes in application
 exports.api = functions.https.onRequest(app);

@@ -231,13 +231,49 @@ exports.onSparkExtinguish = functions.firestore
           batch.delete(db.doc(`/SparkHeat/${doc.id}`));
         });
         return db
-          .collection("/Sizzles")
+          .collection("/SparkSizzles")
           .where("sparkId", "==", sparkId)
           .get();
       })
       .then(data => {
         data.forEach(doc => {
           batch.delete(db.doc(`/SparkSizzles/${doc.id}`));
+        });
+        return batch.commit();
+      })
+      .catch(err => console.error(err));
+  });
+
+  exports.onFireExtinguish = functions.firestore
+  .document("/Fires/{fireId}")
+  .onDelete((snap, context) => {
+    const fireId = context.params.fireId;
+    const batch = db.batch();
+    return db
+      .collection("FireStokes")
+      .where("fireId", "==", fireId)
+      .get()
+      .then(data => {
+        data.forEach(doc => {
+          batch.delete(db.doc(`/FireStokes/${doc.id}`));
+        });
+        return db
+          .collection("/FireHeat")
+          .where("fireId", "==", fireId)
+          .get();
+      })
+      .then(data => {
+        data.forEach(doc => {
+          batch.delete(db.doc(`/FireHeat/${doc.id}`));
+        });
+        return db
+          .collection("/FireSizzles")
+          .where("fireId", "==", fireId)
+          .get();
+      })
+      .then(data => {
+        data.forEach(doc => {
+          batch.delete(db.doc(`/FireSizzles/${doc.id}`));
         });
         return batch.commit();
       })

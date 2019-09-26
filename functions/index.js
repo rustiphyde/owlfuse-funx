@@ -22,7 +22,9 @@ const {
   getAllFires,
   getFire,
   stokeFire,
-  addFireHeat
+  addFireHeat,
+  removeFireHeat,
+  extinguishFire
 } = require("./handlers/fires");
 const {
   signup,
@@ -49,6 +51,8 @@ app.get("/fires", getAllFires);
 app.get("/fire/:fireId", getFire);
 app.post("/fire/:fireId/stoke", FBAuth, stokeFire);
 app.get("/fire/:fireId/burn", FBAuth, addFireHeat);
+app.get("/fire/:fireId/snuff", FBAuth, removeFireHeat);
+app.delete("/fire/:fireId", FBAuth, extinguishFire);
 
 // User routes
 app.post("/signup", signup);

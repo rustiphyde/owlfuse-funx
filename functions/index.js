@@ -157,3 +157,39 @@ exports.createSizzleOnSparkHeat = functions.firestore
         })
         .catch(err => console.error(err));
 });
+
+exports.sparkToFire = functions.firestore
+  .document("/Sparks/{sparkId}")
+  .onUpdate(change => {
+    if (
+      change.before.data().heat !== change.after.data().heat &&
+      change.after.data().heat > 99
+    ) {
+      return db
+        .doc(`/Sparks/${change.before.id}`)
+        .get()
+        .then(doc => {
+          const newFire = {
+            sparkId: doc.id,
+            body: doc.data().body,
+            alias: doc.data().alias,
+            clozang: doc.data().clozang,
+            createdAt: doc.data().createdAt,
+            heat: doc.data().stokeCount + doc.data().heat,
+            stokeCount: doc.data().stokeCount,
+            userImage: doc.data().userImage,
+            email: doc.data().email
+          };
+          return db
+            .collection("Fires")
+            .doc(change.before.id)
+            .set(newFire)
+            .then(doc => {
+            const resFire = newFire;
+            resFire.fireId = doc.id;
+            });
+
+        })
+        .catch(err => console.error(err));
+    } else return;
+  });

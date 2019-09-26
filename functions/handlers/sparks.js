@@ -148,7 +148,7 @@ exports.addSparkHeat = (req, res) => {
             return res.json(sparkData);
           });
       } else {
-        return res.status(400).json({ error: "Spark already hot" });
+        return res.status(400).json({ error: "Already added heat using this method" });
       }
     })
     .catch(err => {

@@ -56,7 +56,7 @@ exports.getFire = (req, res) => {
     });
 };
 
-exports.addStokeToFire = (req, res) => {
+exports.stokeFire = (req, res) => {
   if (req.body.body.trim() === "")
     return res.status(400).json({ stoke: "Field must not be empty" });
 
@@ -90,4 +90,45 @@ exports.addStokeToFire = (req, res) => {
       console.error(err);
       res.status(500).json({ error: "Something went wrong" });
     });
+};
+
+exports.addFireHeat = (req, res) => {
+  const heatDoc = db.collection('FireHeat').where('alias', '==', req.user.alias)
+  .where('fireId', '==', req.params.fireId).limit(1);
+
+  const fireDoc = db.doc(`/Fires/${req.params.fireId}`);
+
+  let fireData;
+
+  fireDoc.get()
+      .then(doc => {
+          if(doc.exists){
+              fireData = doc.data();
+              fireData.fireId = doc.id;
+              return heatDoc.get();
+          } else {
+              return res.status(404).json({ error: 'Fire not ignited' });
+          }
+      })
+      .then(data => {
+          if(data.empty){
+              return db.collection('FireHeat').add({
+                 fireId: req.params.fireId,
+                 alias: req.user.alias 
+              })
+              .then(() => {
+                  fireData.heat++
+                  return fireDoc.update({ heat: fireData.heat})
+              })
+              .then(() => {
+                  return res.json(fireData);
+              })
+          } else {
+              return res.status(400).json({ error: 'Already added heat using this method'});
+          }
+      })
+      .catch(err => {
+          console.error(err);
+          return res.status(500).json({error: err.code});
+      });
 };

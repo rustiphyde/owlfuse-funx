@@ -19,6 +19,12 @@ const {
   extinguishSpark
 } = require("./handlers/sparks");
 const {
+  getAllFires,
+  getFire,
+  stokeFire,
+  addFireHeat
+}
+const {
   signup,
   login,
   uploadImage,
@@ -32,11 +38,17 @@ const {
 // Spark routes
 app.get("/sparks", getAllSparks);
 app.post("/spark", FBAuth, postOneSpark);
-app.post("/spark/:sparkId", getSpark);
+app.get("/spark/:sparkId", getSpark);
 app.post("/spark/:sparkId/stoke", FBAuth, stokeSpark);
 app.get("/spark/:sparkId/burn", FBAuth, addSparkHeat);
 app.get("/spark/:sparkId/snuff", FBAuth, removeSparkHeat);
 app.delete("/spark/:sparkId", FBAuth, extinguishSpark);
+
+// Fire Routes
+app.get("/fires", getAllFires);
+app.get("/fire/:fireId", getFire);
+app.post("/fire/:fireId/stoke", FBAuth, stokeFire);
+app.get("/fire/:fireId/burn", FBAuth, addFireHeat);
 
 // User routes
 app.post("/signup", signup);

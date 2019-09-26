@@ -204,3 +204,29 @@ exports.sparkToFire = functions.firestore
     } else return;
   });
 
+  exports.moveStokesToFire = functions.firestore
+  .document("/Sparks/{sparkId}")
+  .onUpdate(change => {
+    if (
+      change.before.data().heat !== change.after.data().heat &&
+      change.after.data().heat > 99
+    ) {
+      return db
+      .collection("SparkStokes")
+      .where("sparkId", "==", change.before.id)
+      .get()
+      .then(data => {
+        data.forEach(doc => {
+          return db.collection("FireStokes").add({
+            fireId: doc.data().sparkId,
+            clozang: doc.data().clozang,
+            body: doc.data().body,
+            alias: doc.data().alias,
+            createdAt: doc.data().createdAt,
+            userImage: doc.data().userImage
+          })
+        });
+            })
+        .catch(err => console.error(err));
+    } else return;
+  });

@@ -114,6 +114,16 @@ exports.createSizzleOnSparkHeat = functions.firestore
             const spark = db.doc(`/Sparks/${doc.id}`);
             batch.update(spark, { userImage: change.after.data().imageUrl });
           });
+          return db
+            .collection("SparkStokes")
+            .where("clozang", "==", change.before.data().clozang)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const spark = db.doc(`/SparkStokes/${doc.id}`);
+            batch.update(spark, { userImage: change.after.data().imageUrl });
+          });
           return batch.commit();
         });
     } else return true;

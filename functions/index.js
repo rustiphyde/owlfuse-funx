@@ -72,7 +72,7 @@ exports.createSizzleOnSparkHeat = functions.firestore
       .catch(err => console.error(err));
   });
 
-  exports.createSizzleOnSparkStoke = functions.firestore
+exports.createSizzleOnSparkStoke = functions.firestore
   .document("SparkStokes/{id}")
   .onCreate(snap => {
     return db
@@ -93,7 +93,7 @@ exports.createSizzleOnSparkHeat = functions.firestore
       .catch(err => console.error(err));
   });
 
-  exports.removeSparkHeatSizzle = functions.firestore
+exports.removeSparkHeatSizzle = functions.firestore
   .document("SparkHeat/{id}")
   .onDelete(snap => {
     return db
@@ -102,7 +102,7 @@ exports.createSizzleOnSparkHeat = functions.firestore
       .catch(err => console.error(err));
   });
 
-  exports.onUserImageChange = functions.firestore
+exports.onUserImageChange = functions.firestore
   .document("/Users/{Id}")
   .onUpdate(change => {
     if (change.before.data().imageUrl !== change.after.data().imageUrl) {
@@ -117,15 +117,15 @@ exports.createSizzleOnSparkHeat = functions.firestore
             batch.update(spark, { userImage: change.after.data().imageUrl });
           });
           return db
-          .collection("Fires")
-          .where("clozang", "==", change.before.data().clozang)
-          .get();
-      })
-      .then(data => {
-        data.forEach(doc => {
-          const fire = db.doc(`/Fires/${doc.id}`);
-          batch.update(fire, { userImage: change.after.data().imageUrl });
-        });
+            .collection("Fires")
+            .where("clozang", "==", change.before.data().clozang)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const fire = db.doc(`/Fires/${doc.id}`);
+            batch.update(fire, { userImage: change.after.data().imageUrl });
+          });
           return db
             .collection("SparkStokes")
             .where("clozang", "==", change.before.data().clozang)
@@ -141,32 +141,41 @@ exports.createSizzleOnSparkHeat = functions.firestore
     } else return true;
   });
 
-  exports.onSparkExtinguish = functions.firestore.document('/Sparks/{sparkId}')
-.onDelete((snap, context) => {
+exports.onSparkExtinguish = functions.firestore
+  .document("/Sparks/{sparkId}")
+  .onDelete((snap, context) => {
     const sparkId = context.params.sparkId;
     const batch = db.batch();
-    return db.collection('SparkStokes')
-    .where('sparkId', '==', sparkId).get()
-        .then(data => {
-            data.forEach(doc => {
-                batch.delete(db.doc(`/SparkStokes/${doc.id}`));
-            })
-            return db.collection('/SparkHeat').where('sparkId', '==', sparkId).get();
-        })
-        .then(data => {
-            data.forEach(doc => {
-                batch.delete(db.doc(`/SparkHeat/${doc.id}`));
-            })
-            return db.collection('/Sizzles').where('sparkId', '==', sparkId).get();
-        })
-        .then(data => {
-            data.forEach(doc => {
-                batch.delete(db.doc(`/Sizzles/${doc.id}`));
-            })
-            return batch.commit();
-        })
-        .catch(err => console.error(err));
-});
+    return db
+      .collection("SparkStokes")
+      .where("sparkId", "==", sparkId)
+      .get()
+      .then(data => {
+        data.forEach(doc => {
+          batch.delete(db.doc(`/SparkStokes/${doc.id}`));
+        });
+        return db
+          .collection("/SparkHeat")
+          .where("sparkId", "==", sparkId)
+          .get();
+      })
+      .then(data => {
+        data.forEach(doc => {
+          batch.delete(db.doc(`/SparkHeat/${doc.id}`));
+        });
+        return db
+          .collection("/Sizzles")
+          .where("sparkId", "==", sparkId)
+          .get();
+      })
+      .then(data => {
+        data.forEach(doc => {
+          batch.delete(db.doc(`/Sizzles/${doc.id}`));
+        });
+        return batch.commit();
+      })
+      .catch(err => console.error(err));
+  });
 
 exports.sparkToFire = functions.firestore
   .document("/Sparks/{sparkId}")
@@ -195,16 +204,15 @@ exports.sparkToFire = functions.firestore
             .doc(change.before.id)
             .set(newFire)
             .then(doc => {
-            const resFire = newFire;
-            resFire.fireId = doc.id;
+              const resFire = newFire;
+              resFire.fireId = doc.id;
             });
-
         })
         .catch(err => console.error(err));
     } else return;
   });
 
-  exports.moveStokesToFire = functions.firestore
+exports.moveStokesToFire = functions.firestore
   .document("/Sparks/{sparkId}")
   .onUpdate(change => {
     if (
@@ -212,21 +220,46 @@ exports.sparkToFire = functions.firestore
       change.after.data().heat > 99
     ) {
       return db
-      .collection("SparkStokes")
-      .where("sparkId", "==", change.before.id)
-      .get()
-      .then(data => {
-        data.forEach(doc => {
-          return db.collection("FireStokes").add({
-            fireId: doc.data().sparkId,
-            clozang: doc.data().clozang,
-            body: doc.data().body,
-            alias: doc.data().alias,
-            createdAt: doc.data().createdAt,
-            userImage: doc.data().userImage
-          })
-        });
-            })
+        .collection("SparkStokes")
+        .where("sparkId", "==", change.before.id)
+        .get()
+        .then(data => {
+          data.forEach(doc => {
+            return db.collection("FireStokes").add({
+              fireId: doc.data().sparkId,
+              clozang: doc.data().clozang,
+              body: doc.data().body,
+              alias: doc.data().alias,
+              createdAt: doc.data().createdAt,
+              userImage: doc.data().userImage
+            });
+          });
+        })
         .catch(err => console.error(err));
     } else return;
   });
+
+  exports.moveHeatToFire = functions.firestore
+  .document("/Sparks/{sparkId}")
+  .onUpdate(change => {
+    if (
+      change.before.data().heat !== change.after.data().heat &&
+      change.after.data().heat > 99
+    ) {
+      return db
+        .collection("SparkHeat")
+        .where("sparkId", "==", change.before.id)
+        .get()
+        .then(data => {
+          data.forEach(doc => {
+            return db.collection("FireHeat").add({
+              fireId: doc.data().sparkId,
+              alias: doc.data().alias
+            });
+          });
+        })
+        .catch(err => console.error(err));
+    } else return;
+  });
+
+  

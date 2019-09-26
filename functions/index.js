@@ -382,7 +382,7 @@ exports.moveStokesToFire = functions.firestore
       change.after.data().heat < 1
     ) {
       return db
-        .doc(`/Fires/${snap.data().id}`)
+        .doc(`/Fires/${change.before.id}`)
         .delete()
         .catch(err => console.log(err));
     } else return;

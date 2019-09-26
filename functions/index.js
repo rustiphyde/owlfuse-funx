@@ -128,3 +128,30 @@ exports.createSizzleOnSparkHeat = functions.firestore
         });
     } else return true;
   });
+
+  exports.onSparkExtinguish = functions.firestore.document('/Sparks/{sparkId}')
+.onDelete((snap, context) => {
+    const sparkId = context.params.sparkId;
+    const batch = db.batch();
+    return db.collection('SparkStokes')
+    .where('sparkId', '==', sparkId).get()
+        .then(data => {
+            data.forEach(doc => {
+                batch.delete(db.doc(`/SparkStokes/${doc.id}`));
+            })
+            return db.collection('/SparkHeat').where('sparkId', '==', sparkId).get();
+        })
+        .then(data => {
+            data.forEach(doc => {
+                batch.delete(db.doc(`/SparkHeat/${doc.id}`));
+            })
+            return db.collection('/Sizzles').where('sparkId', '==', sparkId).get();
+        })
+        .then(data => {
+            data.forEach(doc => {
+                batch.delete(db.doc(`/Sizzles/${doc.id}`));
+            })
+            return batch.commit();
+        })
+        .catch(err => console.error(err));
+});

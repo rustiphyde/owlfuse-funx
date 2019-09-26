@@ -23,7 +23,7 @@ const {
   getFire,
   stokeFire,
   addFireHeat
-}
+} = require("./handlers/fires");
 const {
   signup,
   login,

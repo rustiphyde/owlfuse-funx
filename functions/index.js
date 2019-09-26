@@ -75,7 +75,7 @@ exports.createSizzleOnSparkHeat = functions.firestore
       .get()
       .then(doc => {
         if (doc.exists && doc.data().alias !== snap.data().alias) {
-          return db.doc(`/Sizzles/${snap.id}`).set({
+          return db.doc(`/SparkSizzles/${snap.id}`).set({
             createdAt: new Date().toISOString(),
             recipient: doc.data().alias,
             sender: snap.data().alias,
@@ -96,7 +96,7 @@ exports.createSizzleOnSparkStoke = functions.firestore
       .get()
       .then(doc => {
         if (doc.exists && doc.data().alias !== snap.data().alias) {
-          return db.doc(`/Sizzles/${snap.id}`).set({
+          return db.doc(`/SparkSizzles/${snap.id}`).set({
             createdAt: new Date().toISOString(),
             recipient: doc.data().alias,
             sender: snap.data().alias,
@@ -113,7 +113,7 @@ exports.removeSparkHeatSizzle = functions.firestore
   .document("SparkHeat/{id}")
   .onDelete(snap => {
     return db
-      .doc(`/Sizzles/${snap.id}`)
+      .doc(`/SparkSizzles/${snap.id}`)
       .delete()
       .catch(err => console.error(err));
   });
@@ -186,7 +186,7 @@ exports.onSparkExtinguish = functions.firestore
       })
       .then(data => {
         data.forEach(doc => {
-          batch.delete(db.doc(`/Sizzles/${doc.id}`));
+          batch.delete(db.doc(`/SparkSizzles/${doc.id}`));
         });
         return batch.commit();
       })

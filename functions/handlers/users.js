@@ -145,6 +145,26 @@ exports.getUserDetails = (req, res) => {
           sparkId: doc.id
         });
       });
+      return db
+          .collection("Fires")
+          .where("clozang", "==", req.params.clozang)
+          .orderBy("heat", "desc")
+          .get();
+    })
+    .then(data => {
+      userData.fires = [];
+      data.forEach(doc => {
+        userData.fires.push({
+          body: doc.data().body,
+          createdAt: doc.data().createdAt,
+          alias: doc.data().alias,
+          clozang: doc.data().clozang,
+          userImage: doc.data().userImage,
+          heat: doc.data().heat,
+          stokeCount: doc.data().stokeCount,
+          fireId: doc.id
+        });
+      });
       return res.json(userData);
     })
     .catch(err => {
@@ -174,7 +194,17 @@ exports.getAuthenticatedUser = (req, res) => {
         userData.sparkHeat.push(doc.data());
       });
       return db
-        .collection("Sizzles")
+          .collection("FireHeat")
+          .where("alias", "==", req.user.alias)
+          .get();
+    })
+    .then(data => {
+      userData.fireHeat = [];
+      data.forEach(doc => {
+        userData.fireHeat.push(doc.data());
+      });
+      return db
+        .collection("SparkSizzles")
         .where("recipient", "==", req.user.alias)
         .orderBy("createdAt", "desc")
         .limit(16)
@@ -188,6 +218,26 @@ exports.getAuthenticatedUser = (req, res) => {
           sender: doc.data().sender,
           createdAt: doc.data().createdAt,
           sparkId: doc.data().sparkId,
+          type: doc.data().type,
+          read: doc.data().read,
+          sizzleId: doc.id
+        });
+      });
+      return db
+        .collection("FireSizzles")
+        .where("recipient", "==", req.user.alias)
+        .orderBy("createdAt", "desc")
+        .limit(16)
+        .get();
+    })
+    .then(data => {
+      userData.fireSizzles = [];
+      data.forEach(doc => {
+        userData.fireSizzles.push({
+          recipient: doc.data().recipient,
+          sender: doc.data().sender,
+          createdAt: doc.data().createdAt,
+          fireId: doc.data().fireId,
           type: doc.data().type,
           read: doc.data().read,
           sizzleId: doc.id

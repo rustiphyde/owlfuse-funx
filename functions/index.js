@@ -99,3 +99,22 @@ exports.createSizzleOnSparkHeat = functions.firestore
       .delete()
       .catch(err => console.error(err));
   });
+
+  exports.onUserImageChange = functions.firestore
+  .document("/Users/{Id}")
+  .onUpdate(change => {
+    if (change.before.data().imageUrl !== change.after.data().imageUrl) {
+      const batch = db.batch();
+      return db
+        .collection("Sparks")
+        .where("clozang", "==", change.before.data().clozang)
+        .get()
+        .then(data => {
+          data.forEach(doc => {
+            const spark = db.doc(`/Sparks/${doc.id}`);
+            batch.update(spark, { userImage: change.after.data().imageUrl });
+          });
+          return batch.commit();
+        });
+    } else return true;
+  });

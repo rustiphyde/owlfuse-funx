@@ -171,3 +171,27 @@ exports.removeFireHeat = (req, res) => {
           return res.status(500).json({error: err.code});
       });
 };
+
+exports.extinguishFire = (req, res) => {
+  const fireToExtinguish = db.doc(`/Fires/${req.params.fireId}`);
+
+  fireToExtinguish.get()
+      .then(doc => {
+          if(!doc.exists){
+              return res.status(404).json({ error: 'Fire not found'});
+          } 
+          else if(doc.data().clozang !== req.user.clozang){
+              return res.status(403).json({ error: 'This action is not permitted by this account'});
+          }
+          else {
+              return fireToExtinguish.delete();
+          }
+      })
+      .then(() => {
+          return res.json({ message: 'Fire extinguished completely'});
+      })
+      .catch(err => {
+          console.error(err);
+          return res.status(500).json({ error: err.code});
+      });
+}

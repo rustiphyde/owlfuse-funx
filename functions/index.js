@@ -33,7 +33,7 @@ const {
   addUserDetails,
   getAuthenticatedUser,
   getUserDetails,
-  markSizzlesRead,
+  markSparkSizzlesRead,
   resetPassword
 } = require("./handlers/users");
 
@@ -60,7 +60,7 @@ app.post("/login", login);
 app.post("/user/image", FBAuth, uploadImage);
 app.post("/user", FBAuth, addUserDetails);
 app.get("/user", FBAuth, getAuthenticatedUser);
-app.post("/sizzles", FBAuth, markSizzlesRead);
+app.post("/sizzles", FBAuth, markSparkSizzlesRead);
 app.get("/user/:clozang", getUserDetails);
 app.post("/reset", resetPassword);
 

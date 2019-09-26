@@ -302,10 +302,10 @@ exports.uploadImage = (req, res) => {
   busboy.end(req.rawBody);
 };
 
-exports.markSizzlesRead = (req, res) => {
+exports.markSparkSizzlesRead = (req, res) => {
   let batch = db.batch();
   req.body.forEach(sizzleId => {
-    const sizzle = db.doc(`/Sizzles/${sizzleId}`);
+    const sizzle = db.doc(`/SparkSizzles/${sizzleId}`);
     batch.update(sizzle, { read: true });
   });
   batch

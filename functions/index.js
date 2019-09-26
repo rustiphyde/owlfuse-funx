@@ -262,4 +262,11 @@ exports.moveStokesToFire = functions.firestore
     } else return;
   });
 
-  
+  exports.switchToFire = functions.firestore
+  .document("/Fires/{id}")
+  .onCreate(snap => {
+    return db
+      .doc(`/Sparks/${snap.data().sparkId}`)
+      .delete()
+      .catch(err => console.log(err));
+  });

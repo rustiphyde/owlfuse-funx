@@ -373,3 +373,17 @@ exports.moveStokesToFire = functions.firestore
       .delete()
       .catch(err => console.log(err));
   });
+
+  exports.snuffOutFire = functions.firestore
+  .document("/Fires/{fireId}")
+  .onUpdate(change => {
+    if (
+      change.before.data().heat !== change.after.data().heat &&
+      change.after.data().heat < 1
+    ) {
+      return db
+        .doc(`/Fires/${snap.data().id}`)
+        .delete()
+        .catch(err => console.log(err));
+    } else return;
+  });

@@ -88,6 +88,27 @@ exports.createSizzleOnSparkHeat = functions.firestore
       .catch(err => console.error(err));
   });
 
+  exports.createSizzleOnFireHeat = functions.firestore
+  .document("FireHeat/{id}")
+  .onCreate(snap => {
+    return db
+      .doc(`/Fires/${snap.data().fireId}`)
+      .get()
+      .then(doc => {
+        if (doc.exists && doc.data().alias !== snap.data().alias) {
+          return db.doc(`/FireSizzles/${snap.id}`).set({
+            createdAt: new Date().toISOString(),
+            recipient: doc.data().alias,
+            sender: snap.data().alias,
+            type: "heat",
+            read: false,
+            fireId: doc.id
+          });
+        }
+      })
+      .catch(err => console.error(err));
+  });
+
 exports.createSizzleOnSparkStoke = functions.firestore
   .document("SparkStokes/{id}")
   .onCreate(snap => {
@@ -109,11 +130,41 @@ exports.createSizzleOnSparkStoke = functions.firestore
       .catch(err => console.error(err));
   });
 
+  exports.createSizzleOnFireStoke = functions.firestore
+  .document("FireStokes/{id}")
+  .onCreate(snap => {
+    return db
+      .doc(`/Fires/${snap.data().fireId}`)
+      .get()
+      .then(doc => {
+        if (doc.exists && doc.data().alias !== snap.data().alias) {
+          return db.doc(`/FireSizzles/${snap.id}`).set({
+            createdAt: new Date().toISOString(),
+            recipient: doc.data().alias,
+            sender: snap.data().alias,
+            type: "stoke",
+            read: false,
+            fireId: doc.id
+          });
+        }
+      })
+      .catch(err => console.error(err));
+  });
+
 exports.removeSparkHeatSizzle = functions.firestore
   .document("SparkHeat/{id}")
   .onDelete(snap => {
     return db
       .doc(`/SparkSizzles/${snap.id}`)
+      .delete()
+      .catch(err => console.error(err));
+  });
+
+  exports.removeFireHeatSizzle = functions.firestore
+  .document("FireHeat/{id}")
+  .onDelete(snap => {
+    return db
+      .doc(`/FireSizzles/${snap.id}`)
       .delete()
       .catch(err => console.error(err));
   });

@@ -58,7 +58,7 @@ exports.getFire = (req, res) => {
 
 exports.addStokeToFire = (req, res) => {
   if (req.body.body.trim() === "")
-    return res.status(400).json({ ember: "Field must not be empty" });
+    return res.status(400).json({ stoke: "Field must not be empty" });
 
   const newStoke = {
     body: req.body.body,
@@ -67,7 +67,6 @@ exports.addStokeToFire = (req, res) => {
     alias: req.user.alias,
     clozang: req.user.clozang,
     userImage: req.user.imageUrl,
-    firstCandle: req.user.firstCandle
   };
 
   db.doc(`/Fires/${req.params.fireId}`)

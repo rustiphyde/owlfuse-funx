@@ -179,7 +179,7 @@ exports.removeSparkHeat = (req, res) => {
     })
     .then(data => {
       if (data.empty) {
-        return res.status(400).json({ error: "Spark already cold" });
+        return res.status(400).json({ error: "Already removed heat using this method" });
       } else {
         return db
           .doc(`/SparkHeat/${data.docs[0].id}`)

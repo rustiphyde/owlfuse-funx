@@ -132,3 +132,42 @@ exports.addFireHeat = (req, res) => {
           return res.status(500).json({error: err.code});
       });
 };
+
+exports.removeFireHeat = (req, res) => {
+  const heatDoc = db.collection('FireHeat').where('alias', '==', req.user.alias)
+  .where('fireId', '==', req.params.fireId).limit(1);
+
+  const fireDoc = db.doc(`/Fires/${req.params.fireId}`);
+
+  let fireData;
+
+  fireDoc.get()
+      .then(doc => {
+          if(doc.exists){
+              fireData = doc.data();
+              fireData.fireId = doc.id;
+              return heatDoc.get();
+          } else {
+              return res.status(404).json({ error: 'Fire not found'});
+          }
+      })
+      .then(data => {
+          if(data.empty){
+              return res.status(400).json({ error: 'Already removed heat using this method'});
+              
+          } else {
+              return db.doc(`/FireHeat/${data.docs[0].id}`).delete()
+                  .then(() => {
+                      fireData.heat--;
+                      return fireDoc.update({heat: fireData.heat})
+                  })
+                  .then(() => {
+                      return res.json(fireData);
+                  })
+          }
+      })
+      .catch(err => {
+          console.error(err);
+          return res.status(500).json({error: err.code});
+      });
+};

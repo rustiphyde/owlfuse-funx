@@ -48,7 +48,7 @@ let db = {
         sender: "Other User",
         read: "true | false",
         fireId: "9gDkPmho8hbRLf1J2IIB",
-        type: "heat | stoke",
+        type: "heat | stoke | ignite",
         createdAt: "2019-07-16T01:32:12.408Z"
     }
   ]

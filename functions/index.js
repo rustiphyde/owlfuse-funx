@@ -387,3 +387,5 @@ exports.moveStokesToFire = functions.firestore
         .catch(err => console.log(err));
     } else return;
   });
+
+  

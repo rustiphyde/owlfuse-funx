@@ -45,6 +45,7 @@ exports.reduceUserDetails = data => {
   let userDetails = {};
 
   //Make sure an empty string is not submitted to the database
+  if (!isEmpty(data.alias.trim())) userDetails.alias = data.alias;
   if (!isEmpty(data.bio.trim())) userDetails.bio = data.bio;
   if (!isEmpty(data.website.trim())) {
     if (data.website.trim().substring(0, 4) !== "http") {

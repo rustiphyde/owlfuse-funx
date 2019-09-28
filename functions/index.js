@@ -84,6 +84,7 @@ app.delete("/okelist/:okeId", FBAuth, eraseOkelist);
 
 // Boozula Routes
 app.post("/boozula", FBAuth, buildNewBoozula);
+app.post("/boozula/:boozId/image", FBAuth, uploadBoozImage);
 
 // Inform Firebase that 'app' is the container for all routes in application
 exports.api = functions.https.onRequest(app);

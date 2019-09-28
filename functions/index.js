@@ -20,6 +20,21 @@ const {
 } = require("./handlers/sparks");
 
 const {
+  buildNewOkeList,
+  getAllOkelists,
+  getOke,
+  addOneSong,
+  getSongsByList,
+  getSongsByArtist,
+  getSongsByClozang,
+  choozByList,
+  choozByArtist,
+  choozByClozang,
+  choozFromAllSongs,
+  eraseOkeList
+} = require('./handlers/okelists');
+
+const {
   signup,
   login,
   uploadImage,
@@ -48,6 +63,20 @@ app.get("/user", FBAuth, getAuthenticatedUser);
 app.post("/sizzles", FBAuth, markSizzlesRead);
 app.get("/user/:clozang", getUserDetails);
 app.post("/reset", resetPassword);
+
+// Oke routes
+app.post("/okelist", FBAuth, buildNewOkeList);
+app.get("/okelists", getAllOkeLists);
+app.get("/okelist/:okeId", getOke);
+app.post("/okelist/:okeId/song", FBAuth, addOneSong);
+app.get("/songs/:okeId/list", getSongsByList);
+app.get("/songs/:artist/artist", getSongsByArtist);
+app.get("/songs/:clozang/clozang", getSongsByClozang);
+app.get("/song/:okeId/list/chooz", choozByList);
+app.get("/song/:artist/artist/chooz", choozByArtist);
+app.get("/song/:clozang/clozang/chooz", choozByClozang);
+app.get("/song/all/chooz", choozFromAllSongs);
+app.delete("/okelist/:okeId", FBAuth, eraseOkelist);
 
 // Inform Firebase that 'app' is the container for all routes in application
 exports.api = functions.https.onRequest(app);
@@ -250,30 +279,6 @@ exports.sparkToFire = functions.firestore
             });
           });
           return db
-            .collection("OkeLists")
-            .where("alias", "==", change.before.data().alias)
-            .get();
-        })
-        .then(data => {
-          data.forEach(doc => {
-            const newOkeListAlias = db.doc(`OkeLists/${doc.id}`);
-            batch.update(newOkeListAlias, {
-              alias: change.after.data().alias
-            });
-          });
-          return db
-            .collection("Songs")
-            .where("alias", "==", change.before.data().alias)
-            .get();
-        })
-        .then(data => {
-          data.forEach(doc => {
-            const newSongAlias = db.doc(`Songs/${doc.id}`);
-            batch.update(newSongAlias, {
-              alias: change.after.data().alias
-            });
-          });
-          return db
             .collection("Boozulas")
             .where("alias", "==", change.before.data().alias)
             .get();
@@ -312,4 +317,13 @@ exports.sparkToFire = functions.firestore
           return batch.commit();
         });
     } else return true;
+  });
+
+exports.deleteSongOnOkelistErase = functions.firestore
+  .document("Okelists/{id}")
+  .onDelete(snap => {
+    return db
+      .doc(`/Songs/${snap.data().okeId}`)
+      .delete()
+      .catch(err => console.error(err));
   });

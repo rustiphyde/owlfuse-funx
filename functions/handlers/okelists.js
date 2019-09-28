@@ -111,3 +111,26 @@ exports.addOneSong = (req, res) => {
     });
 };
 
+exports.getSongsByList = (req, res) => {
+  db.collection("Songs")
+    .where("okeId", "==", req.params.okeId)
+    .get()
+    .then(data => {
+      let listSongs = [];
+      data.forEach(doc => {
+        listSongs.push({
+          songId: doc.id,
+          clozang: doc.data().clozang,
+          songTitle: doc.data().songTitle,
+          songArtist: doc.data().songArtist,
+          okeId: doc.data().okeId
+        });
+      });
+      return res.json(listSongs);
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+

@@ -124,7 +124,7 @@ exports.getUserDetails = (req, res) => {
         userData.user = doc.data();
         return db
           .collection("Sparks")
-          .where("clozang", "==", req.params.clozang)
+          .where("klozang", "==", req.params.clozang)
           .orderBy("createdAt", "desc")
           .get();
       } else {
@@ -138,7 +138,7 @@ exports.getUserDetails = (req, res) => {
           body: doc.data().body,
           createdAt: doc.data().createdAt,
           alias: doc.data().alias,
-          clozang: doc.data().clozang,
+          klozang: doc.data().klozang,
           userImage: doc.data().userImage,
           heatCount: doc.data().heatCount,
           stokeCount: doc.data().stokeCount,

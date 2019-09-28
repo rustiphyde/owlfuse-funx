@@ -11,7 +11,7 @@ exports.getAllSparks = (req, res) => {
           sparkId: doc.id,
           body: doc.data().body,
           alias: doc.data().alias,
-          clozang: doc.data().clozang,
+          klozang: doc.data().klozang,
           createdAt: doc.data().createdAt,
           stokeCount: doc.data().stokeCount,
           heatCount: doc.data().heatCount,
@@ -39,7 +39,7 @@ exports.getSpark = (req, res) => {
       sparkData = doc.data();
       sparkData.sparkId = doc.id;
       return db
-        .collection("SparkStokes")
+        .collection("Stokes")
         .where("sparkId", "==", req.params.sparkId)
         .get();
     })
@@ -60,7 +60,7 @@ exports.postOneSpark = (req, res) => {
   const newSpark = {
     body: req.body.body,
     alias: req.user.alias,
-    clozang: req.user.clozang,
+    klozang: req.user.clozang,
     createdAt: new Date().toISOString(),
     heatCount: 0,
     stokeCount: 0,
@@ -88,7 +88,7 @@ exports.stokeSpark = (req, res) => {
     createdAt: new Date().toISOString(),
     sparkId: req.params.sparkId,
     alias: req.user.alias,
-    clozang: req.user.clozang,
+    klozang: req.user.clozang,
     userImage: req.user.imageUrl
   };
   db.doc(`/Sparks/${req.params.sparkId}`)

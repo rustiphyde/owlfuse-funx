@@ -49,3 +49,31 @@ exports.getAllOkeLists = (req, res) => {
     .catch(err => console.log(err));
 };
 
+exports.getOke = (req, res) => {
+  let okeData = {};
+  db.doc(`OkeLists/${req.params.okeId}`)
+    .get()
+    .then(doc => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: "OkeList not found" });
+      }
+      okeData = doc.data();
+      okeData.okeId = doc.id;
+      return db
+        .collection("Songs")
+        .where('okeId', '==', req.params.okeId)
+        .get();
+    })
+    .then(data => {
+      okeData.songs = [];
+      data.forEach(doc => {
+        okeData.songs.push(doc.data());
+      });
+      return res.json(okeData);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: err.code });
+    });
+};
+

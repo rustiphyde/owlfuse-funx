@@ -77,3 +77,37 @@ exports.getOke = (req, res) => {
     });
 };
 
+exports.addOneSong = (req, res) => {
+  if (req.body.songTitle.trim() === "")
+    return res.status(400).json({ songTitle: "Field must not be empty" });
+  if (req.body.songArtist.trim() === "")
+    return res.status(400).json({ songArtist: "Field must not be empty" });
+
+  const newSong = {
+    clozang: req.user.clozang,
+    songTitle: req.body.songTitle,
+    songArtist: req.body.songArtist,
+    okeId: req.params.okeId,
+    artist: req.body.songArtist.replace(/\s/g, "").toLowerCase()
+  };
+
+  db.doc(`/OkeLists/${req.params.okeId}`)
+    .get()
+    .then(doc => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: "OkeList does not exist" });
+      }
+      return doc.ref.update({ songCount: doc.data().songCount + 1 });
+    })
+    .then(() => {
+      return db.collection("Songs").add(newSong);
+    })
+    .then(() => {
+      res.json(newSong);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: 'Something went wrong' });
+    });
+};
+

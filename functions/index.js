@@ -319,7 +319,7 @@ exports.sparkToFire = functions.firestore
     } else return true;
   });
 
-exports.deleteSongOnOkelistErase = functions.firestore
+exports.onOkelistErase = functions.firestore
   .document("Okelists/{id}")
   .onDelete(snap => {
     return db

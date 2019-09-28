@@ -28,3 +28,24 @@ exports.buildNewOkeList = (req, res) => {
     });
 };
 
+exports.getAllOkeLists = (req, res) => {
+  db.collection("OkeLists")
+    .orderBy("createdAt", "desc")
+    .get()
+    .then(data => {
+      let okes = [];
+      data.forEach(doc => {
+        okes.push({
+          okeId: doc.id,
+          createdAt: doc.data().createdAt,
+          listName: doc.data().listName,
+          description: doc.data().description,
+          clozang: doc.data().clozang,
+          songCount: doc.data().songCount
+        });
+      });
+      return res.json(okes);
+    })
+    .catch(err => console.log(err));
+};
+

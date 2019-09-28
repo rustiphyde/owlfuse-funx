@@ -35,6 +35,10 @@ const {
 } = require('./handlers/okelists');
 
 const {
+  buildNewBoozula
+} = require('./handlers/boozulas');
+
+const {
   signup,
   login,
   uploadImage,
@@ -77,6 +81,9 @@ app.get("/song/:artist/artist/chooz", choozByArtist);
 app.get("/song/:clozang/clozang/chooz", choozByClozang);
 app.get("/song/all/chooz", choozFromAllSongs);
 app.delete("/okelist/:okeId", FBAuth, eraseOkelist);
+
+// Boozula Routes
+app.post("/boozula", FBAuth, buildNewBoozula);
 
 // Inform Firebase that 'app' is the container for all routes in application
 exports.api = functions.https.onRequest(app);

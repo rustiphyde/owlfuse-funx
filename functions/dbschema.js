@@ -59,7 +59,7 @@ const userDetails = {
   credentials: {
       userId: "WniXVQLSLyM4q5HTKVuwWFG2Pyk2",
       email: "user@example.com",
-    alias: "Generic User",
+      alias: "Generic User",
       clozang: ">generic-user",
       createdAt: "2019-07-12T20:45:02.580Z",
       imageUrl: "https://firebasestorage.googleapis.com/v0/b/owlfuse.appspot.com/o/No-owlfuse-pic.png?alt=media",

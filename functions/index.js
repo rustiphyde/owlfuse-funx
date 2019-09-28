@@ -388,4 +388,153 @@ exports.moveStokesToFire = functions.firestore
     } else return;
   });
 
-  
+  exports.onAliasChange = functions.firestore
+  .document("/Users/{id}")
+  .onUpdate(change => {
+    if (change.before.data().alias !== change.after.data().alias) {
+      const batch = db.batch();
+      return db
+        .collection("Users")
+        .where("email", "==", change.before.data().email)
+        .get()
+        .then(data => {
+          data.forEach(doc => {
+            const newAlias = db.doc(`/Users/${change.before.data().email}`);
+            batch.update(newAlias, { alias: change.after.data().alias });
+          });
+          return db
+            .collection("Sparks")
+            .where("alias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newSparkAlias = db.doc(`/Sparks/${doc.id}`);
+            batch.update(newSparkAlias, {
+              alias: change.after.data().alias
+            });
+          });
+          return db
+            .collection("Fires")
+            .where("alias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newFireAlias = db.doc(`/Fires/${doc.id}`);
+            batch.update(newFireAlias, {
+              alias: change.after.data().alias
+            });
+          });
+          return db
+            .collection("Stokes")
+            .where("alias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newStokeAlias = db.doc(`Stokes/${doc.id}`);
+            batch.update(newStokeAlias, {
+              alias: change.after.data().alias
+            });
+          });
+          return db
+            .collection("Embers")
+            .where("alias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newEmberAlias = db.doc(`Embers/${doc.id}`);
+            batch.update(newEmberAlias, {
+              alias: change.after.data().alias
+            });
+          });
+          return db
+            .collection("SparkHeat")
+            .where("alias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newSparkHeatAlias = db.doc(`SparkHeat/${doc.id}`);
+            batch.update(newSparkHeatAlias, {
+              alias: change.after.data().alias
+            });
+          });
+          return db
+            .collection("FireHeat")
+            .where("alias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newFireHeatAlias = db.doc(`FireHeat/${doc.id}`);
+            batch.update(newFireHeatAlias, {
+              alias: change.after.data().alias
+            });
+          });
+          return db
+            .collection("OkeLists")
+            .where("alias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newOkeListAlias = db.doc(`OkeLists/${doc.id}`);
+            batch.update(newOkeListAlias, {
+              alias: change.after.data().alias
+            });
+          });
+          return db
+            .collection("Songs")
+            .where("alias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newSongAlias = db.doc(`Songs/${doc.id}`);
+            batch.update(newSongAlias, {
+              alias: change.after.data().alias
+            });
+          });
+          return db
+            .collection("Boozulas")
+            .where("alias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newBoozulaAlias = db.doc(`Boozulas/${doc.id}`);
+            batch.update(newBoozulaAlias, {
+              alias: change.after.data().alias
+            });
+          });
+          return db
+            .collection("Sizzles")
+            .where("sender", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newSenderAlias = db.doc(`Sizzles/${doc.id}`);
+            batch.update(newSenderAlias, {
+              sender: change.after.data().alias
+            });
+          });
+          return db
+            .collection("Sizzles")
+            .where("recipient", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newRecipientAlias = db.doc(`Sizzles/${doc.id}`);
+            batch.update(newRecipientAlias, {
+              recipient: change.after.data().alias
+            });
+          });
+          return batch.commit();
+        });
+    } else return true;
+  });

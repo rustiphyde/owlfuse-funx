@@ -26,7 +26,7 @@ const {
   addUserDetails,
   getAuthenticatedUser,
   getUserDetails,
-  markSparkSizzlesRead,
+  markSizzlesRead,
   resetPassword
 } = require("./handlers/users");
 
@@ -45,7 +45,7 @@ app.post("/login", login);
 app.post("/user/image", FBAuth, uploadImage);
 app.post("/user", FBAuth, addUserDetails);
 app.get("/user", FBAuth, getAuthenticatedUser);
-app.post("/sizzles", FBAuth, markSparkSizzlesRead);
+app.post("/sizzles", FBAuth, markSizzlesRead);
 app.get("/user/:clozang", getUserDetails);
 app.post("/reset", resetPassword);
 

@@ -393,3 +393,26 @@ exports.choozFromAllSongs = (req, res) => {
     });
 };
 
+exports.eraseOkelist = (req, res) => {
+  const okeToErase = db.doc(`/OkeLists/${req.params.okeId}`);
+
+  okeToErase.get()
+      .then(doc => {
+          if(!doc.exists){
+              return res.status(404).json({ error: 'Okelist not found'});
+          } 
+          else if(doc.data().userCandle !== req.user.candle){
+              return res.status(403).json({ error: 'This action is not permitted by this account'});
+          }
+          else {
+              return okeToErase.delete();
+          }
+      })
+      .then(() => {
+          return res.json({ message: 'Okelist erased completely'});
+      })
+      .catch(err => {
+          console.error(err);
+          return res.status(500).json({ error: err.code});
+      });
+}

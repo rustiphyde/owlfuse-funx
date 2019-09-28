@@ -35,7 +35,8 @@ const {
 } = require('./handlers/okelists');
 
 const {
-  buildNewBoozula
+  buildNewBoozula,
+  uploadBoozImage
 } = require('./handlers/boozulas');
 
 const {

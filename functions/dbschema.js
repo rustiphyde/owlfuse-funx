@@ -19,7 +19,7 @@ let db = {
       clozang: ">fake-username",
       body: "spark body",
       createdAt: "2019-07-12T17:19:04.980Z",
-      heat: 6,
+      heatCount: 6,
       stokeCount: 2
     }
   ],
@@ -32,23 +32,13 @@ let db = {
       createdAt: "2019-07-14T07:20:41:926Z"
     }
   ],
-  sparkSizzles: [
+  Sizzles: [
     {
         recipient: "Rusty",
         sender: "Other User",
         read: "true | false",
         sparkId: "9gDkPmho8hbRLf1J2IIB",
         type: "heat | stoke",
-        createdAt: "2019-07-16T01:32:12.408Z"
-    }
-  ],
-  fireSizzles: [
-    {
-        recipient: "Rusty",
-        sender: "Other User",
-        read: "true | false",
-        fireId: "9gDkPmho8hbRLf1J2IIB",
-        type: "heat | stoke | ignite",
         createdAt: "2019-07-16T01:32:12.408Z"
     }
   ]
@@ -67,7 +57,7 @@ const userDetails = {
       website: "http://github.com/rustiphyde",        
       location: "St. Louis, MO"        
   },
-  sparkHeat: [
+  heat: [
       {
           alias: 'Rusty',
           sparkId: "9gDkPmho8hbRLf1J2IIB"
@@ -76,15 +66,5 @@ const userDetails = {
           alias: "User 2",
           sparkId: "lSqXGaLI4e501rFodYy5"
       }
-  ],
-  fireHeat: [
-    {
-        alias: 'Someone',
-        fireId: "9gDkPmho8hbRLf1J2IIB"
-    },
-    {
-        alias: "User 4",
-        fireId: "lSqXGaLI4e501rFodYy5"
-    }
-]
+  ]
 }

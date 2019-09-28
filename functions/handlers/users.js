@@ -140,29 +140,10 @@ exports.getUserDetails = (req, res) => {
           alias: doc.data().alias,
           clozang: doc.data().clozang,
           userImage: doc.data().userImage,
-          heat: doc.data().heat,
+          heatCount: doc.data().heatCount,
           stokeCount: doc.data().stokeCount,
+          fire: doc.data().fire,
           sparkId: doc.id
-        });
-      });
-      return db
-          .collection("Fires")
-          .where("clozang", "==", req.params.clozang)
-          .orderBy("heat", "desc")
-          .get();
-    })
-    .then(data => {
-      userData.fires = [];
-      data.forEach(doc => {
-        userData.fires.push({
-          body: doc.data().body,
-          createdAt: doc.data().createdAt,
-          alias: doc.data().alias,
-          clozang: doc.data().clozang,
-          userImage: doc.data().userImage,
-          heat: doc.data().heat,
-          stokeCount: doc.data().stokeCount,
-          fireId: doc.id
         });
       });
       return res.json(userData);
@@ -183,61 +164,31 @@ exports.getAuthenticatedUser = (req, res) => {
       if (doc.exists) {
         userData.credentials = doc.data();
         return db
-          .collection("SparkHeat")
+          .collection("Heat")
           .where("alias", "==", req.user.alias)
           .get();
       }
     })
     .then(data => {
-      userData.sparkHeat = [];
+      userData.heat = [];
       data.forEach(doc => {
-        userData.sparkHeat.push(doc.data());
+        userData.heat.push(doc.data());
       });
       return db
-          .collection("FireHeat")
-          .where("alias", "==", req.user.alias)
-          .get();
-    })
-    .then(data => {
-      userData.fireHeat = [];
-      data.forEach(doc => {
-        userData.fireHeat.push(doc.data());
-      });
-      return db
-        .collection("SparkSizzles")
+        .collection("Sizzles")
         .where("recipient", "==", req.user.alias)
         .orderBy("createdAt", "desc")
         .limit(16)
         .get();
     })
     .then(data => {
-      userData.sparkSizzles = [];
+      userData.sizzles = [];
       data.forEach(doc => {
-        userData.sparkSizzles.push({
+        userData.sizzles.push({
           recipient: doc.data().recipient,
           sender: doc.data().sender,
           createdAt: doc.data().createdAt,
           sparkId: doc.data().sparkId,
-          type: doc.data().type,
-          read: doc.data().read,
-          sizzleId: doc.id
-        });
-      });
-      return db
-        .collection("FireSizzles")
-        .where("recipient", "==", req.user.alias)
-        .orderBy("createdAt", "desc")
-        .limit(16)
-        .get();
-    })
-    .then(data => {
-      userData.fireSizzles = [];
-      data.forEach(doc => {
-        userData.fireSizzles.push({
-          recipient: doc.data().recipient,
-          sender: doc.data().sender,
-          createdAt: doc.data().createdAt,
-          fireId: doc.data().fireId,
           type: doc.data().type,
           read: doc.data().read,
           sizzleId: doc.id
@@ -302,27 +253,10 @@ exports.uploadImage = (req, res) => {
   busboy.end(req.rawBody);
 };
 
-exports.markSparkSizzlesRead = (req, res) => {
+exports.markSizzlesRead = (req, res) => {
   let batch = db.batch();
   req.body.forEach(sizzleId => {
-    const sizzle = db.doc(`/SparkSizzles/${sizzleId}`);
-    batch.update(sizzle, { read: true });
-  });
-  batch
-    .commit()
-    .then(() => {
-      return res.json({ message: "Sizzles marked read" });
-    })
-    .catch(err => {
-      console.error(err);
-      return res.status(500).json({ error: err.code });
-    });
-};
-
-exports.markFireSizzlesRead = (req, res) => {
-  let batch = db.batch();
-  req.body.forEach(sizzleId => {
-    const sizzle = db.doc(`/FireSizzles/${sizzleId}`);
+    const sizzle = db.doc(`/Sizzles/${sizzleId}`);
     batch.update(sizzle, { read: true });
   });
   batch

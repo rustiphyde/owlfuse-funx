@@ -14,8 +14,9 @@ exports.getAllSparks = (req, res) => {
           clozang: doc.data().clozang,
           createdAt: doc.data().createdAt,
           stokeCount: doc.data().stokeCount,
-          heat: doc.data().heat,
-          userImage: doc.data().userImage
+          heatCount: doc.data().heatCount,
+          userImage: doc.data().userImage,
+          fire: doc.data().fire
         });
       });
       return res.json(sparks);
@@ -61,9 +62,10 @@ exports.postOneSpark = (req, res) => {
     alias: req.user.alias,
     clozang: req.user.clozang,
     createdAt: new Date().toISOString(),
-    heat: 0,
+    heatCount: 0,
     stokeCount: 0,
-    userImage: req.user.imageUrl
+    userImage: req.user.imageUrl,
+    fire: false
   };
 
   db.collection("Sparks")
@@ -95,10 +97,18 @@ exports.stokeSpark = (req, res) => {
       if (!doc.exists) {
         return res.status(404).json({ error: "Spark has been extinguished" });
       }
-      return doc.ref.update({ stokeCount: doc.data().stokeCount + 1 });
-    })
+      else if (doc.ref.fire === true) {
+        return doc.ref.update({
+          stokeCount: doc.data().stokeCount + 1,
+          heatCount: doc.data().heatCount + 1 });
+      } else {
+        return doc.ref.update({
+          stokeCount: doc.data().stokeCount + 1
+        })
+      }
+      })
     .then(() => {
-      return db.collection("SparkStokes").add(newStoke);
+      return db.collection("Stokes").add(newStoke);
     })
     .then(() => {
       res.json(newStoke);
@@ -110,9 +120,9 @@ exports.stokeSpark = (req, res) => {
 };
 
 // Add Heat to spark
-exports.addSparkHeat = (req, res) => {
+exports.addHeat = (req, res) => {
   const heatDoc = db
-    .collection("SparkHeat")
+    .collection("Heat")
     .where("alias", "==", req.user.alias)
     .where("sparkId", "==", req.params.sparkId)
     .limit(1);
@@ -135,14 +145,14 @@ exports.addSparkHeat = (req, res) => {
     .then(data => {
       if (data.empty) {
         return db
-          .collection("SparkHeat")
+          .collection("Heat")
           .add({
             sparkId: req.params.sparkId,
             alias: req.user.alias
           })
           .then(() => {
-            sparkData.heat++;
-            return sparkDoc.update({ heat: sparkData.heat });
+            sparkData.heatCount++;
+            return sparkDoc.update({ heatCount: sparkData.heatCount });
           })
           .then(() => {
             return res.json(sparkData);
@@ -158,9 +168,9 @@ exports.addSparkHeat = (req, res) => {
 };
 
 // Take heat from a spark
-exports.removeSparkHeat = (req, res) => {
+exports.removeHeat = (req, res) => {
   const heatDoc = db
-    .collection("SparkHeat")
+    .collection("Heat")
     .where("alias", "==", req.user.alias)
     .where("sparkId", "==", req.params.sparkId)
     .limit(1);
@@ -182,11 +192,11 @@ exports.removeSparkHeat = (req, res) => {
         return res.status(400).json({ error: "Already removed heat using this method" });
       } else {
         return db
-          .doc(`/SparkHeat/${data.docs[0].id}`)
+          .doc(`/Heat/${data.docs[0].id}`)
           .delete()
           .then(() => {
-            sparkData.heat--;
-            return sparkDoc.update({ heat: sparkData.heat });
+            sparkData.heatCount--;
+            return sparkDoc.update({ heatCount: sparkData.heatCount });
           })
           .then(() => {
             return res.json(sparkData);

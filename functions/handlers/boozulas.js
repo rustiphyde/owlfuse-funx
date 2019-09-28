@@ -17,7 +17,7 @@ exports.buildNewBoozula = (req, res) => {
     drinkName: req.body.drinkName,
     mainAlcohol: req.body.mainAlcohol,
     alias: req.user.alias,
-    clozang: req.user.clozang,
+    boozang: req.user.clozang,
     boozImage: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
     createdAt: new Date().toISOString(),
     cheersCount: 0,

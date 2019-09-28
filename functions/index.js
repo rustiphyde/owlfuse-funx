@@ -395,11 +395,11 @@ exports.moveStokesToFire = functions.firestore
       const batch = db.batch();
       return db
         .collection("Users")
-        .where("email", "==", change.before.data().email)
+        .where("clozang", "==", change.before.data().clozang)
         .get()
         .then(data => {
           data.forEach(doc => {
-            const newAlias = db.doc(`/Users/${change.before.data().email}`);
+            const newAlias = db.doc(`/Users/${change.before.data().clozang}`);
             batch.update(newAlias, { alias: change.after.data().alias });
           });
           return db
@@ -433,20 +433,20 @@ exports.moveStokesToFire = functions.firestore
         })
         .then(data => {
           data.forEach(doc => {
-            const newStokeAlias = db.doc(`Stokes/${doc.id}`);
-            batch.update(newStokeAlias, {
+            const newFireStokeAlias = db.doc(`FireStokes/${doc.id}`);
+            batch.update(newFireStokeAlias, {
               alias: change.after.data().alias
             });
           });
           return db
-            .collection("Embers")
+            .collection("SparkStokes")
             .where("alias", "==", change.before.data().alias)
             .get();
         })
         .then(data => {
           data.forEach(doc => {
-            const newEmberAlias = db.doc(`Embers/${doc.id}`);
-            batch.update(newEmberAlias, {
+            const newSparkStokeAlias = db.doc(`SparkStokes/${doc.id}`);
+            batch.update(newSparkStokeAlias, {
               alias: change.after.data().alias
             });
           });

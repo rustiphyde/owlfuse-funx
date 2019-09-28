@@ -182,3 +182,56 @@ exports.getSongsByClozang = (req, res) => {
     });
 };
 
+exports.choozByList = (req, res) => {
+  db.collection("Songs")
+    .where("okeId", "==", req.params.okeId)
+    .get()
+    .then(data => {
+      let songslist = [];
+      data.forEach(doc => {
+        songslist.push({
+          songId: doc.id,
+          clozang: doc.data().clozang,
+          songTitle: doc.data().songTitle,
+          songArtist: doc.data().songArtist,
+          okeId: doc.data().okeId,
+          artist: doc.data().artist
+        });
+      });
+      console.log(songslist);
+      let songChoice = Math.floor(Math.random() * songslist.length);
+
+      let messagesArray = [`The Oke Owl thinks you should sing "${
+        songslist[songChoice].songTitle
+      }" by ${songslist[songChoice].songArtist}. The Oke Owl is wise.`, `Have you ever tried "${
+        songslist[songChoice].songTitle
+      }" by ${songslist[songChoice].songArtist}? The Oke Owl thinks it would be wise to try it.`, `The Oke Owl has thought long about this and has decided you should try "${
+        songslist[songChoice].songTitle
+      }" by ${songslist[songChoice].songArtist}.`, `The wise Oke Owl, knowledgeable and sagely, tasks you with singing "${
+        songslist[songChoice].songTitle
+      }" by ${songslist[songChoice].songArtist}.`, `The Oke Owl has spoken...your song shall be "${
+        songslist[songChoice].songTitle
+      }" by ${songslist[songChoice].songArtist}.`, `The Omnipotent Owl of Oke says you should sing "${
+        songslist[songChoice].songTitle
+      }" by ${songslist[songChoice].songArtist}.`, `You should heed the wisdom of the Great Oke Owl and sing "${
+        songslist[songChoice].songTitle
+      }" by ${songslist[songChoice].songArtist}.`, `The Owl who is of Oke has pondered this and  has concluded that your song to sing is "${
+        songslist[songChoice].songTitle
+      }" by ${songslist[songChoice].songArtist}.`, `You seek the guidance of the wise Oke Owl? Very well, you shall sing "${
+        songslist[songChoice].songTitle
+      }" by ${songslist[songChoice].songArtist}. Now be gone with you!`, `After eons of meditation, The Wise Oke Owl has emerged to ask you to sing "${
+        songslist[songChoice].songTitle
+      }" by ${songslist[songChoice].songArtist}.`];
+
+      let owlIndex = Math.floor(Math.random() * messagesArray.length);
+
+      return res.json({
+        message: `${messagesArray[owlIndex]}`
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+

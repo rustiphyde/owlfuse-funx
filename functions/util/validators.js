@@ -67,3 +67,16 @@ exports.validateResetData = data => {
     valid: Object.keys(errors).length === 0 ? true : false
   };
 };
+
+exports.reduceBoozDetails = data => {
+  let boozDetails = {};
+
+  //Make sure an empty string is not submitted to the database
+  if (!isEmpty(data.drinkName.trim())) boozDetails.drinkName = data.drinkName;
+  if (!isEmpty(data.mainAlcohol.trim())) boozDetails.mainAlcohol = data.mainAlcohol;
+  if (!isEmpty(data.ingredients.trim())) boozDetails.ingredients = data.ingredients;
+  if (!isEmpty(data.preparation.trim())) boozDetails.preparation = data.preparation;
+  if (!isEmpty(data.drinkWare.trim())) boozDetails.drinkWare = data.drinkWare;
+  
+  return boozDetails;
+};

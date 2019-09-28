@@ -21,7 +21,7 @@ const {
 
 const {
   buildNewOkeList,
-  getAllOkelists,
+  getAllOkeLists,
   getOke,
   addOneSong,
   getSongsByList,
@@ -31,7 +31,7 @@ const {
   choozByArtist,
   choozByClozang,
   choozFromAllSongs,
-  eraseOkeList
+  eraseOkelist
 } = require('./handlers/okelists');
 
 const {

@@ -18,7 +18,7 @@ exports.buildNewBoozula = (req, res) => {
     mainAlcohol: req.body.mainAlcohol,
     alias: req.user.alias,
     clozang: req.user.clozang,
-    boozImage: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/Boozulas%2F${noImg}?alt=media`,
+    boozImage: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
     createdAt: new Date().toISOString(),
     cheersCount: 0,
     toastCount: 0,
@@ -77,7 +77,7 @@ exports.uploadBoozImage = (req, res) => {
         }
       })
       .then(() => {
-        const boozImage = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/Boozulas%2F${imageFileName}?alt=media`;
+        const boozImage = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
         return db.doc(`/Boozulas/${req.params.boozId}`).update({ boozImage });
       })
       .then(() => {

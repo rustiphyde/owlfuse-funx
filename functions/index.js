@@ -14,8 +14,8 @@ const {
   postOneSpark,
   getSpark,
   stokeSpark,
-  addSparkHeat,
-  removeSparkHeat,
+  addHeat,
+  removeHeat,
   extinguishSpark
 } = require("./handlers/sparks");
 
@@ -35,8 +35,8 @@ app.get("/sparks", getAllSparks);
 app.post("/spark", FBAuth, postOneSpark);
 app.get("/spark/:sparkId", getSpark);
 app.post("/spark/:sparkId/stoke", FBAuth, stokeSpark);
-app.get("/spark/:sparkId/burn", FBAuth, addSparkHeat);
-app.get("/spark/:sparkId/snuff", FBAuth, removeSparkHeat);
+app.get("/spark/:sparkId/burn", FBAuth, addHeat);
+app.get("/spark/:sparkId/snuff", FBAuth, removeHeat);
 app.delete("/spark/:sparkId", FBAuth, extinguishSpark);
 
 // User routes

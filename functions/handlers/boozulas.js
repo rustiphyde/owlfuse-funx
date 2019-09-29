@@ -116,3 +116,27 @@ exports.getAllBoozulas = (req, res) => {
     })
     .catch(err => console.log(err));
 };
+
+exports.getBoozula = (req, res) => {
+  let boozData = {};
+  db.doc(`/Boozulas/${req.params.boozId}`).get()
+      .then((doc) => {
+          if(!doc.exists){
+              return res.status(404).json({ error: 'Boozula not found'})
+          }
+          boozData = doc.data();
+          boozData.boozId = doc.id;
+          return db.collection('Toasts').where('boozId', '==', doc.id).get();
+      })
+      .then(data => {
+          boozData.toasts = [];
+          data.forEach(doc => {
+              boozData.toasts.push(doc.data())
+          });
+          return res.json(boozData);
+      })
+      .catch(err => {
+          console.error(err);
+          res.status(500).json({ error: err.code});
+      });
+};

@@ -154,3 +154,44 @@ exports.addBoozDetails = (req, res) => {
       return res.status(500).json({ error: err.code });
     });
 };
+
+exports.addCheers = (req, res) => {
+  const cheersDoc = db.collection('Cheers').where('alias', '==', req.user.alias)
+  .where('boozId', '==', req.params.boozId).limit(1);
+
+  const boozDoc = db.doc(`/Boozulas/${req.params.boozId}`);
+
+  let boozData;
+
+  boozDoc.get()
+      .then(doc => {
+          if(doc.exists){
+              boozData = doc.data();
+              boozData.boozId = doc.id;
+              return cheersDoc.get();
+          } else {
+              return res.status(404).json({ error: 'Boozula not found'});
+          }
+      })
+      .then(data => {
+          if(data.empty){
+              return db.collection('Cheers').add({
+                 boozId: req.params.boozId,
+                 alias: req.user.alias 
+              })
+              .then(() => {
+                  boozData.cheersCount++
+                  return boozDoc.update({ cheersCount: boozData.cheersCount})
+              })
+              .then(() => {
+                  return res.json(boozData);
+              })
+          } else {
+              return res.status(400).json({ error: 'Boozula has a cheers already'});
+          }
+      })
+      .catch(err => {
+          console.error(err);
+          return res.status(500).json({error: err.code});
+      });
+};

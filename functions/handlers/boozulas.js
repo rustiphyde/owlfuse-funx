@@ -239,22 +239,53 @@ exports.emptyBoozula = (req, res) => {
   const boozToEmpty = db.doc(`/Boozulas/${req.params.boozId}`);
 
   boozToEmpty.get()
-      .then(doc => {
-          if(!doc.exists){
-              return res.status(404).json({ error: 'Boozula not found'});
-          } 
-          else if(doc.data().klozang !== req.user.clozang){
-              return res.status(403).json({ error: 'This action is not permitted by this account'});
-          }
-          else {
-              return boozToEmpty.delete();
-          }
-      })
-      .then(() => {
-          return res.json({ message: 'Boozula emptied completely'});
-      })
-      .catch(err => {
-          console.error(err);
-          return res.status(500).json({ error: err.code});
-      });
-}
+    .then(doc => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Boozula not found' });
+      }
+      else if (doc.data().klozang !== req.user.clozang) {
+        return res.status(403).json({ error: 'This action is not permitted by this account' });
+      }
+      else {
+        return boozToEmpty.delete();
+      }
+    })
+    .then(() => {
+      return res.json({ message: 'Boozula emptied completely' });
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
+exports.toastBoozula = (req, res) => {
+  if (req.body.body.trim() === '') return res.status(400).json({ convo: 'Field must not be empty' });
+
+  const newToast = {
+    body: req.body.body,
+    createdAt: new Date().toISOString(),
+    boozId: req.params.boozId,
+    klozang: req.user.clozang,
+    alias: req.user.alias,
+    userImage: req.user.imageUrl
+  };
+
+  db.doc(`/Boozulas/${req.params.boozId}`).get()
+    .then(doc => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Boozula has been emptied' });
+      }
+      return doc.ref.update({ toastCount: doc.data().toastCount + 1 });
+    })
+    .then(() => {
+      return db.collection('Toasts').add(newToast);
+    })
+    .then(() => {
+      res.json(newToast);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: 'Something went wrong' });
+    })
+};

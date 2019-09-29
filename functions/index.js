@@ -162,7 +162,7 @@ exports.onUserImageChange = functions.firestore
       const batch = db.batch();
       return db
         .collection("Sparks")
-        .where("clozang", "==", change.before.data().clozang)
+        .where("klozang", "==", change.before.data().clozang)
         .get()
         .then(data => {
           data.forEach(doc => {
@@ -171,13 +171,23 @@ exports.onUserImageChange = functions.firestore
           });
           return db
             .collection("Stokes")
-            .where("clozang", "==", change.before.data().clozang)
+            .where("klozang", "==", change.before.data().clozang)
             .get();
         })
         .then(data => {
           data.forEach(doc => {
-            const spark = db.doc(`/Stokes/${doc.id}`);
-            batch.update(spark, { userImage: change.after.data().imageUrl });
+            const stoke = db.doc(`/Stokes/${doc.id}`);
+            batch.update(stoke, { userImage: change.after.data().imageUrl });
+          });
+          return db
+            .collection("Toasts")
+            .where("klozang", "==", change.before.data().clozang)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const toast = db.doc(`/Toasts/${doc.id}`);
+            batch.update(toast, { userImage: change.after.data().imageUrl });
           });
           return batch.commit();
         });

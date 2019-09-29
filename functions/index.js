@@ -290,6 +290,18 @@ exports.sparkToFire = functions.firestore
             });
           });
           return db
+            .collection("Toasts")
+            .where("alias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newToastAlias = db.doc(`Toasts/${doc.id}`);
+            batch.update(newToastAlias, {
+              alias: change.after.data().alias
+            });
+          });
+          return db
             .collection("Heat")
             .where("alias", "==", change.before.data().alias)
             .get();
@@ -298,6 +310,18 @@ exports.sparkToFire = functions.firestore
           data.forEach(doc => {
             const newHeatAlias = db.doc(`Heat/${doc.id}`);
             batch.update(newHeatAlias, {
+              alias: change.after.data().alias
+            });
+          });
+          return db
+            .collection("Cheers")
+            .where("alias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newCheersAlias = db.doc(`Cheers/${doc.id}`);
+            batch.update(newCheersAlias, {
               alias: change.after.data().alias
             });
           });
@@ -333,6 +357,30 @@ exports.sparkToFire = functions.firestore
         .then(data => {
           data.forEach(doc => {
             const newRecipientAlias = db.doc(`Sizzles/${doc.id}`);
+            batch.update(newRecipientAlias, {
+              recipient: change.after.data().alias
+            });
+          });
+          return db
+            .collection("Clinks")
+            .where("sender", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newSenderAlias = db.doc(`Clinks/${doc.id}`);
+            batch.update(newSenderAlias, {
+              sender: change.after.data().alias
+            });
+          });
+          return db
+            .collection("Clinks")
+            .where("recipient", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newRecipientAlias = db.doc(`Clinks/${doc.id}`);
             batch.update(newRecipientAlias, {
               recipient: change.after.data().alias
             });

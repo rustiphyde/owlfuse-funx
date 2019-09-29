@@ -22,7 +22,6 @@ exports.buildNewBoozula = (req, res) => {
     createdAt: new Date().toISOString(),
     cheersCount: 0,
     toastCount: 0,
-    email: req.user.email,
     ingredients: req.body.ingredients,
     preparation: req.body.preparation,
     drinkWare: req.body.drinkWare
@@ -89,4 +88,31 @@ exports.uploadBoozImage = (req, res) => {
       });
   });
   busboy.end(req.rawBody);
+};
+
+exports.getAllBoozulas = (req, res) => {
+  db.collection("Boozulas")
+    .orderBy("createdAt", "desc")
+    .get()
+    .then(data => {
+      let booz = [];
+      data.forEach(doc => {
+        booz.push({
+          boozId: doc.id,
+          drinkName: doc.data().drinkName,
+          mainAlcohol: doc.data().mainAlcohol,
+          alias: doc.data().alias,
+          klozang: doc.data().klozang,
+          boozImage: doc.data().boozImage,
+          createdAt: doc.data().createdAt,
+          cheersCount: doc.data().cheersCount,
+          toastCount: doc.data().toastCount,
+          ingredients: doc.data().ingredients,
+          preparation: doc.data().preparation,
+          drinkWare: doc.data().drinkWare
+        });
+      });
+      return res.json(booz);
+    })
+    .catch(err => console.log(err));
 };

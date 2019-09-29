@@ -197,6 +197,15 @@ exports.removeHeatSizzle = functions.firestore
       .catch(err => console.error(err));
   });
 
+  exports.removeCheersClink = functions.firestore
+  .document("Cheers/{id}")
+  .onDelete(snap => {
+    return db
+      .doc(`/Clinks/${snap.id}`)
+      .delete()
+      .catch(err => console.error(err));
+  });
+
 exports.onUserImageChange = functions.firestore
   .document("/Users/{Id}")
   .onUpdate(change => {

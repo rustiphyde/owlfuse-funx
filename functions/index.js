@@ -125,6 +125,27 @@ exports.createSizzleOnHeat = functions.firestore
       .catch(err => console.error(err));
   });
 
+  exports.createClinkOnCheers = functions.firestore
+  .document("Cheers/{id}")
+  .onCreate(snap => {
+    return db
+      .doc(`/Boozulas/${snap.data().boozId}`)
+      .get()
+      .then(doc => {
+        if (doc.exists && doc.data().alias !== snap.data().alias) {
+          return db.doc(`/Clinks/${snap.id}`).set({
+            createdAt: new Date().toISOString(),
+            recipient: doc.data().alias,
+            sender: snap.data().alias,
+            type: "cheers",
+            read: false,
+            boozId: doc.id
+          });
+        }
+      })
+      .catch(err => console.error(err));
+  });
+
 exports.createSizzleOnStoke = functions.firestore
   .document("Stokes/{id}")
   .onCreate(snap => {

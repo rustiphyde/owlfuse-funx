@@ -140,3 +140,17 @@ exports.getBoozula = (req, res) => {
           res.status(500).json({ error: err.code});
       });
 };
+
+exports.addBoozDetails = (req, res) => {
+  let boozDetails = reduceBoozDetails(req.body);
+
+  db.doc(`/Boozulas/${req.params.boozId}`)
+    .update(boozDetails)
+    .then(() => {
+      return res.json({ message: "Details added successfully" });
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};

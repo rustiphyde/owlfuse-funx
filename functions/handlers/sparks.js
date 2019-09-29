@@ -217,7 +217,7 @@ exports.extinguishSpark = (req, res) => {
           if(!doc.exists){
               return res.status(404).json({ error: 'Spark not found'});
           } 
-          else if(doc.data().clozang !== req.user.clozang){
+          else if(doc.data().klozang !== req.user.clozang){
               return res.status(403).json({ error: 'This action is not permitted by this account'});
           }
           else {

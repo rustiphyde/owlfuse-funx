@@ -57,6 +57,8 @@ exports.getSpark = (req, res) => {
 };
 
 exports.postOneSpark = (req, res) => {
+  if (req.body.body.trim() === '') return res.status(400).json({ spark: 'Can\'t start a fire without a spark' });
+  
   const newSpark = {
     body: req.body.body,
     alias: req.user.alias,
@@ -71,7 +73,9 @@ exports.postOneSpark = (req, res) => {
   db.collection("Sparks")
     .add(newSpark)
     .then(doc => {
-      res.json({ message: `document ${doc.id} created successfully` });
+      const resSpark = newSpark;
+        resSpark.sparkId = doc.id;
+        res.json(resSpark);
     })
     .catch(err => {
       res.status(500).json({ error: "something went wrong" });

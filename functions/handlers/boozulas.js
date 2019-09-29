@@ -234,3 +234,27 @@ exports.removeCheers = (req, res) => {
           return res.status(500).json({error: err.code});
       });
 };
+
+exports.emptyBoozula = (req, res) => {
+  const boozToEmpty = db.doc(`/Boozulas/${req.params.boozId}`);
+
+  boozToEmpty.get()
+      .then(doc => {
+          if(!doc.exists){
+              return res.status(404).json({ error: 'Boozula not found'});
+          } 
+          else if(doc.data().klozang !== req.user.clozang){
+              return res.status(403).json({ error: 'This action is not permitted by this account'});
+          }
+          else {
+              return boozToEmpty.delete();
+          }
+      })
+      .then(() => {
+          return res.json({ message: 'Boozula emptied completely'});
+      })
+      .catch(err => {
+          console.error(err);
+          return res.status(500).json({ error: err.code});
+      });
+}

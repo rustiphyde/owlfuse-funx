@@ -36,7 +36,14 @@ const {
 
 const {
   buildNewBoozula,
-  uploadBoozImage
+  uploadBoozImage,
+  getAllBoozulas,
+  getBoozula,
+  addCheers,
+  removeCheers,
+  toastBoozula,
+  addBoozDetails,
+  emptyBoozula
 } = require('./handlers/boozulas');
 
 const {
@@ -86,6 +93,13 @@ app.delete("/okelist/:okeId", FBAuth, eraseOkelist);
 // Boozula Routes
 app.post("/boozula", FBAuth, buildNewBoozula);
 app.post("/boozula/:boozId/image", FBAuth, uploadBoozImage);
+app.get("/boozulas", getAllBoozulas);
+app.get("/boozula/:boozId", getBoozula);
+app.get("/boozula/:boozId/cheers", FBAuth, addCheers);
+app.get("/boozula/:boozId/unCheers", FBAuth, removeCheers);
+app.post("/boozula/:boozId/toast", FBAuth, toastBoozula);
+app.post("/boozula/:boozId/add", FBAuth, addBoozDetails);
+app.delete("/boozula/:boozId", FBAuth, emptyBoozula);
 
 // Inform Firebase that 'app' is the container for all routes in application
 exports.api = functions.https.onRequest(app);

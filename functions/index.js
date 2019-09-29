@@ -167,6 +167,27 @@ exports.createSizzleOnStoke = functions.firestore
       .catch(err => console.error(err));
   });
 
+  exports.createClinkOnToast = functions.firestore
+  .document("Stokes/{id}")
+  .onCreate(snap => {
+    return db
+      .doc(`/Boozulas/${snap.data().boozId}`)
+      .get()
+      .then(doc => {
+        if (doc.exists && doc.data().alias !== snap.data().alias) {
+          return db.doc(`/Clinks/${snap.id}`).set({
+            createdAt: new Date().toISOString(),
+            recipient: doc.data().alias,
+            sender: snap.data().alias,
+            type: "toast",
+            read: false,
+            boozId: doc.id
+          });
+        }
+      })
+      .catch(err => console.error(err));
+  });
+
 exports.removeHeatSizzle = functions.firestore
   .document("Heat/{id}")
   .onDelete(snap => {

@@ -350,3 +350,39 @@ exports.onOkelistErase = functions.firestore
       .delete()
       .catch(err => console.error(err));
   });
+
+  exports.onBoozulaEmpty = functions.firestore
+  .document("/Boozulas/{boozId}")
+  .onDelete((snap, context) => {
+    const boozId = context.params.boozId;
+    const batch = db.batch();
+    return db
+      .collection("Toasts")
+      .where("boozId", "==", boozId)
+      .get()
+      .then(data => {
+        data.forEach(doc => {
+          batch.delete(db.doc(`/Toasts/${doc.id}`));
+        });
+        return db
+          .collection("/Cheers")
+          .where("boozId", "==", boozId)
+          .get();
+      })
+      .then(data => {
+        data.forEach(doc => {
+          batch.delete(db.doc(`/Cheers/${doc.id}`));
+        });
+        return db
+          .collection("/Clinks")
+          .where("boozId", "==", boozId)
+          .get();
+      })
+      .then(data => {
+        data.forEach(doc => {
+          batch.delete(db.doc(`/Clinks/${doc.id}`));
+        });
+        return batch.commit();
+      })
+      .catch(err => console.error(err));
+  });

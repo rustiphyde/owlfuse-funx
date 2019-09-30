@@ -146,6 +146,31 @@ exports.getUserDetails = (req, res) => {
           sparkId: doc.id
         });
       });
+      return db
+        .collection("Boozulas")
+        .where("klozang", "==", req.params.clozang)
+        .orderBy("createdAt", "desc")
+        .get();
+    })
+    .then(data => {
+      userData.boozulas = [];
+      data.forEach(doc => {
+        userData.boozulas.push({
+        boozId: doc.id,
+        drinkName: doc.data().drinkName,
+        mainAlcohol: doc.data().mainAlcohol,
+        alias: doc.data().alias,
+        klozang: doc.data().klozang,
+        boozImage: doc.data().boozImage,
+        createdAt: doc.data().createdAt,
+        cheersCount: doc.data().cheersCount,
+        toastCount: doc.data().toastCount,
+        ingredients: doc.data().ingredients,
+        preparation: doc.data().preparation,
+        drinkWare: doc.data().drinkWare,
+        garnish: doc.data().garnish
+      })
+    })
       return res.json(userData);
     })
     .catch(err => {

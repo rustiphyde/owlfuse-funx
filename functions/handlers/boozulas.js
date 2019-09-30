@@ -24,7 +24,8 @@ exports.buildNewBoozula = (req, res) => {
     toastCount: 0,
     ingredients: req.body.ingredients,
     preparation: req.body.preparation,
-    drinkWare: req.body.drinkWare
+    drinkWare: req.body.drinkWare,
+    garnish: req.body.garnish
   };
 
   db.collection("Boozulas")
@@ -109,7 +110,8 @@ exports.getAllBoozulas = (req, res) => {
           toastCount: doc.data().toastCount,
           ingredients: doc.data().ingredients,
           preparation: doc.data().preparation,
-          drinkWare: doc.data().drinkWare
+          drinkWare: doc.data().drinkWare,
+          garnish: doc.data().garnish
         });
       });
       return res.json(booz);

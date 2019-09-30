@@ -227,7 +227,7 @@ exports.getAuthenticatedUser = (req, res) => {
     .then(data => {
       userData.cheers = [];
       data.forEach(doc => {
-        userData.heat.push(doc.data());
+        userData.cheers.push(doc.data());
       });
       return db
         .collection("Sizzles")

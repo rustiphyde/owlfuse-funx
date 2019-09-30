@@ -170,7 +170,17 @@ exports.getAuthenticatedUser = (req, res) => {
       }
     })
     .then(data => {
-      userData.heat = [];
+      userData.cheers = [];
+      data.forEach(doc => {
+        userData.cheers.push(doc.data());
+      });
+      return db
+          .collection("Cheers")
+          .where("alias", "==", req.user.alias)
+          .get();
+    })
+    .then(data => {
+      userData.cheers = [];
       data.forEach(doc => {
         userData.heat.push(doc.data());
       });
@@ -194,6 +204,26 @@ exports.getAuthenticatedUser = (req, res) => {
           sizzleId: doc.id
         });
       });
+      return db
+      .collection("Clinks")
+      .where("recipient", "==", req.user.alias)
+      .orderBy("createdAt", "desc")
+      .limit(16)
+      .get();
+  })
+  .then(data => {
+    userData.clinks = [];
+    data.forEach(doc => {
+      userData.clinks.push({
+        recipient: doc.data().recipient,
+        sender: doc.data().sender,
+        createdAt: doc.data().createdAt,
+        boozId: doc.data().boozId,
+        type: doc.data().type,
+        read: doc.data().read,
+        clinkId: doc.id
+      });
+    });
       return res.json(userData);
     })
     .catch(err => {

@@ -10,7 +10,7 @@ exports.buildNewOkeList = (req, res) => {
   const newOkeList = {
     listName: req.body.listName,
     description: req.body.description,
-    OkeClozang: req.user.clozang,
+    klozang: req.user.clozang,
     createdAt: new Date().toISOString(),
     songCount: 0
   };

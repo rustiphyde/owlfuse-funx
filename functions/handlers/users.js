@@ -16,7 +16,7 @@ exports.signup = (req, res) => {
     email: req.body.email,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
-    alias: req.body.alias,
+    alias: req.body.alias.replace(/\s/g, "-"),
     clozang: ">" + req.body.alias.replace(/\s/g, "-").toLowerCase()
   };
 

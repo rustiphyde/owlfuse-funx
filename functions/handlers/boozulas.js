@@ -4,13 +4,11 @@ const { reduceBoozDetails } = require("../util/validators");
 
 // Build New Boozula
 exports.buildNewBoozula = (req, res) => {
-  
-
   if (req.body.drinkName.trim() === "")
     return res.status(400).json({ drinkName: "Field must not be empty" });
   if (req.body.mainAlcohol.trim() === "")
     return res.status(400).json({ mainAlcohol: "Field must not be empty" });
-  
+
   const noImg = "blank-drink-pic.png";
 
   const newBoozula = {
@@ -121,26 +119,30 @@ exports.getAllBoozulas = (req, res) => {
 
 exports.getBoozula = (req, res) => {
   let boozData = {};
-  db.doc(`/Boozulas/${req.params.boozId}`).get()
-      .then((doc) => {
-          if(!doc.exists){
-              return res.status(404).json({ error: 'Boozula not found'})
-          }
-          boozData = doc.data();
-          boozData.boozId = doc.id;
-          return db.collection('Toasts').where('boozId', '==', doc.id).get();
-      })
-      .then(data => {
-          boozData.toasts = [];
-          data.forEach(doc => {
-              boozData.toasts.push(doc.data())
-          });
-          return res.json(boozData);
-      })
-      .catch(err => {
-          console.error(err);
-          res.status(500).json({ error: err.code});
+  db.doc(`/Boozulas/${req.params.boozId}`)
+    .get()
+    .then(doc => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: "Boozula not found" });
+      }
+      boozData = doc.data();
+      boozData.boozId = doc.id;
+      return db
+        .collection("Toasts")
+        .where("boozId", "==", doc.id)
+        .get();
+    })
+    .then(data => {
+      boozData.toasts = [];
+      data.forEach(doc => {
+        boozData.toasts.push(doc.data());
       });
+      return res.json(boozData);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: err.code });
+    });
 };
 
 exports.addBoozDetails = (req, res) => {
@@ -158,102 +160,115 @@ exports.addBoozDetails = (req, res) => {
 };
 
 exports.addCheers = (req, res) => {
-  const cheersDoc = db.collection('Cheers').where('alias', '==', req.user.alias)
-  .where('boozId', '==', req.params.boozId).limit(1);
+  const cheersDoc = db
+    .collection("Cheers")
+    .where("klozang", "==", req.user.clozang)
+    .where("boozId", "==", req.params.boozId)
+    .limit(1);
 
   const boozDoc = db.doc(`/Boozulas/${req.params.boozId}`);
 
   let boozData;
 
-  boozDoc.get()
-      .then(doc => {
-          if(doc.exists){
-              boozData = doc.data();
-              boozData.boozId = doc.id;
-              return cheersDoc.get();
-          } else {
-              return res.status(404).json({ error: 'Boozula not found'});
-          }
-      })
-      .then(data => {
-          if(data.empty){
-              return db.collection('Cheers').add({
-                 boozId: req.params.boozId,
-                 alias: req.user.alias 
-              })
-              .then(() => {
-                  boozData.cheersCount++
-                  return boozDoc.update({ cheersCount: boozData.cheersCount})
-              })
-              .then(() => {
-                  return res.json(boozData);
-              })
-          } else {
-              return res.status(400).json({ error: 'Boozula has a cheers already'});
-          }
-      })
-      .catch(err => {
-          console.error(err);
-          return res.status(500).json({error: err.code});
-      });
+  boozDoc
+    .get()
+    .then(doc => {
+      if (doc.exists) {
+        boozData = doc.data();
+        boozData.boozId = doc.id;
+        return cheersDoc.get();
+      } else {
+        return res.status(404).json({ error: "Boozula not found" });
+      }
+    })
+    .then(data => {
+      if (data.empty) {
+        return db
+          .collection("Cheers")
+          .add({
+            boozId: req.params.boozId,
+            alias: req.user.alias,
+            klozang: req.user.clozang
+          })
+          .then(() => {
+            boozData.cheersCount++;
+            return boozDoc.update({ cheersCount: boozData.cheersCount });
+          })
+          .then(() => {
+            return res.json(boozData);
+          });
+      } else {
+        return res.status(400).json({ error: "Boozula has a cheers already" });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
 };
 
 exports.removeCheers = (req, res) => {
-  const cheersDoc = db.collection('Cheers').where('alias', '==', req.user.alias)
-  .where('boozId', '==', req.params.boozId).limit(1);
+  const cheersDoc = db
+    .collection("Cheers")
+    .where("klozang", "==", req.user.clozang)
+    .where("boozId", "==", req.params.boozId)
+    .limit(1);
 
   const boozDoc = db.doc(`/Boozulas/${req.params.boozId}`);
 
   let boozData;
 
-  boozDoc.get()
-      .then(doc => {
-          if(doc.exists){
-              boozData = doc.data();
-              boozData.boozId = doc.id;
-              return cheersDoc.get();
-          } else {
-              return res.status(404).json({ error: 'Boozula not found'});
-          }
-      })
-      .then(data => {
-          if(data.empty){
-              return res.status(400).json({ error: 'No cheers on this Boozula yet'});
-              
-          } else {
-              return db.doc(`/Cheers/${data.docs[0].id}`).delete()
-                  .then(() => {
-                      boozData.cheersCount--;
-                      return boozDoc.update({cheersCount: boozData.cheersCount})
-                  })
-                  .then(() => {
-                      return res.json(boozData);
-                  })
-          }
-      })
-      .catch(err => {
-          console.error(err);
-          return res.status(500).json({error: err.code});
-      });
+  boozDoc
+    .get()
+    .then(doc => {
+      if (doc.exists) {
+        boozData = doc.data();
+        boozData.boozId = doc.id;
+        return cheersDoc.get();
+      } else {
+        return res.status(404).json({ error: "Boozula not found" });
+      }
+    })
+    .then(data => {
+      if (data.empty) {
+        return res.status(400).json({ error: "No cheers on this Boozula yet" });
+      } else {
+        return db
+          .doc(`/Cheers/${data.docs[0].id}`)
+          .delete()
+          .then(() => {
+            boozData.cheersCount--;
+            return boozDoc.update({ cheersCount: boozData.cheersCount });
+          })
+          .then(() => {
+            return res.json(boozData);
+          });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
 };
 
 exports.emptyBoozula = (req, res) => {
   const boozToEmpty = db.doc(`/Boozulas/${req.params.boozId}`);
 
-  boozToEmpty.get()
+  boozToEmpty
+    .get()
     .then(doc => {
       if (!doc.exists) {
-        return res.status(404).json({ error: 'Boozula not found' });
-      }
-      else if (doc.data().klozang !== req.user.clozang) {
-        return res.status(403).json({ error: 'This action is not permitted by this account' });
-      }
-      else {
+        return res.status(404).json({ error: "Boozula not found" });
+      } else if (doc.data().klozang !== req.user.clozang) {
+        return res
+          .status(403)
+          .json({ error: "This action is not permitted by this account" });
+      } else {
         return boozToEmpty.delete();
       }
     })
     .then(() => {
-      return res.json({ message: 'Boozula emptied completely' });
+      return res.json({ message: "Boozula emptied completely" });
     })
     .catch(err => {
       console.error(err);
@@ -262,7 +277,8 @@ exports.emptyBoozula = (req, res) => {
 };
 
 exports.toastBoozula = (req, res) => {
-  if (req.body.body.trim() === '') return res.status(400).json({ convo: 'Field must not be empty' });
+  if (req.body.body.trim() === "")
+    return res.status(400).json({ convo: "Field must not be empty" });
 
   const newToast = {
     body: req.body.body,
@@ -273,21 +289,22 @@ exports.toastBoozula = (req, res) => {
     userImage: req.user.imageUrl
   };
 
-  db.doc(`/Boozulas/${req.params.boozId}`).get()
+  db.doc(`/Boozulas/${req.params.boozId}`)
+    .get()
     .then(doc => {
       if (!doc.exists) {
-        return res.status(404).json({ error: 'Boozula has been emptied' });
+        return res.status(404).json({ error: "Boozula has been emptied" });
       }
       return doc.ref.update({ toastCount: doc.data().toastCount + 1 });
     })
     .then(() => {
-      return db.collection('Toasts').add(newToast);
+      return db.collection("Toasts").add(newToast);
     })
     .then(() => {
       res.json(newToast);
     })
     .catch(err => {
       console.error(err);
-      res.status(500).json({ error: 'Something went wrong' });
-    })
+      res.status(500).json({ error: "Something went wrong" });
+    });
 };

@@ -127,7 +127,7 @@ exports.stokeSpark = (req, res) => {
 exports.addHeat = (req, res) => {
   const heatDoc = db
     .collection("Heat")
-    .where("alias", "==", req.user.alias)
+    .where("klozang", "==", req.user.clozang)
     .where("sparkId", "==", req.params.sparkId)
     .limit(1);
 
@@ -152,7 +152,8 @@ exports.addHeat = (req, res) => {
           .collection("Heat")
           .add({
             sparkId: req.params.sparkId,
-            alias: req.user.alias
+            alias: req.user.alias,
+            klozang: req.user.clozang
           })
           .then(() => {
             sparkData.heatCount++;
@@ -175,7 +176,7 @@ exports.addHeat = (req, res) => {
 exports.removeHeat = (req, res) => {
   const heatDoc = db
     .collection("Heat")
-    .where("alias", "==", req.user.alias)
+    .where("klozang", "==", req.user.clozang)
     .where("sparkId", "==", req.params.sparkId)
     .limit(1);
   const sparkDoc = db.doc(`/Sparks/${req.params.sparkId}`);

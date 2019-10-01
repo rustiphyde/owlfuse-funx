@@ -210,18 +210,18 @@ exports.getAuthenticatedUser = (req, res) => {
         userData.credentials = doc.data();
         return db
           .collection("Heat")
-          .where("alias", "==", req.user.alias)
+          .where("klozang", "==", req.user.clozang)
           .get();
       }
     })
     .then(data => {
-      userData.cheers = [];
+      userData.heat = [];
       data.forEach(doc => {
-        userData.cheers.push(doc.data());
+        userData.heat.push(doc.data());
       });
       return db
           .collection("Cheers")
-          .where("alias", "==", req.user.alias)
+          .where("klozang", "==", req.user.clozang)
           .get();
     })
     .then(data => {

@@ -231,7 +231,7 @@ exports.choozByList = (req, res) => {
     })
     .catch(err => {
       console.error(err);
-      return res.status(400).json({ error: "Sorry, there are no songs on this list at this" });
+      return res.status(400).json({ error: "Sorry, there are no songs on this list at this time." });
     });
 };
 

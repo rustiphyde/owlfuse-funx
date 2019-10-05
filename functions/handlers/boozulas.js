@@ -130,6 +130,7 @@ exports.getBoozula = (req, res) => {
       return db
         .collection("Toasts")
         .where("boozId", "==", doc.id)
+        .orderBy("createdAt", "desc")
         .get();
     })
     .then(data => {

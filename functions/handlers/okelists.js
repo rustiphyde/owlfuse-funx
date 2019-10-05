@@ -284,7 +284,7 @@ exports.choozByArtist = (req, res) => {
     })
     .catch(err => {
       console.error(err);
-      return res.status(500).json({ error: err.code });
+      return res.status(400).json({ error: "Sorry, there are currently no songs by that artist in our database. You are welcome to add one." });
     });
 };
 
@@ -337,7 +337,7 @@ exports.choozByClozang = (req, res) => {
     })
     .catch(err => {
       console.error(err);
-      return res.status(500).json({ error: err.code });
+      return res.status(400).json({ error: "This user currently has no songs in the database." });
     });
 };
 
@@ -389,7 +389,7 @@ exports.choozFromAllSongs = (req, res) => {
     })
     .catch(err => {
       console.error(err);
-      return res.status(500).json({ error: err.code });
+      return res.status(500).json({ error: "Something went wrong, please try again." });
     });
 };
 

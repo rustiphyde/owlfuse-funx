@@ -41,6 +41,7 @@ exports.getSpark = (req, res) => {
       return db
         .collection("Stokes")
         .where("sparkId", "==", req.params.sparkId)
+        .orderBy("createdAt", "desc")
         .get();
     })
     .then(data => {

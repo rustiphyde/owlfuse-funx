@@ -7,7 +7,8 @@ firebase.initializeApp(config);
 const {
   validateSignupData,
   validateLoginData,
-  reduceUserDetails
+  reduceUserDetails,
+  validateResetData
 } = require("../util/validators");
 
 // Sign up for an Owlfuse account

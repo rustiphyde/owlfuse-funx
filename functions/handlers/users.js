@@ -17,8 +17,7 @@ exports.signup = (req, res) => {
     email: req.body.email,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
-    alias: req.body.alias,
-    clozang: ">" + req.body.alias.replace(/\s/g, "-").toLowerCase()
+    alias: req.body.alias.replace(/\s/g, "-")
   };
 
   const { valid, errors } = validateSignupData(newUser);
@@ -28,12 +27,12 @@ exports.signup = (req, res) => {
   const noImg = "No-owlfuse-pic.png";
 
   let token, userId;
-  db.doc(`/Users/${newUser.clozang}`)
+  db.doc(`/Users/${newUser.alias}`)
     .get()
     .then(doc => {
       if (doc.exists) {
         return res.status(400).json({
-          clozang: "This clozang has already been taken by someone else"
+          alias: "This alias has already been taken by someone else"
         });
       } else {
         return firebase
@@ -49,13 +48,12 @@ exports.signup = (req, res) => {
       token = idToken;
       const userCredentials = {
         alias: newUser.alias,
-        clozang: newUser.clozang,
         email: newUser.email,
         createdAt: new Date().toISOString(),
         imageUrl: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
         userId
       };
-      return db.doc(`/Users/${newUser.clozang}`).set(userCredentials);
+      return db.doc(`/Users/${newUser.alias}`).set(userCredentials);
     })
     .then(() => {
       return res.status(201).json({ token });
@@ -104,7 +102,7 @@ exports.login = (req, res) => {
 exports.addUserDetails = (req, res) => {
   let userDetails = reduceUserDetails(req.body);
 
-  db.doc(`/Users/${req.user.clozang}`)
+  db.doc(`/Users/${req.user.alias}`)
     .update(userDetails)
     .then(() => {
       return res.json({ message: "Details added successfully" });
@@ -118,14 +116,14 @@ exports.addUserDetails = (req, res) => {
 // Fetch any user's details
 exports.getUserDetails = (req, res) => {
   let userData = {};
-  db.doc(`/Users/${req.params.clozang}`)
+  db.doc(`/Users/${req.params.alias}`)
     .get()
     .then(doc => {
       if (doc.exists) {
         userData.user = doc.data();
         return db
           .collection("Sparks")
-          .where("klozang", "==", req.params.clozang)
+          .where("userAlias", "==", req.params.alias)
           .orderBy("createdAt", "desc")
           .get();
       } else {
@@ -139,7 +137,6 @@ exports.getUserDetails = (req, res) => {
           body: doc.data().body,
           createdAt: doc.data().createdAt,
           alias: doc.data().alias,
-          klozang: doc.data().klozang,
           userImage: doc.data().userImage,
           heatCount: doc.data().heatCount,
           stokeCount: doc.data().stokeCount,
@@ -149,7 +146,7 @@ exports.getUserDetails = (req, res) => {
       });
       return db
         .collection("Boozulas")
-        .where("klozang", "==", req.params.clozang)
+        .where("userAlias", "==", req.params.alias)
         .orderBy("createdAt", "desc")
         .get();
     })
@@ -161,7 +158,6 @@ exports.getUserDetails = (req, res) => {
           drinkName: doc.data().drinkName,
           mainAlcohol: doc.data().mainAlcohol,
           alias: doc.data().alias,
-          klozang: doc.data().klozang,
           boozImage: doc.data().boozImage,
           createdAt: doc.data().createdAt,
           cheersCount: doc.data().cheersCount,
@@ -174,7 +170,7 @@ exports.getUserDetails = (req, res) => {
       });
       return db
         .collection("Okelists")
-        .where("klozang", "==", req.params.clozang)
+        .where("userAlias", "==", req.params.alias)
         .orderBy("createdAt", "desc")
         .get();
     })
@@ -183,7 +179,6 @@ exports.getUserDetails = (req, res) => {
       data.forEach(doc => {
         userData.okelists.push({
           createdAt: doc.data().createdAt,
-          klozang: doc.data().klozang,
           alias: doc.data().alias,
           userImage: doc.data().userImage,
           okeId: doc.id,
@@ -204,14 +199,14 @@ exports.getUserDetails = (req, res) => {
 // Get own user details
 exports.getAuthenticatedUser = (req, res) => {
   let userData = {};
-  db.doc(`/Users/${req.user.clozang}`)
+  db.doc(`/Users/${req.user.alias}`)
     .get()
     .then(doc => {
       if (doc.exists) {
         userData.credentials = doc.data();
         return db
           .collection("Heat")
-          .where("klozang", "==", req.user.clozang)
+          .where("userAlias", "==", req.user.alias)
           .get();
       }
     })
@@ -222,7 +217,7 @@ exports.getAuthenticatedUser = (req, res) => {
       });
       return db
           .collection("Cheers")
-          .where("klozang", "==", req.user.clozang)
+          .where("userAlias", "==", req.user.alias)
           .get();
     })
     .then(data => {
@@ -316,7 +311,7 @@ exports.uploadImage = (req, res) => {
       })
       .then(() => {
         const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
-        return db.doc(`/Users/${req.user.clozang}`).update({ imageUrl });
+        return db.doc(`/Users/${req.user.alias}`).update({ imageUrl });
       })
       .then(() => {
         return res.json({ message: "Image uploaded successfully" });

@@ -26,10 +26,10 @@ const {
   addOneSong,
   getSongsByList,
   getSongsByArtist,
-  getSongsByClozang,
+  getSongsByAlias,
   choozByList,
   choozByArtist,
-  choozByClozang,
+  choozByAlias,
   choozFromAllSongs,
   eraseOkelist
 } = require('./handlers/okelists');
@@ -73,7 +73,7 @@ app.post("/user/image", FBAuth, uploadImage);
 app.post("/user", FBAuth, addUserDetails);
 app.get("/user", FBAuth, getAuthenticatedUser);
 app.post("/sizzles", FBAuth, markSizzlesRead);
-app.get("/user/:clozang", getUserDetails);
+app.get("/user/:alias", getUserDetails);
 app.post("/reset", resetPassword);
 
 // Oke routes
@@ -83,10 +83,10 @@ app.get("/okelist/:okeId", getOke);
 app.post("/okelist/:okeId/song", FBAuth, addOneSong);
 app.get("/songs/:okeId/list", getSongsByList);
 app.get("/songs/:artist/artist", getSongsByArtist);
-app.get("/songs/:clozang/clozang", getSongsByClozang);
+app.get("/songs/:alias/alias", getSongsByAlias);
 app.get("/song/:okeId/list/chooz", choozByList);
 app.get("/song/:artist/artist/chooz", choozByArtist);
-app.get("/song/:clozang/clozang/chooz", choozByClozang);
+app.get("/song/:alias/alias/chooz", choozByAlias);
 app.get("/song/all/chooz", choozFromAllSongs);
 app.delete("/okelist/:okeId", FBAuth, eraseOkelist);
 
@@ -111,11 +111,11 @@ exports.createSizzleOnHeat = functions.firestore
       .doc(`/Sparks/${snap.data().sparkId}`)
       .get()
       .then(doc => {
-        if (doc.exists && doc.data().alias !== snap.data().alias) {
+        if (doc.exists && doc.data().userAlias !== snap.data().userAlias) {
           return db.doc(`/Sizzles/${snap.id}`).set({
             createdAt: new Date().toISOString(),
-            recipient: doc.data().alias,
-            sender: snap.data().alias,
+            recipient: doc.data().userAlias,
+            sender: snap.data().userAlias,
             type: "heat",
             read: false,
             sparkId: doc.id
@@ -132,11 +132,11 @@ exports.createSizzleOnHeat = functions.firestore
       .doc(`/Boozulas/${snap.data().boozId}`)
       .get()
       .then(doc => {
-        if (doc.exists && doc.data().alias !== snap.data().alias) {
+        if (doc.exists && doc.data().userAlias !== snap.data().userAlias) {
           return db.doc(`/Clinks/${snap.id}`).set({
             createdAt: new Date().toISOString(),
-            recipient: doc.data().alias,
-            sender: snap.data().alias,
+            recipient: doc.data().userAlias,
+            sender: snap.data().userAlias,
             type: "cheers",
             read: false,
             boozId: doc.id
@@ -153,11 +153,11 @@ exports.createSizzleOnStoke = functions.firestore
       .doc(`/Sparks/${snap.data().sparkId}`)
       .get()
       .then(doc => {
-        if (doc.exists && doc.data().alias !== snap.data().alias) {
+        if (doc.exists && doc.data().userAlias !== snap.data().userAlias) {
           return db.doc(`/Sizzles/${snap.id}`).set({
             createdAt: new Date().toISOString(),
-            recipient: doc.data().alias,
-            sender: snap.data().alias,
+            recipient: doc.data().userAlias,
+            sender: snap.data().userAlias,
             type: "stoke",
             read: false,
             sparkId: doc.id
@@ -174,11 +174,11 @@ exports.createSizzleOnStoke = functions.firestore
       .doc(`/Boozulas/${snap.data().boozId}`)
       .get()
       .then(doc => {
-        if (doc.exists && doc.data().alias !== snap.data().alias) {
+        if (doc.exists && doc.data().userAlias !== snap.data().userAlias) {
           return db.doc(`/Clinks/${snap.id}`).set({
             createdAt: new Date().toISOString(),
-            recipient: doc.data().alias,
-            sender: snap.data().alias,
+            recipient: doc.data().userAlias,
+            sender: snap.data().userAlias,
             type: "toast",
             read: false,
             boozId: doc.id
@@ -213,7 +213,7 @@ exports.onUserImageChange = functions.firestore
       const batch = db.batch();
       return db
         .collection("Sparks")
-        .where("klozang", "==", change.before.data().clozang)
+        .where("userAlias", "==", change.before.data().alias)
         .get()
         .then(data => {
           data.forEach(doc => {
@@ -222,7 +222,7 @@ exports.onUserImageChange = functions.firestore
           });
           return db
             .collection("Stokes")
-            .where("klozang", "==", change.before.data().clozang)
+            .where("userAlias", "==", change.before.data().alias)
             .get();
         })
         .then(data => {
@@ -232,7 +232,7 @@ exports.onUserImageChange = functions.firestore
           });
           return db
             .collection("Toasts")
-            .where("klozang", "==", change.before.data().clozang)
+            .where("userAlias", "==", change.before.data().alias)
             .get();
         })
         .then(data => {
@@ -312,144 +312,7 @@ exports.sparkToFire = functions.firestore
     } else return;
   });
 
-  exports.onAliasChange = functions.firestore
-  .document("/Users/{id}")
-  .onUpdate(change => {
-    if (change.before.data().alias !== change.after.data().alias) {
-      const batch = db.batch();
-      return db
-        .collection("Users")
-        .where("clozang", "==", change.before.data().clozang)
-        .get()
-        .then(data => {
-          data.forEach(doc => {
-            const newAlias = db.doc(`/Users/${change.before.data().clozang}`);
-            batch.update(newAlias, { alias: change.after.data().alias });
-          });
-          return db
-            .collection("Sparks")
-            .where("alias", "==", change.before.data().alias)
-            .get();
-        })
-        .then(data => {
-          data.forEach(doc => {
-            const newSparkAlias = db.doc(`/Sparks/${doc.id}`);
-            batch.update(newSparkAlias, {
-              alias: change.after.data().alias
-            });
-          });
-          return db
-            .collection("Stokes")
-            .where("alias", "==", change.before.data().alias)
-            .get();
-        })
-        .then(data => {
-          data.forEach(doc => {
-            const newStokeAlias = db.doc(`Stokes/${doc.id}`);
-            batch.update(newStokeAlias, {
-              alias: change.after.data().alias
-            });
-          });
-          return db
-            .collection("Toasts")
-            .where("alias", "==", change.before.data().alias)
-            .get();
-        })
-        .then(data => {
-          data.forEach(doc => {
-            const newToastAlias = db.doc(`Toasts/${doc.id}`);
-            batch.update(newToastAlias, {
-              alias: change.after.data().alias
-            });
-          });
-          return db
-            .collection("Heat")
-            .where("alias", "==", change.before.data().alias)
-            .get();
-        })
-        .then(data => {
-          data.forEach(doc => {
-            const newHeatAlias = db.doc(`Heat/${doc.id}`);
-            batch.update(newHeatAlias, {
-              alias: change.after.data().alias
-            });
-          });
-          return db
-            .collection("Cheers")
-            .where("alias", "==", change.before.data().alias)
-            .get();
-        })
-        .then(data => {
-          data.forEach(doc => {
-            const newCheersAlias = db.doc(`Cheers/${doc.id}`);
-            batch.update(newCheersAlias, {
-              alias: change.after.data().alias
-            });
-          });
-          return db
-            .collection("Boozulas")
-            .where("alias", "==", change.before.data().alias)
-            .get();
-        })
-        .then(data => {
-          data.forEach(doc => {
-            const newBoozulaAlias = db.doc(`Boozulas/${doc.id}`);
-            batch.update(newBoozulaAlias, {
-              alias: change.after.data().alias
-            });
-          });
-          return db
-            .collection("Sizzles")
-            .where("sender", "==", change.before.data().alias)
-            .get();
-        })
-        .then(data => {
-          data.forEach(doc => {
-            const newSenderAlias = db.doc(`Sizzles/${doc.id}`);
-            batch.update(newSenderAlias, {
-              sender: change.after.data().alias
-            });
-          });
-          return db
-            .collection("Sizzles")
-            .where("recipient", "==", change.before.data().alias)
-            .get();
-        })
-        .then(data => {
-          data.forEach(doc => {
-            const newRecipientAlias = db.doc(`Sizzles/${doc.id}`);
-            batch.update(newRecipientAlias, {
-              recipient: change.after.data().alias
-            });
-          });
-          return db
-            .collection("Clinks")
-            .where("sender", "==", change.before.data().alias)
-            .get();
-        })
-        .then(data => {
-          data.forEach(doc => {
-            const newSenderAlias = db.doc(`Clinks/${doc.id}`);
-            batch.update(newSenderAlias, {
-              sender: change.after.data().alias
-            });
-          });
-          return db
-            .collection("Clinks")
-            .where("recipient", "==", change.before.data().alias)
-            .get();
-        })
-        .then(data => {
-          data.forEach(doc => {
-            const newRecipientAlias = db.doc(`Clinks/${doc.id}`);
-            batch.update(newRecipientAlias, {
-              recipient: change.after.data().alias
-            });
-          });
-          return batch.commit();
-        });
-    } else return true;
-  });
+  
 
 exports.onOkelistErase = functions.firestore
   .document("Okelists/{id}")

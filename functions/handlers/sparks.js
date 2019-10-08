@@ -10,8 +10,7 @@ exports.getAllSparks = (req, res) => {
         sparks.push({
           sparkId: doc.id,
           body: doc.data().body,
-          alias: doc.data().alias,
-          klozang: doc.data().klozang,
+          userAlias: doc.data().userAlias,
           createdAt: doc.data().createdAt,
           stokeCount: doc.data().stokeCount,
           heatCount: doc.data().heatCount,
@@ -62,8 +61,7 @@ exports.postOneSpark = (req, res) => {
   
   const newSpark = {
     body: req.body.body,
-    alias: req.user.alias,
-    klozang: req.user.clozang,
+    userAlias: req.user.alias,
     createdAt: new Date().toISOString(),
     heatCount: 0,
     stokeCount: 0,
@@ -92,8 +90,7 @@ exports.stokeSpark = (req, res) => {
     body: req.body.body,
     createdAt: new Date().toISOString(),
     sparkId: req.params.sparkId,
-    alias: req.user.alias,
-    klozang: req.user.clozang,
+    userAlias: req.user.alias,
     userImage: req.user.imageUrl
   };
   db.doc(`/Sparks/${req.params.sparkId}`)
@@ -128,7 +125,7 @@ exports.stokeSpark = (req, res) => {
 exports.addHeat = (req, res) => {
   const heatDoc = db
     .collection("Heat")
-    .where("klozang", "==", req.user.clozang)
+    .where("userAlias", "==", req.user.alias)
     .where("sparkId", "==", req.params.sparkId)
     .limit(1);
 
@@ -153,8 +150,7 @@ exports.addHeat = (req, res) => {
           .collection("Heat")
           .add({
             sparkId: req.params.sparkId,
-            alias: req.user.alias,
-            klozang: req.user.clozang
+            userAlias: req.user.alias
           })
           .then(() => {
             sparkData.heatCount++;
@@ -177,7 +173,7 @@ exports.addHeat = (req, res) => {
 exports.removeHeat = (req, res) => {
   const heatDoc = db
     .collection("Heat")
-    .where("klozang", "==", req.user.clozang)
+    .where("userAlias", "==", req.user.alias)
     .where("sparkId", "==", req.params.sparkId)
     .limit(1);
   const sparkDoc = db.doc(`/Sparks/${req.params.sparkId}`);
@@ -223,7 +219,7 @@ exports.extinguishSpark = (req, res) => {
           if(!doc.exists){
               return res.status(404).json({ error: 'Spark not found'});
           } 
-          else if(doc.data().klozang !== req.user.clozang){
+          else if(doc.data().userAlias !== req.user.alias){
               return res.status(403).json({ error: 'This action is not permitted by this account'});
           }
           else {

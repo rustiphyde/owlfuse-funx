@@ -9,8 +9,8 @@ The theme of the content involves the concept of **"Sparks"** which are the post
 
 Notifications about Heat and Stokes come in the form of **"Sizzles"**, which is just a name that fits with the Heat theme. 
 
-Users have a username made up of whatever combination of letters or numbers that they choose and is translated into their "Clozang" the same combination of letters and numbers in all lowercase with spaces replaced by a dash and preceded by a closing angle bracket. 
+Users choose a username or "alias" as soon as they sign up and it becomes their permanent identity on OwlFuse. 
 
-Users sign up with an email address, a password, a confirm password and their username. Users sign in with just their email address and password. If a user forgets their password they can reset it via an email link.
+Users sign up with an email address, a password, a confirm password and their alias. Users sign in with just their email address and password. If a user forgets their password they can reset it via an email link.
 
 

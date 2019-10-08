@@ -26,7 +26,6 @@ module.exports = (req, res, next) => {
     })
     .then(data => {
       req.user.alias = data.docs[0].data().alias;
-      req.user.clozang = data.docs[0].data().clozang;
       req.user.imageUrl = data.docs[0].data().imageUrl;
       return next();
     })

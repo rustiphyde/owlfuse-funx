@@ -15,7 +15,7 @@ exports.buildNewOkeList = (req, res) => {
     songCount: 0
   };
 
-  db.collection("OkeLists")
+  db.collection("Okelists")
     .add(newOkeList)
     .then(doc => {
       const resOke = newOkeList;
@@ -28,8 +28,8 @@ exports.buildNewOkeList = (req, res) => {
     });
 };
 
-exports.getAllOkeLists = (req, res) => {
-  db.collection("OkeLists")
+exports.getAllOkelists = (req, res) => {
+  db.collection("Okelists")
     .orderBy("createdAt", "desc")
     .get()
     .then(data => {
@@ -51,7 +51,7 @@ exports.getAllOkeLists = (req, res) => {
 
 exports.getOke = (req, res) => {
   let okeData = {};
-  db.doc(`OkeLists/${req.params.okeId}`)
+  db.doc(`Okelists/${req.params.okeId}`)
     .get()
     .then(doc => {
       if (!doc.exists) {
@@ -91,7 +91,7 @@ exports.addOneSong = (req, res) => {
     artist: req.body.songArtist.replace(/\s/g, "").toLowerCase()
   };
 
-  db.doc(`/OkeLists/${req.params.okeId}`)
+  db.doc(`/Okelists/${req.params.okeId}`)
     .get()
     .then(doc => {
       if (!doc.exists) {
@@ -394,7 +394,7 @@ exports.choozFromAllSongs = (req, res) => {
 };
 
 exports.eraseOkelist = (req, res) => {
-  const okeToErase = db.doc(`/OkeLists/${req.params.okeId}`);
+  const okeToErase = db.doc(`/Okelists/${req.params.okeId}`);
 
   okeToErase.get()
       .then(doc => {

@@ -21,7 +21,7 @@ const {
 
 const {
   buildNewOkeList,
-  getAllOkeLists,
+  getAllOkelists,
   getOke,
   addOneSong,
   getSongsByList,
@@ -78,7 +78,7 @@ app.post("/reset", resetPassword);
 
 // Oke routes
 app.post("/okelist", FBAuth, buildNewOkeList);
-app.get("/okelists", getAllOkeLists);
+app.get("/okelists", getAllOkelists);
 app.get("/okelist/:okeId", getOke);
 app.post("/okelist/:okeId/song", FBAuth, addOneSong);
 app.get("/songs/:okeId/list", getSongsByList);

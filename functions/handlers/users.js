@@ -136,7 +136,7 @@ exports.getUserDetails = (req, res) => {
         userData.sparks.push({
           body: doc.data().body,
           createdAt: doc.data().createdAt,
-          alias: doc.data().alias,
+          userAlias: doc.data().userAlias,
           userImage: doc.data().userImage,
           heatCount: doc.data().heatCount,
           stokeCount: doc.data().stokeCount,
@@ -157,7 +157,7 @@ exports.getUserDetails = (req, res) => {
           boozId: doc.id,
           drinkName: doc.data().drinkName,
           mainAlcohol: doc.data().mainAlcohol,
-          alias: doc.data().alias,
+          userAlias: doc.data().userAlias,
           boozImage: doc.data().boozImage,
           createdAt: doc.data().createdAt,
           cheersCount: doc.data().cheersCount,
@@ -179,7 +179,7 @@ exports.getUserDetails = (req, res) => {
       data.forEach(doc => {
         userData.okelists.push({
           createdAt: doc.data().createdAt,
-          alias: doc.data().alias,
+          userAlias: doc.data().userAlias,
           userImage: doc.data().userImage,
           okeId: doc.id,
           listName: doc.data().listName,

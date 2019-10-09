@@ -15,6 +15,7 @@ exports.buildNewBoozula = (req, res) => {
     drinkName: req.body.drinkName,
     mainAlcohol: req.body.mainAlcohol,
     userAlias: req.user.alias,
+    userClozang: req.user.clozang,
     boozImage: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
     createdAt: new Date().toISOString(),
     cheersCount: 0,
@@ -100,6 +101,7 @@ exports.getAllBoozulas = (req, res) => {
           drinkName: doc.data().drinkName,
           mainAlcohol: doc.data().mainAlcohol,
           userAlias: doc.data().userAlias,
+          userClozang: doc.data().userClozang,
           boozImage: doc.data().boozImage,
           createdAt: doc.data().createdAt,
           cheersCount: doc.data().cheersCount,
@@ -276,13 +278,14 @@ exports.emptyBoozula = (req, res) => {
 
 exports.toastBoozula = (req, res) => {
   if (req.body.body.trim() === "")
-    return res.status(400).json({ convo: "Field must not be empty" });
+    return res.status(400).json({ toast: "Field must not be empty" });
 
   const newToast = {
     body: req.body.body,
     createdAt: new Date().toISOString(),
     boozId: req.params.boozId,
     userAlias: req.user.alias,
+    userClozang: req.user.clozang,
     userImage: req.user.imageUrl
   };
 

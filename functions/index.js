@@ -54,6 +54,7 @@ const {
   getAuthenticatedUser,
   getUserDetails,
   markSizzlesRead,
+  markClinksRead,
   resetPassword
 } = require("./handlers/users");
 
@@ -73,6 +74,7 @@ app.post("/user/image", FBAuth, uploadImage);
 app.post("/user", FBAuth, addUserDetails);
 app.get("/user", FBAuth, getAuthenticatedUser);
 app.post("/sizzles", FBAuth, markSizzlesRead);
+app.post("/clinks", FBAuth, markClinksRead);
 app.get("/user/:clozang", getUserDetails);
 app.post("/reset", resetPassword);
 

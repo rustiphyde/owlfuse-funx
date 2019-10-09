@@ -4,6 +4,7 @@ let db = {
       userId: 'WniXVQLSLyM4q5HTKVuwWFGPyk2',
       email: 'user@example.com',
       alias: 'Generic-Alias',
+      clozang: '>generic-user',
       createdAt: '2019-07-12T20:45:02.580Z',
       imageUrl: 'https://firebasestorage.googleapis.com/v0/b/owlfuse-app.appspot.com/o/No-owlfuse-pic.png?alt=media',
       bio: 'Hello, my name is Rusty, and I am the creator of Owlfuse.',
@@ -15,6 +16,7 @@ let db = {
   sparks: [
     {
       userAlias: "Fake-Username",
+      userClozang: ">fake-username",
       body: "spark body",
       createdAt: "2019-07-12T17:19:04.980Z",
       heatCount: 6,
@@ -24,12 +26,13 @@ let db = {
   stokes: [
     {
       userAlias: "Generic-User",
+      userClozang: ">generic-user",
       sparkId: "9gDkPmho8hbRLf1J2IIB",
       body: "Stoke body goes here",
       createdAt: "2019-07-14T07:20:41:926Z"
     }
   ],
-  Sizzles: [
+  sizzles: [
     {
         recipient: "Rusty",
         sender: "Other-User",
@@ -46,7 +49,8 @@ const userDetails = {
   credentials: {
       userId: "WniXVQLSLyM4q5HTKVuwWFG2Pyk2",
       email: "user@example.com",
-      alias: "Generic-User",
+    alias: "Generic-User",
+      clozang: ">generic-user",
       createdAt: "2019-07-12T20:45:02.580Z",
       imageUrl: "https://firebasestorage.googleapis.com/v0/b/owlfuse.appspot.com/o/No-owlfuse-pic.png?alt=media",
       bio: "Hi, My name is Generic User",
@@ -59,8 +63,18 @@ const userDetails = {
           sparkId: "9gDkPmho8hbRLf1J2IIB"
       },
       {
-          userAlias: "User 2",
+          userAlias: "User-2",
           sparkId: "lSqXGaLI4e501rFodYy5"
       }
+  ],
+  cheers: [
+    {
+      userAlias: 'Owl-Fuser',
+      boozId: 'j4k3Z2HQqFaHIbssRXkH'
+    },
+    {
+      userAlias: 'User-3',
+      boozId: 'j4k3Z2HQqFaHIbssRXkH'
+    }
   ]
 }

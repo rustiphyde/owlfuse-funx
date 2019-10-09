@@ -347,6 +347,23 @@ exports.markSizzlesRead = (req, res) => {
     });
 };
 
+exports.markClinksRead = (req, res) => {
+  let batch = db.batch();
+  req.body.forEach(clinkId => {
+    const clink = db.doc(`/Clinks/${clinkId}`);
+    batch.update(clink, { read: true });
+  });
+  batch
+    .commit()
+    .then(() => {
+      return res.json({ message: "Clinks marked read" });
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
 exports.resetPassword = (req, res) => {
   const resUser = {
     email: req.body.email

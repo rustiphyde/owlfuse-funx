@@ -11,6 +11,7 @@ exports.getAllSparks = (req, res) => {
           sparkId: doc.id,
           body: doc.data().body,
           userAlias: doc.data().userAlias,
+          userClozang: doc.data().userClozang,
           createdAt: doc.data().createdAt,
           stokeCount: doc.data().stokeCount,
           heatCount: doc.data().heatCount,
@@ -61,6 +62,7 @@ exports.postOneSpark = (req, res) => {
   
   const newSpark = {
     body: req.body.body,
+    userClozang: req.user.clozang,
     userAlias: req.user.alias,
     createdAt: new Date().toISOString(),
     heatCount: 0,
@@ -91,6 +93,7 @@ exports.stokeSpark = (req, res) => {
     createdAt: new Date().toISOString(),
     sparkId: req.params.sparkId,
     userAlias: req.user.alias,
+    userClozang: req.user.clozang,
     userImage: req.user.imageUrl
   };
   db.doc(`/Sparks/${req.params.sparkId}`)

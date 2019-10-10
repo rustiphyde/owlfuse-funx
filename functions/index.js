@@ -75,7 +75,7 @@ app.post("/user", FBAuth, addUserDetails);
 app.get("/user", FBAuth, getAuthenticatedUser);
 app.post("/sizzles", FBAuth, markSizzlesRead);
 app.post("/clinks", FBAuth, markClinksRead);
-app.get("/user/:clozang", getUserDetails);
+app.get("/:clozang", getUserDetails);
 app.post("/reset", resetPassword);
 
 // Oke routes

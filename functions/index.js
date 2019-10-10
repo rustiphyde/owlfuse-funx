@@ -75,7 +75,7 @@ app.post("/user", FBAuth, addUserDetails);
 app.get("/user", FBAuth, getAuthenticatedUser);
 app.post("/sizzles", FBAuth, markSizzlesRead);
 app.post("/clinks", FBAuth, markClinksRead);
-app.get("/:clozang", getUserDetails);
+app.get("/user/:clozang", getUserDetails);
 app.post("/reset", resetPassword);
 
 // Oke routes
@@ -120,7 +120,8 @@ exports.createSizzleOnHeat = functions.firestore
             sender: snap.data().userAlias,
             type: "heat",
             read: false,
-            sparkId: doc.id
+            sparkId: doc.id,
+            sizzleId: snap.id
           });
         }
       })
@@ -141,7 +142,8 @@ exports.createSizzleOnHeat = functions.firestore
             sender: snap.data().userAlias,
             type: "cheers",
             read: false,
-            boozId: doc.id
+            boozId: doc.id,
+            clinkId: snap.id
           });
         }
       })
@@ -162,7 +164,8 @@ exports.createSizzleOnStoke = functions.firestore
             sender: snap.data().userAlias,
             type: "stoke",
             read: false,
-            sparkId: doc.id
+            sparkId: doc.id,
+            sizzleId: snap.id
           });
         }
       })
@@ -170,7 +173,7 @@ exports.createSizzleOnStoke = functions.firestore
   });
 
   exports.createClinkOnToast = functions.firestore
-  .document("Stokes/{id}")
+  .document("Toasts/{id}")
   .onCreate(snap => {
     return db
       .doc(`/Boozulas/${snap.data().boozId}`)
@@ -183,7 +186,8 @@ exports.createSizzleOnStoke = functions.firestore
             sender: snap.data().userAlias,
             type: "toast",
             read: false,
-            boozId: doc.id
+            boozId: doc.id,
+            clinkId: snap.id
           });
         }
       })

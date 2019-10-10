@@ -351,7 +351,7 @@ exports.sparkToFire = functions.firestore
         })
         .then(data => {
           data.forEach(doc => {
-            const newStokeAlias = db.doc(`Stokes/${doc.id}`);
+            const newStokeAlias = db.doc(`/Stokes/${doc.id}`);
             batch.update(newStokeAlias, {
               userAlias: change.after.data().alias
             });
@@ -363,7 +363,7 @@ exports.sparkToFire = functions.firestore
         })
         .then(data => {
           data.forEach(doc => {
-            const newToastAlias = db.doc(`Toasts/${doc.id}`);
+            const newToastAlias = db.doc(`/Toasts/${doc.id}`);
             batch.update(newToastAlias, {
               userAlias: change.after.data().alias
             });
@@ -375,7 +375,7 @@ exports.sparkToFire = functions.firestore
       })
       .then(data => {
         data.forEach(doc => {
-          const newSongAlias = db.doc(`Songs/${doc.id}`);
+          const newSongAlias = db.doc(`/Songs/${doc.id}`);
           batch.update(newSongAlias, {
             userAlias: change.after.data().alias
           });
@@ -387,7 +387,7 @@ exports.sparkToFire = functions.firestore
         })
         .then(data => {
           data.forEach(doc => {
-            const newHeatAlias = db.doc(`Heat/${doc.id}`);
+            const newHeatAlias = db.doc(`/Heat/${doc.id}`);
             batch.update(newHeatAlias, {
               userAlias: change.after.data().alias
             });
@@ -399,7 +399,7 @@ exports.sparkToFire = functions.firestore
         })
         .then(data => {
           data.forEach(doc => {
-            const newCheersAlias = db.doc(`Cheers/${doc.id}`);
+            const newCheersAlias = db.doc(`/Cheers/${doc.id}`);
             batch.update(newCheersAlias, {
               userAlias: change.after.data().alias
             });
@@ -411,7 +411,7 @@ exports.sparkToFire = functions.firestore
         })
         .then(data => {
           data.forEach(doc => {
-            const newBoozulaAlias = db.doc(`Boozulas/${doc.id}`);
+            const newBoozulaAlias = db.doc(`/Boozulas/${doc.id}`);
             batch.update(newBoozulaAlias, {
               userAlias: change.after.data().alias
             });
@@ -423,7 +423,7 @@ exports.sparkToFire = functions.firestore
         })
         .then(data => {
           data.forEach(doc => {
-            const newOkelistAlias = db.doc(`Okelists/${doc.id}`);
+            const newOkelistAlias = db.doc(`/Okelists/${doc.id}`);
             batch.update(newOkelistAlias, {
               userAlias: change.after.data().alias
             });
@@ -435,7 +435,7 @@ exports.sparkToFire = functions.firestore
         })
         .then(data => {
           data.forEach(doc => {
-            const newSenderAlias = db.doc(`Sizzles/${doc.id}`);
+            const newSenderAlias = db.doc(`/Sizzles/${doc.id}`);
             batch.update(newSenderAlias, {
               sender: change.after.data().alias
             });
@@ -447,7 +447,7 @@ exports.sparkToFire = functions.firestore
         })
         .then(data => {
           data.forEach(doc => {
-            const newRecipientAlias = db.doc(`Sizzles/${doc.id}`);
+            const newRecipientAlias = db.doc(`/Sizzles/${doc.id}`);
             batch.update(newRecipientAlias, {
               recipient: change.after.data().alias
             });
@@ -459,7 +459,7 @@ exports.sparkToFire = functions.firestore
         })
         .then(data => {
           data.forEach(doc => {
-            const newSenderAlias = db.doc(`Clinks/${doc.id}`);
+            const newSenderAlias = db.doc(`/Clinks/${doc.id}`);
             batch.update(newSenderAlias, {
               sender: change.after.data().alias
             });
@@ -471,7 +471,7 @@ exports.sparkToFire = functions.firestore
         })
         .then(data => {
           data.forEach(doc => {
-            const newRecipientAlias = db.doc(`Clinks/${doc.id}`);
+            const newRecipientAlias = db.doc(`/Clinks/${doc.id}`);
             batch.update(newRecipientAlias, {
               recipient: change.after.data().alias
             });

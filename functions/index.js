@@ -562,3 +562,30 @@ exports.onOkelistErase = functions.firestore
         .catch(err => console.error(err));
     } else return;
   });
+
+  exports.createStokessOnInfernal = functions.firestore
+  .document("/Sparks/{sparkId}")
+  .onUpdate(change => {
+    if (
+      change.before.data().heatCount !== change.after.data().heatCount &&
+      change.after.data().heatCount > 9999
+    ) {
+      return db
+      .collection("Stokes")
+      .where("sparkId", "==", change.before.id)
+      .get()
+      .then(data => {
+        data.forEach(doc => {
+          return db.collection("InfernalStokes").add({
+            infernalId: doc.data().sparkId,
+            body: doc.data().body,
+            userClozang: doc.data().userClozang,
+            createdAt: doc.data().createdAt,
+            userImage: doc.data().userImage,
+            alias: doc.data().alias
+          })
+        });
+            })
+        .catch(err => console.error(err));
+    } else return;
+  });

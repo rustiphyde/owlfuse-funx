@@ -563,7 +563,7 @@ exports.onOkelistErase = functions.firestore
     } else return;
   });
 
-  exports.createStokessOnInfernal = functions.firestore
+  exports.createStokesOnInfernal = functions.firestore
   .document("/Sparks/{sparkId}")
   .onUpdate(change => {
     if (

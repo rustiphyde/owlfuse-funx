@@ -183,5 +183,28 @@ exports.removeInfernalHeat = (req, res) => {
     });
 };
 
+// Delete an infernal
+exports.extinguishInfernal = (req, res) => {
+  const docToExtinguish = db.doc(`/Infernals/${req.params.infernalId}`);
+  docToExtinguish.get()
+      .then(doc => {
+          if(!doc.exists){
+              return res.status(404).json({ error: 'Infernal not found'});
+          } 
+          else if(doc.data().userAlias !== req.user.alias){
+              return res.status(403).json({ error: 'This action is not permitted by this account'});
+          }
+          else {
+              return docToExtinguish.delete();
+          }
+      })
+      .then(() => {
+          return res.json({ message: 'Infernal extinguished completely'});
+      })
+      .catch(err => {
+          console.error(err);
+          return res.status(500).json({ error: err.code});
+      });
+};
 
 

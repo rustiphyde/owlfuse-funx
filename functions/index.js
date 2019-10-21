@@ -594,10 +594,9 @@ exports.onOkelistErase = functions.firestore
             body: doc.data().body,
             userClozang: doc.data().userClozang,
             createdAt: doc.data().createdAt,
-            heatCount: doc.data().stokeCount + doc.data().heatCount,
+            heatCount: doc.data().heatCount,
             stokeCount: doc.data().stokeCount,
             userImage: doc.data().userImage,
-            email: doc.data().email,
             userAlias: doc.data().userAlias,
             emberCount: 0
           };

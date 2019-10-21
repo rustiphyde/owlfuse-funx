@@ -574,7 +574,7 @@ exports.onOkelistErase = functions.firestore
         .get()
         .then(doc => {
           const newInfernal = {
-            sparkId: doc.id,
+            infernalId: doc.id,
             body: doc.data().body,
             userClozang: doc.data().userClozang,
             createdAt: doc.data().createdAt,
@@ -647,4 +647,13 @@ exports.onOkelistErase = functions.firestore
         })
         .catch(err => console.error(err));
     } else return;
+  });
+
+  exports.switchToInfernal = functions.firestore
+  .document("/Infernals/{id}")
+  .onCreate(snap => {
+    return db
+      .doc(`/Sparks/${snap.data().infernalId}`)
+      .delete()
+      .catch(err => console.log(err));
   });

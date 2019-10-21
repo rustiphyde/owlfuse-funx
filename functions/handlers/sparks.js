@@ -102,7 +102,7 @@ exports.stokeSpark = (req, res) => {
       if (!doc.exists) {
         return res.status(404).json({ error: "Spark has been extinguished" });
       }
-      if (doc.ref.fire === true && doc.ref.userAlias !== req.user.alias) {
+      if (doc.data().fire === true && doc.data().userAlias !== req.user.alias) {
         return doc.ref.update({
           stokeCount: doc.data().stokeCount + 1,
           heatCount: doc.data().heatCount + 1 });

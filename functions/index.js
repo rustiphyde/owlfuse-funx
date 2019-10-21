@@ -20,6 +20,15 @@ const {
 } = require("./handlers/sparks");
 
 const {
+  getAllInfernals,
+  getInfernal,
+  stokeInfernal,
+  addInfernalHeat,
+  removerInfernalHeat,
+  extinguishInfernal
+} = require("./handlers/infernals");
+
+const {
   buildNewOkeList,
   getAllOkelists,
   getOke,
@@ -67,6 +76,13 @@ app.get("/spark/:sparkId/burn", FBAuth, addHeat);
 app.get("/spark/:sparkId/snuff", FBAuth, removeHeat);
 app.delete("/spark/:sparkId", FBAuth, extinguishSpark);
 
+// Infernal routes
+app.get("/infernals", getAllInfernals);
+app.get("/infernal/:infernalId", getInfernal);
+app.post("/infernal/:infernalId/stoke", FBAuth, stokeInfernal);
+app.get("/infernal/:infernalId/heat", FBAuth, addInfernalHeat);
+app.get("/infernal/:infernalId/cool", FBAuth, removeInfernalHeat);
+app.delete("/infernal/:infernalId", FBAuth, extinguishInfernal);
 // User routes
 app.post("/signup", signup);
 app.post("/login", login);

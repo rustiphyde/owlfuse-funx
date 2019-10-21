@@ -345,6 +345,18 @@ exports.sparkToFire = functions.firestore
             });
           });
           return db
+            .collection("Infernals")
+            .where("userAlias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newInfernalAlias = db.doc(`/Infernals/${doc.id}`);
+            batch.update(newInfernalAlias, {
+              userAlias: change.after.data().alias
+            });
+          });
+          return db
             .collection("Stokes")
             .where("userAlias", "==", change.before.data().alias)
             .get();
@@ -353,6 +365,18 @@ exports.sparkToFire = functions.firestore
           data.forEach(doc => {
             const newStokeAlias = db.doc(`/Stokes/${doc.id}`);
             batch.update(newStokeAlias, {
+              userAlias: change.after.data().alias
+            });
+          });
+          return db
+            .collection("InfernalStokes")
+            .where("userAlias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newInfernalStokeAlias = db.doc(`/InfernalStokes/${doc.id}`);
+            batch.update(newInfernalStokeAlias, {
               userAlias: change.after.data().alias
             });
           });
@@ -389,6 +413,18 @@ exports.sparkToFire = functions.firestore
           data.forEach(doc => {
             const newHeatAlias = db.doc(`/Heat/${doc.id}`);
             batch.update(newHeatAlias, {
+              userAlias: change.after.data().alias
+            });
+          });
+          return db
+            .collection("InfernalHeat")
+            .where("userAlias", "==", change.before.data().alias)
+            .get();
+        })
+        .then(data => {
+          data.forEach(doc => {
+            const newInfernalHeatAlias = db.doc(`/InfernalHeat/${doc.id}`);
+            batch.update(newInfernalHeatAlias, {
               userAlias: change.after.data().alias
             });
           });

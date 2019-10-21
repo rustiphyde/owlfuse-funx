@@ -57,3 +57,39 @@ exports.getInfernal = (req, res) => {
     });
 };
 
+// Comment on a n infernal
+exports.stokeInfernal = (req, res) => {
+  if (req.body.body.trim() === "")
+    return res.status(400).json({ infernalStoke: "Field must not be empty" });
+  const newStoke = {
+    body: req.body.body,
+    createdAt: new Date().toISOString(),
+    infernalId: req.params.infernalId,
+    userAlias: req.user.alias,
+    userClozang: req.user.clozang,
+    userImage: req.user.imageUrl
+  };
+  db.doc(`/Infernals/${req.params.infernalId}`)
+    .get()
+    .then(doc => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: "Infernal has been extinguished" });
+      }
+      else {
+        return doc.ref.update({
+          stokeCount: doc.data().stokeCount + 1,
+          heatCount: doc.data().heatCount + 1 });
+      }
+      })
+    .then(() => {
+      return db.collection("InfernalStokes").add(newStoke);
+    })
+    .then(() => {
+      res.json(newStoke);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: "Something went wrong" });
+    });
+};
+

@@ -27,3 +27,33 @@ exports.getAllInfernals = (req, res) => {
     });
 };
 
+// Fetch one infernal
+exports.getInfernal = (req, res) => {
+  let infernalData = {};
+  db.doc(`/Infernals/${req.params.infernalId}`)
+    .get()
+    .then(doc => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: "Infernal not found" });
+      }
+      infernalData = doc.data();
+      infernalData.infernalId = doc.id;
+      return db
+        .collection("InfernalStokes")
+        .where("infernalId", "==", req.params.infernalId)
+        .orderBy("createdAt", "desc")
+        .get();
+    })
+    .then(data => {
+      infernalData.infernalStokes = [];
+      data.forEach(doc => {
+        infernalData.infernalStokes.push(doc.data());
+      });
+      return res.json(infernalData);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: err.code });
+    });
+};
+

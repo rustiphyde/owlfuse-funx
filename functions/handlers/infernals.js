@@ -57,7 +57,7 @@ exports.getInfernal = (req, res) => {
     });
 };
 
-// Comment on a n infernal
+// Comment on an infernal
 exports.stokeInfernal = (req, res) => {
   if (req.body.body.trim() === "")
     return res.status(400).json({ infernalStoke: "Field must not be empty" });
@@ -92,4 +92,53 @@ exports.stokeInfernal = (req, res) => {
       res.status(500).json({ error: "Something went wrong" });
     });
 };
+
+// Add Heat to Infernal
+exports.addInfernalHeat = (req, res) => {
+  const heatDoc = db
+    .collection("InfernalHeat")
+    .where("userAlias", "==", req.user.alias)
+    .where("infernalId", "==", req.params.infernalId)
+    .limit(1);
+
+  const infernalDoc = db.doc(`Infernals/${req.params.infernalId}`);
+
+  let infernalData;
+
+  infernalDoc
+    .get()
+    .then(doc => {
+      if (doc.exists) {
+        infernalData = doc.data();
+        infernalData.infernalId = doc.id;
+        return heatDoc.get();
+      } else {
+        return res.status(404).json({ error: "Infernal Not Found" });
+      }
+    })
+    .then(data => {
+      if (data.empty) {
+        return db
+          .collection("InfernalHeat")
+          .add({
+            infernalId: req.params.infernalId,
+            userAlias: req.user.alias
+          })
+          .then(() => {
+            infernalData.heatCount++;
+            return infernalDoc.update({ heatCount: infernalData.heatCount });
+          })
+          .then(() => {
+            return res.json(infernalData);
+          });
+      } else {
+        return res.status(400).json({ error: "Already added heat using this method" });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
 

@@ -24,7 +24,7 @@ const {
   getInfernal,
   stokeInfernal,
   addInfernalHeat,
-  removerInfernalHeat,
+  removeInfernalHeat,
   extinguishInfernal
 } = require("./handlers/infernals");
 

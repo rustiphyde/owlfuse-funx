@@ -141,4 +141,47 @@ exports.addInfernalHeat = (req, res) => {
     });
 };
 
+// Take heat from an infernal
+exports.removeInfernalHeat = (req, res) => {
+  const heatDoc = db
+    .collection("InfernalHeat")
+    .where("userAlias", "==", req.user.alias)
+    .where("infernalId", "==", req.params.infernalId)
+    .limit(1);
+  const infernalDoc = db.doc(`/Infernals/${req.params.infernalId}`);
+  let infernalData;
+  infernalDoc
+    .get()
+    .then(doc => {
+      if (doc.exists) {
+        infernalData = doc.data();
+        infernalData.infernalId = doc.id;
+        return heatDoc.get();
+      } else {
+        return res.status(404).json({ error: "Infernal not found" });
+      }
+    })
+    .then(data => {
+      if (data.empty) {
+        return res.status(400).json({ error: "Already removed heat using this method" });
+      } else {
+        return db
+          .doc(`/InfernalHeat/${data.docs[0].id}`)
+          .delete()
+          .then(() => {
+            infernalData.heatCount--;
+            return infernalDoc.update({ heatCount: infernalData.heatCount });
+          })
+          .then(() => {
+            return res.json(infernalData);
+          });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
+
 

@@ -546,8 +546,8 @@ exports.onOkelistErase = functions.firestore
             stokeCount: doc.data().stokeCount,
             userImage: doc.data().userImage,
             email: doc.data().email,
-            alias: doc.data().alias,
-            embersCount: 0
+            userAlias: doc.data().userAlias,
+            emberCount: 0
           };
           return db
             .collection("Infernals")
@@ -582,10 +582,33 @@ exports.onOkelistErase = functions.firestore
             userClozang: doc.data().userClozang,
             createdAt: doc.data().createdAt,
             userImage: doc.data().userImage,
-            alias: doc.data().alias
+            userAlias: doc.data().userAlias
           })
         });
             })
+        .catch(err => console.error(err));
+    } else return;
+  });
+
+  exports.createHeatOnFire = functions.firestore
+  .document("/Sparks/{sparkId}")
+  .onUpdate(change => {
+    if (
+      change.before.data().heatCount !== change.after.data().heatCount &&
+      change.after.data().heatCount > 9999
+    ) {
+      return db
+        .collection("Heat")
+        .where("sparkId", "==", change.before.id)
+        .get()
+        .then(data => {
+          data.forEach(doc => {
+            return db.collection("InfernalHeat").add({
+              userAlias: doc.data().userAlias,
+              infernalId: doc.data().sparkId
+            });
+          });
+        })
         .catch(err => console.error(err));
     } else return;
   });

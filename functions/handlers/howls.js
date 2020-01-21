@@ -12,7 +12,8 @@ exports.postNewHowl = (req, res) => {
 		createdAt: new Date().toISOString(),
 		receiverHasRead: false,
 		howlings: [
-			{
+			{   
+                howlId: new Date().toISOString(),
 				howl: req.body.howl,
 				sentBy: req.user.clozang,
 				sentTo: req.params.friend

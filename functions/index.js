@@ -10,6 +10,9 @@ app.use(cors());
 const { db } = require("./util/admin");
 
 const {
+  postNewHowl } = require("./handlers/howls");
+
+const {
   getAllSparks,
   postOneSpark,
   getSpark,
@@ -75,6 +78,8 @@ app.post("/spark/:sparkId/stoke", FBAuth, stokeSpark);
 app.get("/spark/:sparkId/burn", FBAuth, addHeat);
 app.get("/spark/:sparkId/snuff", FBAuth, removeHeat);
 app.delete("/spark/:sparkId", FBAuth, extinguishSpark);
+// Howl routes
+app.post("/howl/:friend", FBAuth, postNewHowl);
 
 // Infernal routes
 app.get("/infernals", getAllInfernals);

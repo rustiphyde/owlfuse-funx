@@ -78,3 +78,31 @@ exports.fetchUserHowls = (req, res) => {
 		});
 };
 
+exports.fetchSingleHowl = (req, res) => {
+    let howlData = {};
+    db.doc(`/Howls/${req.params.docKey}`).get()
+    .then(doc => {
+        if(!doc.exists){
+            return res.status(404).json({ error: 'Howl does not exist' });
+        }
+        howlData = doc.data();
+        return db.collection("Howlings")
+        .where("docKey", "==", req.params.docKey)
+        .orderBy("createdAt", "asc")
+        .get();
+    })
+    .then(data => {
+        howlData.howlings = [];
+        data.forEach(doc => {
+            howlData.howlings.push(doc.data());
+        });
+        return res.json(howlData);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: err.code });
+    });
+};
+
+
+

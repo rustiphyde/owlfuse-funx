@@ -14,7 +14,8 @@ const {
 	fetchUserHowls,
 	fetchSingleHowl,
   silenceAHowling,
-  silenceAHowl
+  silenceAHowl,
+  editAHowling
 } = require("./handlers/howls");
 
 const {
@@ -89,6 +90,7 @@ app.get("/howls", FBAuth, fetchUserHowls);
 app.get("/howl/:docKey", FBAuth, fetchSingleHowl);
 app.delete("/howling/:howlId", FBAuth, silenceAHowling);
 app.delete("/howl/:docKey", FBAuth, silenceAHowl);
+app.post("/howling/edit/:howlId", FBAuth, editAHowling);
 // Infernal routes
 app.get("/infernals", getAllInfernals);
 app.get("/infernal/:infernalId", getInfernal);

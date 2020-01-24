@@ -155,7 +155,7 @@ exports.silenceAHowl = (req, res) => {
 				.get()
 				.then(data => {
 					data.forEach(doc => {
-						doc.delete();
+						doc.ref.delete();
 					});
 				});
 		})
@@ -166,16 +166,25 @@ exports.silenceAHowl = (req, res) => {
 };
 
 exports.editAHowling = (req, res) => {
-	if (req.body.howlBody.trim() === "")
+	if(req.body.edit.trim() === ""){
 		return res.status(400).json({ edit: "Field must not be empty" });
-
-	db.collection("Howlings")
-		.where("sentBy", "==", req.user.clozang)
-		.where("howlId", "==", req.params.howlId)
-		.get()
-		.then(doc => {
-			doc.ref.update({ howlBody: req.body.edit });
-		})
+    }
+    db.doc(`/Howlings/${req.params.howlId}`)
+        .get()
+        .then(doc => {
+            if(!doc.exists){
+                return res.status(404).json({ error: "Howl not found"});
+            }
+            else if(doc.data().sentBy !== req.user.clozang){
+                return res.status(403).json({ error: "This action is forbidden by this user"});
+            }
+            else {
+           doc.ref.update({ howlBody: req.body.edit })
+            }
+        })
+        .then(() => {
+            res.json({ message: "howling changed to: " + req.body.edit})
+        })
 		.catch(err => {
 			console.error({ error: err.code });
 			res.status(500).json({ error: "Something went wrong" });

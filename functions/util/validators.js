@@ -79,3 +79,4 @@ exports.reduceBoozDetails = data => {
   
   return boozDetails;
 };
+

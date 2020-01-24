@@ -13,7 +13,8 @@ const {
 	postNewHowl,
 	fetchUserHowls,
 	fetchSingleHowl,
-	silenceAHowling
+  silenceAHowling,
+  silenceAHowl
 } = require("./handlers/howls");
 
 const {
@@ -87,6 +88,7 @@ app.post("/howl/:friend", FBAuth, postNewHowl);
 app.get("/howls", FBAuth, fetchUserHowls);
 app.get("/howl/:docKey", FBAuth, fetchSingleHowl);
 app.delete("/howling/:howlId", FBAuth, silenceAHowling);
+app.delete("/howl/:docKey", FBAuth, silenceAHowl);
 // Infernal routes
 app.get("/infernals", getAllInfernals);
 app.get("/infernal/:infernalId", getInfernal);
@@ -695,4 +697,6 @@ exports.removeHowlCount = functions.firestore
 				doc.ref.update({ howlCount: doc.data().howlCount - 1 });
 			})
 			.catch(err => console.log(err));
-	});
+  });
+  
+  

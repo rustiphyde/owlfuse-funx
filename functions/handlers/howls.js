@@ -52,6 +52,7 @@ exports.postNewHowl = (req, res) => {
 };
 
 exports.fetchUserHowls = (req, res) => {
+    
 	db.collection("Howls")
 		.where("howlers", "array-contains", req.user.clozang)
 		.get()
@@ -75,20 +76,25 @@ exports.fetchUserHowls = (req, res) => {
 };
 
 exports.fetchSingleHowl = (req, res) => {
+
 	let howlData = {};
 	db.doc(`/Howls/${req.params.docKey}`)
 		.get()
 		.then(doc => {
 			if (!doc.exists) {
 				return res.status(404).json({ error: "Howl does not exist" });
-			}
+            }
+            else if(!doc.data().howlers.includes(req.user.clozang)){
+                return res.status(403).json({ error: 'This action is forbidden to this account'});
+            } else {
 			howlData = doc.data();
 			return db
 				.collection("Howlings")
 				.where("docKey", "==", req.params.docKey)
 				.orderBy("createdAt", "asc")
-				.get();
-		})
+                .get();
+            }
+        })
 		.then(data => {
 			howlData.howlings = [];
 			data.forEach(doc => {
@@ -103,6 +109,7 @@ exports.fetchSingleHowl = (req, res) => {
 };
 
 exports.silenceAHowling = (req, res) => {
+
 	const howlingToSilence = db.doc(`/Howlings/${req.params.howlId}`);
 	howlingToSilence
 		.get()
@@ -125,3 +132,36 @@ exports.silenceAHowling = (req, res) => {
 			return res.status(500).json({ error: err.code });
 		});
 };
+
+exports.silenceAHowl = (req, res) => {
+
+    const howlToSilence = db.doc(`/Howls/${req.params.docKey}`);
+    howlToSilence.get()
+    .then(doc => {
+        if(!doc.exists){
+            return res.status(404).json({ error: "Howl not found"});
+        }
+        else if(!doc.data().howlers.includes(req.user.clozang)){
+            return res.status(403).json({ error: "This action is not permitted by this account"});
+        } else {
+            return howlToSilence.delete();
+        }
+    })
+    .then(() => {
+        return res.json({ message: "Howl silenced completely" });
+    })
+    .then(() => {
+        db.collection("Howlings")
+        .where("docKey", "==", req.params.docKey)
+        .get().then(data => {
+            data.forEach(doc => {
+                doc.delete();
+            })
+        })
+    })
+    .catch(err => {
+        console.error(err);
+        return res.status(500).json({ error: err.code });
+    });
+};
+

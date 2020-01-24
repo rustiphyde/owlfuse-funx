@@ -13,9 +13,9 @@ const {
 	postNewHowl,
 	fetchUserHowls,
 	fetchSingleHowl,
-  silenceAHowling,
-  silenceAHowl,
-  editAHowling
+	silenceAHowling,
+	silenceAHowl,
+	editAHowling
 } = require("./handlers/howls");
 
 const {
@@ -699,6 +699,18 @@ exports.removeHowlCount = functions.firestore
 				doc.ref.update({ howlCount: doc.data().howlCount - 1 });
 			})
 			.catch(err => console.log(err));
-  });
-  
-  
+	});
+
+exports.onHowlSilence = functions.firestore
+	.document("/Howls/{id}")
+	.onDelete(snap => {
+		db.collection("Howlings")
+			.where("docKey", "==", snap.data().docKey)
+			.get()
+			.then(data => {
+				data.forEach(doc => {
+					doc.ref.delete();
+				});
+			})
+			.catch(err => console.log(err));
+	});

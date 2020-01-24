@@ -149,16 +149,6 @@ exports.silenceAHowl = (req, res) => {
 		.then(() => {
 			return res.json({ message: "Howl silenced completely" });
 		})
-		.then(() => {
-			db.collection("Howlings")
-				.where("docKey", "==", req.params.docKey)
-				.get()
-				.then(data => {
-					data.forEach(doc => {
-						doc.ref.delete();
-					});
-				});
-		})
 		.catch(err => {
 			console.error(err);
 			return res.status(500).json({ error: err.code });

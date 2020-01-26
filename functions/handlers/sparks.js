@@ -7,6 +7,7 @@ exports.getAllSparks = (req, res) => {
     .then(data => {
       let sparks = [];
       data.forEach(doc => {
+        if(doc.data().heatCount < 10000){  
         sparks.push({
           sparkId: doc.id,
           body: doc.data().body,
@@ -20,6 +21,7 @@ exports.getAllSparks = (req, res) => {
           emberable: doc.data().emberable,
           infernal: doc.data().infernal
         });
+        }
       });
       return res.json(sparks);
     })

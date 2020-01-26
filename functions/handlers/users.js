@@ -54,7 +54,9 @@ exports.signup = (req, res) => {
         email: newUser.email,
         createdAt: new Date().toISOString(),
         imageUrl: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
-        userId
+        userId,
+        silenced: [">tetnis-game"],
+        fusers: [">rusty-hoppins"]
       };
       return db.doc(`/Users/${newUser.clozang}`).set(userCredentials);
     })

@@ -195,26 +195,6 @@ exports.getUserDetails = (req, res) => {
           songCount: doc.data().songCount
         });
       });
-      return db.collection("Infernals")
-        .where("userClozang", "==", req.params.clozang)
-        .orderBy("heatCount", "desc")
-        .get();
-    })
-    .then(data => {
-      userData.infernals = [];
-      data.forEach(doc => {
-        userData.infernals.push({
-          body: doc.data().body,
-          createdAt: doc.data().createdAt,
-          userClozang: doc.data().userClozang,
-          userAlias: doc.data().userAlias,
-          userImage: doc.data().userImage,
-          heatCount: doc.data().heatCount,
-          stokeCount: doc.data().stokeCount,
-          emberCount: doc.data().emberCount,
-          infernalId: doc.id
-        });
-      });
       return res.json(userData);
     })
     .catch(err => {
@@ -242,16 +222,6 @@ exports.getAuthenticatedUser = (req, res) => {
       userData.heat = [];
       data.forEach(doc => {
         userData.heat.push(doc.data());
-      });
-      return db
-          .collection("InfernalHeat")
-          .where("userAlias", "==", req.user.alias)
-          .get();
-    })
-    .then(data => {
-      userData.infernalHeat = [];
-      data.forEach(doc => {
-        userData.infernalHeat.push(doc.data());
       });
       return db
           .collection("Cheers")

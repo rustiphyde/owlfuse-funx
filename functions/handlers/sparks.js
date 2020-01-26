@@ -16,7 +16,8 @@ exports.getAllSparks = (req, res) => {
           stokeCount: doc.data().stokeCount,
           heatCount: doc.data().heatCount,
           userImage: doc.data().userImage,
-          fire: doc.data().fire
+          fire: doc.data().fire,
+          emberable: doc.data().emberable
         });
       });
       return res.json(sparks);
@@ -68,7 +69,8 @@ exports.postOneSpark = (req, res) => {
     heatCount: 0,
     stokeCount: 0,
     userImage: req.user.imageUrl,
-    fire: false
+    fire: false,
+    emberable: false,
   };
 
   db.collection("Sparks")
@@ -236,4 +238,33 @@ exports.extinguishSpark = (req, res) => {
           console.error(err);
           return res.status(500).json({ error: err.code});
       });
+};
+
+exports.getOnlyHottest = (req, res) => {
+  db.collection("Sparks")
+  .where("heatCount", ">=", 10000)
+  .orderBy("heatCount", "desc")
+  .get()
+  .then(data => {
+    let hotSparks = [];
+    data.forEach(doc => {
+      hotSparks.push({
+        sparkId: doc.id,
+        body: doc.data().body,
+        userAlias: doc.data().userAlias,
+        userClozang: doc.data().userClozang,
+        createdAt: doc.data().createdAt,
+        stokeCount: doc.data().stokeCount,
+        heatCount: doc.data().heatCount,
+        userImage: doc.data().userImage,
+        fire: doc.data().fire,
+        emberable: doc.data().emberable
+      });
+    });
+    return res.json(sparks);
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(500).json({ error: err.code });
+  });
 };

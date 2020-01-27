@@ -13,6 +13,6 @@ Users choose a username or "alias" as soon as they sign up and it becomes their 
 
 Users sign up with an email address, a password, a confirm password and their alias. Users sign in with just their email address and password. If a user forgets their password they can reset it via an email link.
 
-A user's alias becomes their **"clozang"** as well with a closing angle bracket prepended to the beginning, all letters transformed to lowercase, and every space replaced with a dash. _for example_: "Rusty Hoppins" becomes ">rusty-hoppins". If a user's **clozang** is added to the end of **"owlfuse.com/user/"** it will directly link to that users page.
+A user's alias becomes their **"clozang"** as well with a closing angle bracket prepended to the beginning, all letters transformed to lowercase, and every space replaced with a dash. _for example_: "Rusty Hoppins" becomes ">rusty-hoppins". If a user's **clozang** is added to the end of **"owlfuse.com/"** it will directly link to that user's page.
 
 

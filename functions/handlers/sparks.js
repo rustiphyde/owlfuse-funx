@@ -6,8 +6,7 @@ exports.getAllSparks = (req, res) => {
     .get()
     .then(data => {
       let sparks = [];
-      data.forEach(doc => {
-        if(doc.data().heatCount < 10000){  
+      data.forEach(doc => { 
         sparks.push({
           sparkId: doc.id,
           body: doc.data().body,
@@ -21,7 +20,6 @@ exports.getAllSparks = (req, res) => {
           emberable: doc.data().emberable,
           infernal: doc.data().infernal
         });
-        }
       });
       return res.json(sparks);
     })
@@ -252,7 +250,6 @@ exports.extinguishSpark = (req, res) => {
 
 exports.getOnlyHottest = (req, res) => {
   db.collection("Sparks")
-  .where("heatCount", ">=", 10000)
   .orderBy("heatCount", "desc")
   .get()
   .then(data => {

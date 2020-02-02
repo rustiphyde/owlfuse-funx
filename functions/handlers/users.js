@@ -137,7 +137,6 @@ exports.getUserDetails = (req, res) => {
 		.then(data => {
 			userData.sparks = [];
 			data.forEach(doc => {
-				if (doc.data().heatCount < 10000) {
 					userData.sparks.push({
 						body: doc.data().body,
 						createdAt: doc.data().createdAt,
@@ -151,7 +150,6 @@ exports.getUserDetails = (req, res) => {
 						emberable: doc.data().emberable,
 						infernal: doc.data().infernal
 					});
-				}
 			});
 			return db
 				.collection("Sparks")

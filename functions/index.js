@@ -10,7 +10,8 @@ app.use(cors());
 const { db } = require("./util/admin");
 
 const {
-	getUserFuserList
+	getUserFuserList,
+	sendFuseRequest
 } = require("./handlers/fusers");
 
 const {
@@ -83,6 +84,7 @@ app.delete("/spark/:sparkId", FBAuth, extinguishSpark);
 app.get("/hot/sparks", getOnlyHottest);
 // Fuser routes
 app.get("/fusers", FBAuth, getUserFuserList);
+app.post("/fuse-with/:fuser", FBAuth, sendFuseRequest);
 // Howl routes
 app.post("/howl/:friend", FBAuth, postNewHowl);
 app.get("/howls", FBAuth, fetchUserHowls);

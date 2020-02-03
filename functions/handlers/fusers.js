@@ -33,25 +33,43 @@ exports.sendFuseRequest = (req, res) => {
 	db.doc(`/Users/${req.user.clozang}`)
 		.get()
 		.then(doc => {
-            let fusersArr = []
+			let fusersArr = [];
 			doc.data().fusers.forEach(fuser => {
-                fusersArr.push(fuser);
-            })
-            if(fusersArr.includes(req.params.fuser)){
+				fusersArr.push(fuser);
+			});
+			if (fusersArr.includes(req.params.fuser)) {
 				return res.json({
-					message: "You are already fused with " + req.params.fuser});
+					message: "You are already fused with " + req.params.fuser
+				});
 			} else {
-				return db
-					.collection("Requests")
-					.add(newRequest)
-					.then(doc => {
-						const resRequest = newRequest;
-						resRequest.reqId = doc.id;
-						console.log(
-							"Your fuse request has been sent to ",
-							req.params.fuser
-						);
-						res.json(resRequest);
+				let reqArray = [];
+				db.collection("Requests")
+					.where("sender", "==", `${req.user.clozang}`)
+					.orderBy("sentAt", "desc")
+					.get()
+					.then(data => {
+						data.forEach(doc => {
+							reqArray.push(doc.data().requested);
+						});
+						if (reqArray.includes(req.params.fuser)) {
+							return res.json({
+								message:
+									"You have already sent this user a fuse request. Please allow them time to respond to the current request before sending another."
+							});
+						} else {
+							db.collection("Requests")
+								.add(newRequest)
+								.then(doc => {
+									const resReq = newRequest;
+									resReq.reqId = doc.id;
+									return res
+										.status(200)
+										.json({
+											message: `Your request to ${req.params.fuser} has been sent.`,
+											details: resReq
+										});
+								});
+						}
 					});
 			}
 		})

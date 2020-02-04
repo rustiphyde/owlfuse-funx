@@ -12,7 +12,8 @@ const { db } = require("./util/admin");
 const {
 	getUserFuserList,
 	sendFuseRequest,
-	getAllRequestedFuses
+	getAllRequestedFuses,
+	getAllSentFuses
 } = require("./handlers/fusers");
 
 const {
@@ -86,7 +87,8 @@ app.get("/hot/sparks", getOnlyHottest);
 // Fuser routes
 app.get("/fusers", FBAuth, getUserFuserList);
 app.post("/fuse-with/:fuser", FBAuth, sendFuseRequest);
-app.get("/requests", FBAuth, getAllRequestedFuses);
+app.get("/requested-fuses", FBAuth, getAllRequestedFuses);
+app.get("/sent-fuses", FBAuth, getAllSentFuses);
 // Howl routes
 app.post("/howl/:friend", FBAuth, postNewHowl);
 app.get("/howls", FBAuth, fetchUserHowls);

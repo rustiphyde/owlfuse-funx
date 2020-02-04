@@ -103,3 +103,32 @@ exports.getAllRequestedFuses = (req, res) => {
 		})
 		.catch(err => console.log(err));
 };
+
+
+exports.getAllSentFuses = (req, res) => {
+    let sentArr = [];
+    db.collection("Requests").where("sender", "==", req.user.clozang)
+    .get()
+    .then(data => {
+        data.forEach(doc => {
+            if(!doc.exists){
+                res.json({ message: "You don't currently have any pending fuse requests sent out"});
+            }
+            else {
+                sentArr.push({
+                    requested: doc.data().requested,
+                    sender: doc.data().sender,
+                    sentAt: doc.data().sentAt,
+                    reqId: doc.id
+                });
+            }
+        });
+        if(sentArr.length === 0){
+            return res.json({ message: "You don't currently have any pending fuse requests sent out"});
+        }
+        else{
+            return res.json(sentArr);
+        }    
+    })
+    .catch(err => console.log(err));
+}

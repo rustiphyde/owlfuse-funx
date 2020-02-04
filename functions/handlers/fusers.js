@@ -62,12 +62,10 @@ exports.sendFuseRequest = (req, res) => {
 								.then(doc => {
 									const resReq = newRequest;
 									resReq.reqId = doc.id;
-									return res
-										.status(200)
-										.json({
-											message: `Your request to ${req.params.fuser} has been sent.`,
-											details: resReq
-										});
+									return res.status(200).json({
+										message: `Your request to ${req.params.fuser} has been sent.`,
+										details: resReq
+									});
 								});
 						}
 					});
@@ -79,4 +77,29 @@ exports.sendFuseRequest = (req, res) => {
 		});
 };
 
-// TODO prevent users from sending more than one request at a time
+exports.getAllRequestedFuses = (req, res) => {
+	let requestedArr = [];
+	db.collection("Requests")
+		.where("requested", "==", req.user.clozang)
+		.get()
+		.then(data => {
+			data.forEach(doc => {
+                if(!doc.exists){
+                return res.json({ message: "There are no fuse requests for you at this time."})
+                }
+				requestedArr.push({
+					sender: doc.data().sender,
+					requested: doc.data().requested,
+					reqId: doc.id,
+					sentAt: doc.data().sentAt
+				});
+            });
+            if(requestedArr.length === 0){
+                return res.json({ message: "There are no fuse requests for you at this time."})
+                }
+            else{
+            return res.json(requestedArr);
+            }
+		})
+		.catch(err => console.log(err));
+};

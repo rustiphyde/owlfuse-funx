@@ -207,4 +207,28 @@ exports.rejectFuseRequest = (req, res) => {
 		});
 };
 
-
+exports.cancelFuseRequest = (req, res) => {
+	db.doc(`/Requests/${req.params.reqId}`)
+		.get()
+		.then(doc => {
+			if (!doc.exists) {
+				return res.status(404).json({
+					error:
+						"This request either doesn't exist or it has already been cancelled"
+				});
+			} else if (doc.data().sender !== req.user.clozang) {
+				return res
+					.status(403)
+					.json({ error: "This action is not permitted by this account" });
+			} else {
+				doc.ref.delete().then(() => {
+					return res.status(200).json({
+						message: "You have successfully cancelled this fuse request"
+					});
+				});
+			}
+		})
+		.catch(err => {
+			return res.status(500).json({ error: err.code });
+		});
+};

@@ -251,6 +251,10 @@ exports.defuseWithUser = (req, res) => {
 						fusers: admin.firestore.FieldValue.arrayRemove(req.params.fuser)
 					})
 					.then(() => {
+                        db.doc(`/Users/${req.params.fuser}`)
+                        .update({ fusers: admin.firestore.FieldValue.arrayRemove(req.user.clozang) })
+                    })
+                        .then(() => {
 						return res
 							.status(200)
 							.json({

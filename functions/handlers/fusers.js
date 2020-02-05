@@ -251,15 +251,47 @@ exports.defuseWithUser = (req, res) => {
 						fusers: admin.firestore.FieldValue.arrayRemove(req.params.fuser)
 					})
 					.then(() => {
-                        db.doc(`/Users/${req.params.fuser}`)
-                        .update({ fusers: admin.firestore.FieldValue.arrayRemove(req.user.clozang) })
-                    })
-                        .then(() => {
+						db.doc(`/Users/${req.params.fuser}`).update({
+							fusers: admin.firestore.FieldValue.arrayRemove(req.user.clozang)
+						});
+					})
+					.then(() => {
+						return res.status(200).json({
+							message: "You have successfully defused with " + req.params.fuser
+						});
+					});
+			}
+		})
+		.catch(err => {
+			return res.status(500).json({ error: err.code });
+		});
+};
+
+exports.silenceFuser = (req, res) => {
+	let fuserArr = [];
+	db.doc(`/Users/${req.user.clozang}`)
+		.get()
+		.then(doc => {
+			doc.data().silenced.forEach(silent => {
+				fuserArr.push(silent);
+			});
+			if (fuserArr.includes(req.params.fuser)) {
+				return res.json({
+					message: "This fuser is already silenced on your account"
+				});
+			} else {
+				doc.ref
+					.update({
+						silenced: admin.firestore.FieldValue.arrayUnion(req.params.fuser)
+					})
+					.then(() => {
 						return res
 							.status(200)
 							.json({
 								message:
-									"You have successfully defused with " + req.params.fuser
+									"You have successfully silenced " +
+									req.params.fuser +
+									" on this account"
 							});
 					});
 			}

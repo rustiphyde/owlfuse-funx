@@ -325,3 +325,26 @@ exports.silenceFuser = (req, res) => {
 			return res.status(500).json({ error: err.code });
 		});
 };
+
+exports.fetchUserSilencedList = (req, res) => {
+    db.doc(`/Users/${req.user.clozang}`)
+		.get()
+		.then(doc => {
+			let silentList = [];
+			if (!doc.data().silenced || doc.data().silenced.length === 0) {
+				return res.json({
+					message:
+						"You don't current have any OwlFusers silenced on this account."
+				});
+			} else {
+				doc.data().silenced.forEach(silent => {
+					silentList.push(silent);
+				});
+			}
+			let sortedSilent = silentList.sort();
+			return res.json(sortedSilent);
+		})
+		.catch(err => {
+			console.error(err.code);
+		});
+};

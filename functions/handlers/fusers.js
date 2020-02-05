@@ -232,3 +232,35 @@ exports.cancelFuseRequest = (req, res) => {
 			return res.status(500).json({ error: err.code });
 		});
 };
+
+exports.defuseWithUser = (req, res) => {
+	let fuserArr = [];
+	db.doc(`/Users/${req.user.clozang}`)
+		.get()
+		.then(doc => {
+			doc.data().fusers.forEach(fuser => {
+				fuserArr.push(fuser);
+			});
+			if (!fuserArr.includes(req.params.fuser)) {
+				return res
+					.status(404)
+					.json({ error: "This fuser is not on your fuse list" });
+			} else {
+				doc.ref
+					.update({
+						fusers: admin.firestore.FieldValue.arrayRemove(req.params.fuser)
+					})
+					.then(() => {
+						return res
+							.status(200)
+							.json({
+								message:
+									"You have successfully defused with " + req.params.fuser
+							});
+					});
+			}
+		})
+		.catch(err => {
+			return res.status(500).json({ error: err.code });
+		});
+};

@@ -14,7 +14,8 @@ const {
 	sendFuseRequest,
 	getAllRequestedFuses,
 	getAllSentFuses,
-	acceptFuseRequest
+	acceptFuseRequest,
+	rejectFuseRequest
 } = require("./handlers/fusers");
 
 const {
@@ -91,6 +92,7 @@ app.post("/fuse-with/:fuser", FBAuth, sendFuseRequest);
 app.get("/requested-fuses", FBAuth, getAllRequestedFuses);
 app.get("/sent-fuses", FBAuth, getAllSentFuses);
 app.get("/accept/:reqId", FBAuth, acceptFuseRequest);
+app.get("/reject/:reqId", FBAuth, rejectFuseRequest);
 // Howl routes
 app.post("/howl/:friend", FBAuth, postNewHowl);
 app.get("/howls", FBAuth, fetchUserHowls);

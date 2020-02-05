@@ -28,7 +28,8 @@ exports.sendFuseRequest = (req, res) => {
 		sender: req.user.clozang,
 		requested: req.params.fuser,
 		sentAt: new Date().toISOString(),
-		accepted: false
+		accepted: false,
+		rejected: false
 	};
 
 	db.doc(`/Users/${req.user.clozang}`)
@@ -94,7 +95,9 @@ exports.getAllRequestedFuses = (req, res) => {
 					sender: doc.data().sender,
 					requested: doc.data().requested,
 					reqId: doc.id,
-					sentAt: doc.data().sentAt
+					sentAt: doc.data().sentAt,
+					accepted: doc.data().accepted,
+					rejected: doc.data().rejected
 				});
 			});
 			if (requestedArr.length === 0) {
@@ -125,7 +128,9 @@ exports.getAllSentFuses = (req, res) => {
 						requested: doc.data().requested,
 						sender: doc.data().sender,
 						sentAt: doc.data().sentAt,
-						reqId: doc.id
+						reqId: doc.id,
+						accepted: doc.data().accepted,
+						rejected: doc.data().rejected
 					});
 				}
 			});
@@ -141,17 +146,13 @@ exports.getAllSentFuses = (req, res) => {
 };
 
 exports.acceptFuseRequest = (req, res) => {
-	let fuseData = "";
-
 	db.doc(`/Requests/${req.params.reqId}`)
 		.get()
 		.then(doc => {
 			if (!doc.exists) {
-				return res
-					.status(404)
-					.json({
-						error: "This request either no longer exists or has been cancelled"
-					});
+				return res.status(404).json({
+					error: "This request either no longer exists or has been cancelled"
+				});
 			} else if (doc.data().requested !== req.user.clozang) {
 				return res
 					.status(403)
@@ -164,20 +165,46 @@ exports.acceptFuseRequest = (req, res) => {
 						db.collection("Users")
 							.doc(senderData)
 							.update({
-								fusers: admin.firestore.FieldValue.arrayUnion(
-									req.user.clozang
-								)
+								fusers: admin.firestore.FieldValue.arrayUnion(req.user.clozang)
 							});
 					})
 					.then(() => {
 						db.doc(`/Users/${req.user.clozang}`).update({
 							fusers: admin.firestore.FieldValue.arrayUnion(senderData)
 						});
-                    });
-            return res.status(200).json({ message: "You've been fused with " + senderData});
+					});
+				return res
+					.status(200)
+					.json({ message: "You've been fused with " + senderData });
 			}
 		})
 		.catch(err => {
 			return res.status(500).json({ error: err.code });
 		});
 };
+
+exports.rejectFuseRequest = (req, res) => {
+	db.doc(`/Requests/${req.params.reqId}`)
+		.get()
+		.then(doc => {
+			if (!doc.exists) {
+				return res.status(404).json({
+					error: "This request either does not exist or has been cancelled"
+				});
+			} else if (doc.data().requested !== req.user.clozang) {
+				return res
+					.status(403)
+					.json({ error: "This action is not permitted by this account" });
+			} else {
+				doc.ref.update({ rejected: true });
+				return res.status(200).json({
+					message: "You have refused to fuse with " + doc.data().sender
+				});
+			}
+		})
+		.catch(err => {
+			return res.status(500).json({ error: err.code });
+		});
+};
+
+

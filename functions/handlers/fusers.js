@@ -79,6 +79,33 @@ exports.sendFuseRequest = (req, res) => {
 		});
 };
 
+exports.fetchOneRequest = (req, res) => {
+	let fuseData = {};
+	db.doc(`/Requests/${req.params.reqId}`)
+		.get()
+		.then(doc => {
+			if (!doc.exists) {
+				return res.status(404).json({ error: "Request not found" });
+			} else if (
+				doc.data().sender !== req.user.clozang &&
+				doc.data().requested !== req.user.clozang
+			) {
+				return res
+					.status(403)
+					.json({
+						error: "This account is not allowed to perform this action"
+					});
+			} else {
+				fuseData = doc.data();
+				fuseData.reqID = doc.id;
+				return res.status(200).json(fuseData);
+			}
+		})
+		.catch(err => {
+			return res.status(500).json({ error: err.code });
+		});
+};
+
 exports.getAllRequestedFuses = (req, res) => {
 	let requestedArr = [];
 	db.collection("Requests")
@@ -285,14 +312,12 @@ exports.silenceFuser = (req, res) => {
 						silenced: admin.firestore.FieldValue.arrayUnion(req.params.fuser)
 					})
 					.then(() => {
-						return res
-							.status(200)
-							.json({
-								message:
-									"You have successfully silenced " +
-									req.params.fuser +
-									" on this account"
-							});
+						return res.status(200).json({
+							message:
+								"You have successfully silenced " +
+								req.params.fuser +
+								" on this account"
+						});
 					});
 			}
 		})

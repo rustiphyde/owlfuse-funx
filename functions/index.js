@@ -13,6 +13,7 @@ const {
 	getUserFuserList,
 	sendFuseRequest,
 	getAllRequestedFuses,
+	fetchOneRequest,
 	getAllSentFuses,
 	acceptFuseRequest,
 	rejectFuseRequest,
@@ -94,6 +95,7 @@ app.get("/fusers", FBAuth, getUserFuserList);
 app.post("/fuse-with/:fuser", FBAuth, sendFuseRequest);
 app.get("/requested-fuses", FBAuth, getAllRequestedFuses);
 app.get("/sent-fuses", FBAuth, getAllSentFuses);
+app.get("/fetch/:reqId", FBAuth, fetchOneRequest);
 app.get("/accept/:reqId", FBAuth, acceptFuseRequest);
 app.get("/reject/:reqId", FBAuth, rejectFuseRequest);
 app.delete("/cancel/:reqId", FBAuth, cancelFuseRequest);

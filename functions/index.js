@@ -20,7 +20,8 @@ const {
 	cancelFuseRequest,
 	defuseWithUser,
 	silenceFuser,
-	fetchUserSilencedList
+	fetchUserSilencedList,
+	unsilenceFuser
 } = require("./handlers/fusers");
 
 const {
@@ -103,6 +104,7 @@ app.delete("/cancel/:reqId", FBAuth, cancelFuseRequest);
 app.get("/defuse/:fuser", FBAuth, defuseWithUser);
 app.get("/silence/:fuser", FBAuth, silenceFuser);
 app.get("/silenced", FBAuth, fetchUserSilencedList);
+app.get("/unsilence/:fuser", FBAuth, unsilenceFuser);
 // Howl routes
 app.post("/howl/:friend", FBAuth, postNewHowl);
 app.get("/howls", FBAuth, fetchUserHowls);

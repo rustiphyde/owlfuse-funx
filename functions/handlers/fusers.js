@@ -90,11 +90,9 @@ exports.fetchOneRequest = (req, res) => {
 				doc.data().sender !== req.user.clozang &&
 				doc.data().requested !== req.user.clozang
 			) {
-				return res
-					.status(403)
-					.json({
-						error: "This account is not allowed to perform this action"
-					});
+				return res.status(403).json({
+					error: "This account is not allowed to perform this action"
+				});
 			} else {
 				fuseData = doc.data();
 				fuseData.reqID = doc.id;
@@ -327,7 +325,7 @@ exports.silenceFuser = (req, res) => {
 };
 
 exports.fetchUserSilencedList = (req, res) => {
-    db.doc(`/Users/${req.user.clozang}`)
+	db.doc(`/Users/${req.user.clozang}`)
 		.get()
 		.then(doc => {
 			let silentList = [];
@@ -346,5 +344,44 @@ exports.fetchUserSilencedList = (req, res) => {
 		})
 		.catch(err => {
 			console.error(err.code);
+		});
+};
+
+exports.unsilenceFuser = (req, res) => {
+	let silencedlist = [];
+	db.doc(`/Users/${req.user.clozang}`)
+		.get()
+		.then(doc => {
+			doc.data().silenced.forEach(silent => {
+				silencedlist.push(silent);
+			});
+			if (!silencedlist.includes(req.params.fuser)) {
+				return res.status(404).json({
+					error: "This user is not currently silenced by this account"
+				});
+			} else {
+				doc.ref
+					.update({
+						silenced: admin.firestore.FieldValue.arrayRemove(req.params.fuser)
+					})
+					.then(() => {
+						if (req.params.fuser === ">tetnis-game") {
+							return res
+								.status(200)
+								.json({
+									message:
+										"Congratulations you've unlocked my secret game!! Play as much as you want."
+								});
+						} else {
+							return res.status(200).json({
+								message:
+									req.params.fuser + " is no longer silenced on this account"
+							});
+						}
+					});
+			}
+		})
+		.catch(err => {
+			return res.status(500).json({ error: err.code });
 		});
 };

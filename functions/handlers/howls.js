@@ -4,7 +4,6 @@ exports.postNewHowl = (req, res) => {
 	if (req.body.howlBody.trim() === "")
 		return res.status(400).json({ howlBody: "Field must not be empty" });
 
-	const resHowl = {};
 
 	const newDocKey = [req.user.clozang, req.params.friend].sort().join("::");
 

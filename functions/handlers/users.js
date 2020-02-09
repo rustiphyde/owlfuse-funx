@@ -54,7 +54,7 @@ exports.signup = (req, res) => {
 				createdAt: new Date().toISOString(),
 				imageUrl: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
 				userId,
-				silenced: [">tetnis-game"],
+				silenced: [],
 				fusers: []
 			};
 			return db.doc(`/Users/${newUser.clozang}`).set(userCredentials);

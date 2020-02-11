@@ -24,7 +24,6 @@ const {
 	unsilenceFuser
 } = require("./handlers/fusers");
 
-
 const {
 	postNewHowl,
 	fetchUserHowls,
@@ -44,15 +43,6 @@ const {
 	extinguishSpark,
 	getOnlyHottest
 } = require("./handlers/sparks");
-
-const {
-	getAllInfernals,
-	getInfernal,
-	stokeInfernal,
-	addInfernalHeat,
-	removeInfernalHeat,
-	extinguishInfernal
-} = require("./handlers/infernals");
 
 const {
 	buildNewOkeList,
@@ -122,13 +112,6 @@ app.get("/howl/:docKey", FBAuth, fetchSingleHowl);
 app.delete("/howling/:howlId", FBAuth, silenceAHowling);
 app.delete("/howl/:docKey", FBAuth, silenceAHowl);
 app.post("/howling/edit/:howlId", FBAuth, editAHowling);
-// Infernal routes
-app.get("/infernals", getAllInfernals);
-app.get("/infernal/:infernalId", getInfernal);
-app.post("/infernal/:infernalId/stoke", FBAuth, stokeInfernal);
-app.get("/infernal/:infernalId/heat", FBAuth, addInfernalHeat);
-app.get("/infernal/:infernalId/cool", FBAuth, removeInfernalHeat);
-app.delete("/infernal/:infernalId", FBAuth, extinguishInfernal);
 // User routes
 app.post("/signup", signup);
 app.post("/login", login);
@@ -137,7 +120,7 @@ app.post("/user/", FBAuth, addUserDetails);
 app.get("/user/", FBAuth, getAuthenticatedUser);
 app.post("/sizzles", FBAuth, markSizzlesRead);
 app.post("/clinks", FBAuth, markClinksRead);
-app.get("/user/:clozang", getUserDetails);
+app.get("/:clozang", getUserDetails);
 app.post("/reset", resetPassword);
 
 // Oke routes
@@ -354,14 +337,32 @@ exports.sparkToFire = functions.firestore
 	.onUpdate(change => {
 		if (
 			change.before.data().heatCount !== change.after.data().heatCount &&
-			change.after.data().heatCount > 99 &&
+			change.after.data().heatCount > 99 && change.after.data().heatCount < 10000 &&
 			change.before.data().fire === false
 		) {
 			return db
 				.doc(`/Sparks/${change.before.id}`)
 				.get()
 				.then(doc => {
-					doc.ref.update({ fire: true });
+					doc.ref.update({ fire: true, infernal: false });
+				})
+				.catch(err => console.error(err));
+		} else return;
+	});
+
+	exports.fireToInfernal = functions.firestore
+	.document("/Sparks/{sparkId}")
+	.onUpdate(change => {
+		if (
+			change.before.data().heatCount !== change.after.data().heatCount &&
+			change.after.data().heatCount > 9999 &&
+			change.before.data().infernal === false
+		) {
+			return db
+				.doc(`/Sparks/${change.before.id}`)
+				.get()
+				.then(doc => {
+					doc.ref.update({ fire: false, infernal: true });
 				})
 				.catch(err => console.error(err));
 		} else return;
@@ -380,205 +381,6 @@ exports.snuffOutFire = functions.firestore
 				.delete()
 				.catch(err => console.log(err));
 		} else return;
-	});
-
-exports.onAliasChange = functions.firestore
-	.document("/Users/{id}")
-	.onUpdate(change => {
-		if (change.before.data().alias !== change.after.data().alias) {
-			const batch = db.batch();
-			return db
-				.collection("Users")
-				.where("clozang", "==", change.before.data().clozang)
-				.get()
-				.then(data => {
-					data.forEach(doc => {
-						const newAlias = db.doc(`/Users/${change.before.data().clozang}`);
-						batch.update(newAlias, { alias: change.after.data().alias });
-					});
-					return db
-						.collection("Sparks")
-						.where("userAlias", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newSparkAlias = db.doc(`/Sparks/${doc.id}`);
-						batch.update(newSparkAlias, {
-							userAlias: change.after.data().alias
-						});
-					});
-					return db
-						.collection("Infernals")
-						.where("userAlias", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newInfernalAlias = db.doc(`/Infernals/${doc.id}`);
-						batch.update(newInfernalAlias, {
-							userAlias: change.after.data().alias
-						});
-					});
-					return db
-						.collection("Stokes")
-						.where("userAlias", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newStokeAlias = db.doc(`/Stokes/${doc.id}`);
-						batch.update(newStokeAlias, {
-							userAlias: change.after.data().alias
-						});
-					});
-					return db
-						.collection("InfernalStokes")
-						.where("userAlias", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newInfernalStokeAlias = db.doc(`/InfernalStokes/${doc.id}`);
-						batch.update(newInfernalStokeAlias, {
-							userAlias: change.after.data().alias
-						});
-					});
-					return db
-						.collection("Toasts")
-						.where("userAlias", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newToastAlias = db.doc(`/Toasts/${doc.id}`);
-						batch.update(newToastAlias, {
-							userAlias: change.after.data().alias
-						});
-					});
-					return db
-						.collection("Songs")
-						.where("userAlias", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newSongAlias = db.doc(`/Songs/${doc.id}`);
-						batch.update(newSongAlias, {
-							userAlias: change.after.data().alias
-						});
-					});
-					return db
-						.collection("Heat")
-						.where("userAlias", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newHeatAlias = db.doc(`/Heat/${doc.id}`);
-						batch.update(newHeatAlias, {
-							userAlias: change.after.data().alias
-						});
-					});
-					return db
-						.collection("InfernalHeat")
-						.where("userAlias", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newInfernalHeatAlias = db.doc(`/InfernalHeat/${doc.id}`);
-						batch.update(newInfernalHeatAlias, {
-							userAlias: change.after.data().alias
-						});
-					});
-					return db
-						.collection("Cheers")
-						.where("userAlias", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newCheersAlias = db.doc(`/Cheers/${doc.id}`);
-						batch.update(newCheersAlias, {
-							userAlias: change.after.data().alias
-						});
-					});
-					return db
-						.collection("Boozulas")
-						.where("userAlias", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newBoozulaAlias = db.doc(`/Boozulas/${doc.id}`);
-						batch.update(newBoozulaAlias, {
-							userAlias: change.after.data().alias
-						});
-					});
-					return db
-						.collection("Okelists")
-						.where("userAlias", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newOkelistAlias = db.doc(`/Okelists/${doc.id}`);
-						batch.update(newOkelistAlias, {
-							userAlias: change.after.data().alias
-						});
-					});
-					return db
-						.collection("Sizzles")
-						.where("sender", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newSenderAlias = db.doc(`/Sizzles/${doc.id}`);
-						batch.update(newSenderAlias, {
-							sender: change.after.data().alias
-						});
-					});
-					return db
-						.collection("Sizzles")
-						.where("recipient", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newRecipientAlias = db.doc(`/Sizzles/${doc.id}`);
-						batch.update(newRecipientAlias, {
-							recipient: change.after.data().alias
-						});
-					});
-					return db
-						.collection("Clinks")
-						.where("sender", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newSenderAlias = db.doc(`/Clinks/${doc.id}`);
-						batch.update(newSenderAlias, {
-							sender: change.after.data().alias
-						});
-					});
-					return db
-						.collection("Clinks")
-						.where("recipient", "==", change.before.data().alias)
-						.get();
-				})
-				.then(data => {
-					data.forEach(doc => {
-						const newRecipientAlias = db.doc(`/Clinks/${doc.id}`);
-						batch.update(newRecipientAlias, {
-							recipient: change.after.data().alias
-						});
-					});
-					return batch.commit();
-				});
-		} else return true;
 	});
 
 exports.onOkelistErase = functions.firestore
@@ -624,100 +426,6 @@ exports.onBoozulaEmpty = functions.firestore
 				return batch.commit();
 			})
 			.catch(err => console.error(err));
-	});
-
-exports.sparkAnInfernal = functions.firestore
-	.document("/Sparks/{sparkId}")
-	.onUpdate(change => {
-		if (
-			change.before.data().heatCount !== change.after.data().heatCount &&
-			change.after.data().heatCount > 9999
-		) {
-			return db
-				.doc(`/Sparks/${change.before.id}`)
-				.get()
-				.then(doc => {
-					const newInfernal = {
-						infernalId: doc.id,
-						body: doc.data().body,
-						userClozang: doc.data().userClozang,
-						createdAt: doc.data().createdAt,
-						heatCount: doc.data().heatCount,
-						stokeCount: doc.data().stokeCount,
-						userImage: doc.data().userImage,
-						userAlias: doc.data().userAlias,
-						emberCount: 0
-					};
-					return db
-						.collection("Infernals")
-						.doc(change.before.id)
-						.set(newInfernal)
-						.then(doc => {
-							const resInfernal = newInfernal;
-							resInfernal.infernalId = doc.id;
-						});
-				})
-				.catch(err => console.error(err));
-		} else return;
-	});
-
-exports.createStokesOnInfernal = functions.firestore
-	.document("/Sparks/{sparkId}")
-	.onUpdate(change => {
-		if (
-			change.before.data().heatCount !== change.after.data().heatCount &&
-			change.after.data().heatCount > 9999
-		) {
-			return db
-				.collection("Stokes")
-				.where("sparkId", "==", change.before.id)
-				.get()
-				.then(data => {
-					data.forEach(doc => {
-						return db.collection("InfernalStokes").add({
-							infernalId: doc.data().sparkId,
-							body: doc.data().body,
-							userClozang: doc.data().userClozang,
-							createdAt: doc.data().createdAt,
-							userImage: doc.data().userImage,
-							userAlias: doc.data().userAlias
-						});
-					});
-				})
-				.catch(err => console.error(err));
-		} else return;
-	});
-
-exports.createHeatOnFire = functions.firestore
-	.document("/Sparks/{sparkId}")
-	.onUpdate(change => {
-		if (
-			change.before.data().heatCount !== change.after.data().heatCount &&
-			change.after.data().heatCount > 9999
-		) {
-			return db
-				.collection("Heat")
-				.where("sparkId", "==", change.before.id)
-				.get()
-				.then(data => {
-					data.forEach(doc => {
-						return db.collection("InfernalHeat").add({
-							userAlias: doc.data().userAlias,
-							infernalId: doc.data().sparkId
-						});
-					});
-				})
-				.catch(err => console.error(err));
-		} else return;
-	});
-
-exports.switchToInfernal = functions.firestore
-	.document("/Infernals/{id}")
-	.onCreate(snap => {
-		return db
-			.doc(`/Sparks/${snap.data().infernalId}`)
-			.delete()
-			.catch(err => console.log(err));
 	});
 
 exports.removeHowlCount = functions.firestore

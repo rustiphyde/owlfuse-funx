@@ -6,7 +6,7 @@ exports.getAllSparks = (req, res) => {
     .get()
     .then(data => {
       let sparks = [];
-      data.forEach(doc => {
+      data.forEach(doc => { 
         sparks.push({
           sparkId: doc.id,
           body: doc.data().body,
@@ -16,7 +16,9 @@ exports.getAllSparks = (req, res) => {
           stokeCount: doc.data().stokeCount,
           heatCount: doc.data().heatCount,
           userImage: doc.data().userImage,
-          fire: doc.data().fire
+          fire: doc.data().fire,
+          emberable: doc.data().emberable,
+          infernal: doc.data().infernal
         });
       });
       return res.json(sparks);
@@ -68,7 +70,9 @@ exports.postOneSpark = (req, res) => {
     heatCount: 0,
     stokeCount: 0,
     userImage: req.user.imageUrl,
-    fire: false
+    fire: false,
+    emberable: false,
+    infernal: false
   };
 
   db.collection("Sparks")
@@ -102,11 +106,17 @@ exports.stokeSpark = (req, res) => {
       if (!doc.exists) {
         return res.status(404).json({ error: "Spark has been extinguished" });
       }
-      if (doc.data().fire === true && doc.data().userAlias !== req.user.alias) {
+      else if (doc.data().fire === true && doc.data().userAlias !== req.user.alias) {
         return doc.ref.update({
           stokeCount: doc.data().stokeCount + 1,
           heatCount: doc.data().heatCount + 1 });
-      } else {
+      }
+      else if (doc.data().infernal === true && doc.data().userAlias !== req.user.alias) {
+        return doc.ref.update({
+          stokeCount: doc.data().stokeCount + 1,
+          heatCount: doc.data().heatCount + 1 });
+      }
+       else {
         return doc.ref.update({
           stokeCount: doc.data().stokeCount + 1
         })

@@ -17,7 +17,6 @@ exports.signup = (req, res) => {
 		email: req.body.email,
 		password: req.body.password,
 		confirmPassword: req.body.confirmPassword,
-		alias: req.body.alias.replace(/\s/g, "-"),
 		clozang: ">" + req.body.alias.replace(/\s/g, "-").toLowerCase()
 	};
 
@@ -33,7 +32,7 @@ exports.signup = (req, res) => {
 		.then(doc => {
 			if (doc.exists) {
 				return res.status(400).json({
-					alias: "This alias has already been taken by someone else"
+					alias: "This clozang has already been taken by someone else"
 				});
 			} else {
 				return firebase
@@ -49,7 +48,6 @@ exports.signup = (req, res) => {
 			token = idToken;
 			const userCredentials = {
 				clozang: newUser.clozang,
-				alias: newUser.alias,
 				email: newUser.email,
 				createdAt: new Date().toISOString(),
 				imageUrl: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
@@ -141,7 +139,6 @@ exports.getUserDetails = (req, res) => {
 					body: doc.data().body,
 					createdAt: doc.data().createdAt,
 					userClozang: doc.data().userClozang,
-					userAlias: doc.data().userAlias,
 					userImage: doc.data().userImage,
 					heatCount: doc.data().heatCount,
 					stokeCount: doc.data().stokeCount,
@@ -165,7 +162,6 @@ exports.getUserDetails = (req, res) => {
 					body: doc.data().body,
 					createdAt: doc.data().createdAt,
 					userClozang: doc.data().userClozang,
-					userAlias: doc.data().userAlias,
 					userImage: doc.data().userImage,
 					heatCount: doc.data().heatCount,
 					stokeCount: doc.data().stokeCount,
@@ -188,7 +184,6 @@ exports.getUserDetails = (req, res) => {
           boozId: doc.id,
           drinkName: doc.data().drinkName,
           mainAlcohol: doc.data().mainAlcohol,
-          userAlias: doc.data().userAlias,
           userClozang: doc.data().userClozang,
           boozImage: doc.data().boozImage,
           createdAt: doc.data().createdAt,
@@ -211,7 +206,6 @@ exports.getUserDetails = (req, res) => {
       data.forEach(doc => {
         userData.okelists.push({
           createdAt: doc.data().createdAt,
-          userAlias: doc.data().userAlias,
           userClozang: doc.data().userClozang,
           userImage: doc.data().userImage,
           okeId: doc.id,
@@ -238,7 +232,7 @@ exports.getAuthenticatedUser = (req, res) => {
 				userData.credentials = doc.data();
 				return db
 					.collection("Heat")
-					.where("userAlias", "==", req.user.alias)
+					.where("userClozang", "==", req.user.clozang)
 					.get();
 			}
 		})
@@ -249,7 +243,7 @@ exports.getAuthenticatedUser = (req, res) => {
 			});
 			return db
 				.collection("Cheers")
-				.where("userAlias", "==", req.user.alias)
+				.where("userClozang", "==", req.user.clozang)
 				.get();
 		})
 		.then(data => {
@@ -259,7 +253,7 @@ exports.getAuthenticatedUser = (req, res) => {
 			});
 			return db
 				.collection("Sizzles")
-				.where("recipient", "==", req.user.alias)
+				.where("recipient", "==", req.user.clozang)
 				.orderBy("createdAt", "desc")
 				.limit(16)
 				.get();
@@ -279,7 +273,7 @@ exports.getAuthenticatedUser = (req, res) => {
 			});
 			return db
 				.collection("Clinks")
-				.where("recipient", "==", req.user.alias)
+				.where("recipient", "==", req.user.clozang)
 				.orderBy("createdAt", "desc")
 				.limit(16)
 				.get();

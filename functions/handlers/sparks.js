@@ -10,7 +10,6 @@ exports.getAllSparks = (req, res) => {
         sparks.push({
           sparkId: doc.id,
           body: doc.data().body,
-          userAlias: doc.data().userAlias,
           userClozang: doc.data().userClozang,
           createdAt: doc.data().createdAt,
           stokeCount: doc.data().stokeCount,
@@ -65,7 +64,6 @@ exports.postOneSpark = (req, res) => {
   const newSpark = {
     body: req.body.body,
     userClozang: req.user.clozang,
-    userAlias: req.user.alias,
     createdAt: new Date().toISOString(),
     heatCount: 0,
     stokeCount: 0,
@@ -96,7 +94,6 @@ exports.stokeSpark = (req, res) => {
     body: req.body.body,
     createdAt: new Date().toISOString(),
     sparkId: req.params.sparkId,
-    userAlias: req.user.alias,
     userClozang: req.user.clozang,
     userImage: req.user.imageUrl
   };
@@ -106,12 +103,12 @@ exports.stokeSpark = (req, res) => {
       if (!doc.exists) {
         return res.status(404).json({ error: "Spark has been extinguished" });
       }
-      else if (doc.data().fire === true && doc.data().userAlias !== req.user.alias) {
+      else if (doc.data().fire === true && doc.data().userClozang !== req.user.clozang) {
         return doc.ref.update({
           stokeCount: doc.data().stokeCount + 1,
           heatCount: doc.data().heatCount + 1 });
       }
-      else if (doc.data().infernal === true && doc.data().userAlias !== req.user.alias) {
+      else if (doc.data().infernal === true && doc.data().userClozang !== req.user.clozang) {
         return doc.ref.update({
           stokeCount: doc.data().stokeCount + 1,
           heatCount: doc.data().heatCount + 1 });
@@ -138,7 +135,7 @@ exports.stokeSpark = (req, res) => {
 exports.addHeat = (req, res) => {
   const heatDoc = db
     .collection("Heat")
-    .where("userAlias", "==", req.user.alias)
+    .where("userClozang", "==", req.user.clozang)
     .where("sparkId", "==", req.params.sparkId)
     .limit(1);
 
@@ -163,7 +160,7 @@ exports.addHeat = (req, res) => {
           .collection("Heat")
           .add({
             sparkId: req.params.sparkId,
-            userAlias: req.user.alias
+            userClozang: req.user.clozang
           })
           .then(() => {
             sparkData.heatCount++;
@@ -186,7 +183,7 @@ exports.addHeat = (req, res) => {
 exports.removeHeat = (req, res) => {
   const heatDoc = db
     .collection("Heat")
-    .where("userAlias", "==", req.user.alias)
+    .where("userClozang", "==", req.user.clozang)
     .where("sparkId", "==", req.params.sparkId)
     .limit(1);
   const sparkDoc = db.doc(`/Sparks/${req.params.sparkId}`);
@@ -232,7 +229,7 @@ exports.extinguishSpark = (req, res) => {
           if(!doc.exists){
               return res.status(404).json({ error: 'Spark not found'});
           } 
-          else if(doc.data().userAlias !== req.user.alias){
+          else if(doc.data().userClozang !== req.user.clozang){
               return res.status(403).json({ error: 'This action is not permitted by this account'});
           }
           else {
@@ -258,7 +255,6 @@ exports.getOnlyHottest = (req, res) => {
       hotSparks.push({
         sparkId: doc.id,
         body: doc.data().body,
-        userAlias: doc.data().userAlias,
         userClozang: doc.data().userClozang,
         createdAt: doc.data().createdAt,
         stokeCount: doc.data().stokeCount,

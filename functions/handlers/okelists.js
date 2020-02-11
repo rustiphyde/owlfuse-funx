@@ -10,7 +10,7 @@ exports.buildNewOkeList = (req, res) => {
   const newOkeList = {
     listName: req.body.listName,
     description: req.body.description,
-    userAlias: req.user.alias,
+    userClozang: req.user.clozang,
     createdAt: new Date().toISOString(),
     songCount: 0
   };
@@ -40,7 +40,7 @@ exports.getAllOkelists = (req, res) => {
           createdAt: doc.data().createdAt,
           listName: doc.data().listName,
           description: doc.data().description,
-          userAlias: doc.data().userAlias,
+          userClozang: doc.data().userClozang,
           songCount: doc.data().songCount
         });
       });
@@ -84,7 +84,7 @@ exports.addOneSong = (req, res) => {
     return res.status(400).json({ songArtist: "Field must not be empty" });
 
   const newSong = {
-    userAlias: req.user.alias,
+    userClozang: req.user.clozang,
     songTitle: req.body.songTitle,
     songArtist: req.body.songArtist,
     okeId: req.params.okeId,
@@ -120,7 +120,7 @@ exports.getSongsByList = (req, res) => {
       data.forEach(doc => {
         listSongs.push({
           songId: doc.id,
-          userAlias: doc.data().userAlias,
+          userClozang: doc.data().userClozang,
           songTitle: doc.data().songTitle,
           songArtist: doc.data().songArtist,
           okeId: doc.data().okeId
@@ -143,7 +143,7 @@ exports.getSongsByArtist = (req, res) => {
       data.forEach(doc => {
         songs.push({
           songId: doc.id,
-          userAlias: doc.data().userAlias,
+          userClozang: doc.data().userClozang,
           songTitle: doc.data().songTitle,
           songArtist: doc.data().songArtist,
           okeId: doc.data().okeId,
@@ -158,16 +158,16 @@ exports.getSongsByArtist = (req, res) => {
     });
 };
 
-exports.getSongsByAlias = (req, res) => {
+exports.getSongsByClozang = (req, res) => {
   db.collection("Songs")
-    .where("userAlias", "==", req.params.alias)
+    .where("userClozang", "==", req.params.clozang)
     .get()
     .then(data => {
       let songs = [];
       data.forEach(doc => {
         songs.push({
           songId: doc.id,
-          userAlias: doc.data().userAlias,
+          userClozang: doc.data().userClozang,
           songTitle: doc.data().songTitle,
           songArtist: doc.data().songArtist,
           okeId: doc.data().okeId,
@@ -191,7 +191,7 @@ exports.choozByList = (req, res) => {
       data.forEach(doc => {
         songslist.push({
           songId: doc.id,
-          userAlias: doc.data().userAlias,
+          userClozang: doc.data().userClozang,
           songTitle: doc.data().songTitle,
           songArtist: doc.data().songArtist,
           okeId: doc.data().okeId,
@@ -244,7 +244,7 @@ exports.choozByArtist = (req, res) => {
       data.forEach(doc => {
         songslist.push({
           songId: doc.id,
-          userAlias: doc.data().userAlias,
+          userClozang: doc.data().userClozang,
           songTitle: doc.data().songTitle,
           songArtist: doc.data().songArtist,
           okeId: doc.data().okeId,
@@ -288,16 +288,16 @@ exports.choozByArtist = (req, res) => {
     });
 };
 
-exports.choozByAlias = (req, res) => {
+exports.choozByClozang = (req, res) => {
   db.collection("Songs")
-    .where("userAlias", "==", req.params.alias)
+    .where("userClozang", "==", req.params.clozang)
     .get()
     .then(data => {
       let songslist = [];
       data.forEach(doc => {
         songslist.push({
           songId: doc.id,
-          userAlias: doc.data().userAlias,
+          userClozang: doc.data().userClozang,
           songTitle: doc.data().songTitle,
           songArtist: doc.data().songArtist,
           okeId: doc.data().okeId,
@@ -349,7 +349,7 @@ exports.choozFromAllSongs = (req, res) => {
       data.forEach(doc => {
         songslist.push({
           songId: doc.id,
-          userAlias: doc.data().userAlias,
+          userClozang: doc.data().userClozang,
           songTitle: doc.data().songTitle,
           songArtist: doc.data().songArtist,
           okeId: doc.data().okeId,

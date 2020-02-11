@@ -119,42 +119,42 @@ exports.addUserDetails = (req, res) => {
 
 // Fetch any user's details
 exports.getUserDetails = (req, res) => {
-	let userData = {};
-	db.doc(`/Users/${req.params.clozang}`)
-		.get()
-		.then(doc => {
-			if (doc.exists) {
-				userData.user = doc.data();
-				return db
-					.collection("Sparks")
-					.where("userClozang", "==", req.params.clozang)
-					.orderBy("createdAt", "desc")
-					.get();
-			} else {
-				return res.status(404).json({ error: "User not found" });
-			}
-		})
-		.then(data => {
-			userData.sparks = [];
-			data.forEach(doc => {
-					userData.sparks.push({
-						body: doc.data().body,
-						createdAt: doc.data().createdAt,
-						userClozang: doc.data().userClozang,
-						userAlias: doc.data().userAlias,
-						userImage: doc.data().userImage,
-						heatCount: doc.data().heatCount,
-						stokeCount: doc.data().stokeCount,
-						fire: doc.data().fire,
-						sparkId: doc.id,
-						emberable: doc.data().emberable,
-						infernal: doc.data().infernal
-					});
-			});
-			return db
+  let userData = {};
+  db.doc(`/Users/${req.params.clozang}`)
+    .get()
+    .then(doc => {
+      if (doc.exists) {
+        userData.user = doc.data();
+        return db
+          .collection("Sparks")
+          .where("userClozang", "==", req.params.clozang)
+          .orderBy("createdAt", "desc")
+          .get();
+      } else {
+        return res.status(404).json({ error: "User not found" });
+      }
+    })
+	.then(data => {
+		userData.sparks = [];
+		data.forEach(doc => {
+				userData.sparks.push({
+					body: doc.data().body,
+					createdAt: doc.data().createdAt,
+					userClozang: doc.data().userClozang,
+					userAlias: doc.data().userAlias,
+					userImage: doc.data().userImage,
+					heatCount: doc.data().heatCount,
+					stokeCount: doc.data().stokeCount,
+					fire: doc.data().fire,
+					sparkId: doc.id,
+					emberable: doc.data().emberable,
+					infernal: doc.data().infernal
+				});
+		});
+	  return db
+
 				.collection("Sparks")
 				.where("userClozang", "==", req.params.clozang)
-				.where("heatCount", ">=", 10000)
 				.orderBy("heatCount", "desc")
 				.get();
 		})
@@ -175,57 +175,57 @@ exports.getUserDetails = (req, res) => {
 					infernal: doc.data().infernal
 				});
 			});
-			return db
-				.collection("Boozulas")
-				.where("userClozang", "==", req.params.clozang)
-				.orderBy("createdAt", "desc")
-				.get();
-		})
-		.then(data => {
-			userData.boozulas = [];
-			data.forEach(doc => {
-				userData.boozulas.push({
-					boozId: doc.id,
-					drinkName: doc.data().drinkName,
-					mainAlcohol: doc.data().mainAlcohol,
-					userAlias: doc.data().userAlias,
-					userClozang: doc.data().userClozang,
-					boozImage: doc.data().boozImage,
-					createdAt: doc.data().createdAt,
-					cheersCount: doc.data().cheersCount,
-					toastCount: doc.data().toastCount,
-					ingredients: doc.data().ingredients,
-					preparation: doc.data().preparation,
-					drinkWare: doc.data().drinkWare,
-					garnish: doc.data().garnish
-				});
-			});
-			return db
-				.collection("Okelists")
-				.where("userClozang", "==", req.params.clozang)
-				.orderBy("createdAt", "desc")
-				.get();
-		})
-		.then(data => {
-			userData.okelists = [];
-			data.forEach(doc => {
-				userData.okelists.push({
-					createdAt: doc.data().createdAt,
-					userAlias: doc.data().userAlias,
-					userClozang: doc.data().userClozang,
-					userImage: doc.data().userImage,
-					okeId: doc.id,
-					listName: doc.data().listName,
-					description: doc.data().description,
-					songCount: doc.data().songCount
-				});
-			});
-			return res.json(userData);
-		})
-		.catch(err => {
-			console.error(err);
-			return res.status(500).json({ error: err.code });
-		});
+      return db
+        .collection("Boozulas")
+        .where("userClozang", "==", req.params.clozang)
+        .orderBy("createdAt", "desc")
+        .get();
+    })
+    .then(data => {
+      userData.boozulas = [];
+      data.forEach(doc => {
+        userData.boozulas.push({
+          boozId: doc.id,
+          drinkName: doc.data().drinkName,
+          mainAlcohol: doc.data().mainAlcohol,
+          userAlias: doc.data().userAlias,
+          userClozang: doc.data().userClozang,
+          boozImage: doc.data().boozImage,
+          createdAt: doc.data().createdAt,
+          cheersCount: doc.data().cheersCount,
+          toastCount: doc.data().toastCount,
+          ingredients: doc.data().ingredients,
+          preparation: doc.data().preparation,
+          drinkWare: doc.data().drinkWare,
+          garnish: doc.data().garnish
+        })
+      });
+      return db
+        .collection("Okelists")
+        .where("userClozang", "==", req.params.clozang)
+        .orderBy("createdAt", "desc")
+        .get();
+    })
+    .then(data => {
+      userData.okelists = [];
+      data.forEach(doc => {
+        userData.okelists.push({
+          createdAt: doc.data().createdAt,
+          userAlias: doc.data().userAlias,
+          userClozang: doc.data().userClozang,
+          userImage: doc.data().userImage,
+          okeId: doc.id,
+          listName: doc.data().listName,
+          description: doc.data().description,
+          songCount: doc.data().songCount
+        });
+      });
+      return res.json(userData);
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
 };
 
 // Get own user details

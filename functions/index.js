@@ -10,6 +10,22 @@ app.use(cors());
 const { db } = require("./util/admin");
 
 const {
+	getUserFuserList,
+	sendFuseRequest,
+	getAllRequestedFuses,
+	fetchOneRequest,
+	getAllSentFuses,
+	acceptFuseRequest,
+	rejectFuseRequest,
+	cancelFuseRequest,
+	defuseWithUser,
+	silenceFuser,
+	fetchUserSilencedList,
+	unsilenceFuser
+} = require("./handlers/fusers");
+
+
+const {
 	postNewHowl,
 	fetchUserHowls,
 	fetchSingleHowl,
@@ -25,7 +41,8 @@ const {
 	stokeSpark,
 	addHeat,
 	removeHeat,
-	extinguishSpark
+	extinguishSpark,
+	getOnlyHottest
 } = require("./handlers/sparks");
 
 const {
@@ -84,6 +101,20 @@ app.post("/spark/:sparkId/stoke", FBAuth, stokeSpark);
 app.get("/spark/:sparkId/burn", FBAuth, addHeat);
 app.get("/spark/:sparkId/snuff", FBAuth, removeHeat);
 app.delete("/spark/:sparkId", FBAuth, extinguishSpark);
+app.get("/hot/sparks", getOnlyHottest);
+// Fuser routes
+app.get("/fusers", FBAuth, getUserFuserList);
+app.post("/fuse-with/:fuser", FBAuth, sendFuseRequest);
+app.get("/requested-fuses", FBAuth, getAllRequestedFuses);
+app.get("/sent-fuses", FBAuth, getAllSentFuses);
+app.get("/fetch/:reqId", FBAuth, fetchOneRequest);
+app.get("/accept/:reqId", FBAuth, acceptFuseRequest);
+app.get("/reject/:reqId", FBAuth, rejectFuseRequest);
+app.delete("/cancel/:reqId", FBAuth, cancelFuseRequest);
+app.get("/defuse/:fuser", FBAuth, defuseWithUser);
+app.get("/silence/:fuser", FBAuth, silenceFuser);
+app.get("/silenced", FBAuth, fetchUserSilencedList);
+app.get("/unsilence/:fuser", FBAuth, unsilenceFuser);
 // Howl routes
 app.post("/howl/:friend", FBAuth, postNewHowl);
 app.get("/howls", FBAuth, fetchUserHowls);
@@ -102,8 +133,8 @@ app.delete("/infernal/:infernalId", FBAuth, extinguishInfernal);
 app.post("/signup", signup);
 app.post("/login", login);
 app.post("/user/image", FBAuth, uploadImage);
-app.post("/user", FBAuth, addUserDetails);
-app.get("/user", FBAuth, getAuthenticatedUser);
+app.post("/user/", FBAuth, addUserDetails);
+app.get("/user/", FBAuth, getAuthenticatedUser);
 app.post("/sizzles", FBAuth, markSizzlesRead);
 app.post("/clinks", FBAuth, markClinksRead);
 app.get("/user/:clozang", getUserDetails);

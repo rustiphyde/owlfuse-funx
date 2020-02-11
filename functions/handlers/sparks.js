@@ -237,3 +237,32 @@ exports.extinguishSpark = (req, res) => {
           return res.status(500).json({ error: err.code});
       });
 };
+
+exports.getOnlyHottest = (req, res) => {
+  db.collection("Sparks")
+  .orderBy("heatCount", "desc")
+  .get()
+  .then(data => {
+    let hotSparks = [];
+    data.forEach(doc => {
+      hotSparks.push({
+        sparkId: doc.id,
+        body: doc.data().body,
+        userAlias: doc.data().userAlias,
+        userClozang: doc.data().userClozang,
+        createdAt: doc.data().createdAt,
+        stokeCount: doc.data().stokeCount,
+        heatCount: doc.data().heatCount,
+        userImage: doc.data().userImage,
+        fire: doc.data().fire,
+        emberable: doc.data().emberable,
+        infernal: doc.data().infernal
+      });
+    });
+    return res.json(hotSparks);
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(500).json({ error: err.code });
+  });
+};

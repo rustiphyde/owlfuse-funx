@@ -133,21 +133,47 @@ exports.getUserDetails = (req, res) => {
         return res.status(404).json({ error: "User not found" });
       }
     })
-    .then(data => {
-      userData.sparks = [];
-      data.forEach(doc => {
-        userData.sparks.push({
-          body: doc.data().body,
-          createdAt: doc.data().createdAt,
-          userClozang: doc.data().userClozang,
-          userAlias: doc.data().userAlias,
-          userImage: doc.data().userImage,
-          heatCount: doc.data().heatCount,
-          stokeCount: doc.data().stokeCount,
-          fire: doc.data().fire,
-          sparkId: doc.id
-        });
-      });
+	.then(data => {
+		userData.sparks = [];
+		data.forEach(doc => {
+				userData.sparks.push({
+					body: doc.data().body,
+					createdAt: doc.data().createdAt,
+					userClozang: doc.data().userClozang,
+					userAlias: doc.data().userAlias,
+					userImage: doc.data().userImage,
+					heatCount: doc.data().heatCount,
+					stokeCount: doc.data().stokeCount,
+					fire: doc.data().fire,
+					sparkId: doc.id,
+					emberable: doc.data().emberable,
+					infernal: doc.data().infernal
+				});
+		});
+	  return db
+				.collection("Sparks")
+				.where("userClozang", "==", req.params.clozang)
+				.where("heatCount", ">=", 10000)
+				.orderBy("heatCount", "desc")
+				.get();
+		})
+		.then(data => {
+			userData.infernals = [];
+			data.forEach(doc => {
+				userData.infernals.push({
+					body: doc.data().body,
+					createdAt: doc.data().createdAt,
+					userClozang: doc.data().userClozang,
+					userAlias: doc.data().userAlias,
+					userImage: doc.data().userImage,
+					heatCount: doc.data().heatCount,
+					stokeCount: doc.data().stokeCount,
+					fire: doc.data().fire,
+					sparkId: doc.id,
+					emberable: doc.data().emberable,
+					infernal: doc.data().infernal
+				});
+			});
       return db
         .collection("Boozulas")
         .where("userClozang", "==", req.params.clozang)
@@ -191,26 +217,6 @@ exports.getUserDetails = (req, res) => {
           listName: doc.data().listName,
           description: doc.data().description,
           songCount: doc.data().songCount
-        });
-      });
-      return db.collection("Infernals")
-        .where("userClozang", "==", req.params.clozang)
-        .orderBy("heatCount", "desc")
-        .get();
-    })
-    .then(data => {
-      userData.infernals = [];
-      data.forEach(doc => {
-        userData.infernals.push({
-          body: doc.data().body,
-          createdAt: doc.data().createdAt,
-          userClozang: doc.data().userClozang,
-          userAlias: doc.data().userAlias,
-          userImage: doc.data().userImage,
-          heatCount: doc.data().heatCount,
-          stokeCount: doc.data().stokeCount,
-          emberCount: doc.data().emberCount,
-          infernalId: doc.id
         });
       });
       return res.json(userData);

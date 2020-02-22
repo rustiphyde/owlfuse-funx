@@ -94,7 +94,7 @@ app.delete("/spark/:sparkId", FBAuth, extinguishSpark);
 app.get("/hot/sparks", getOnlyHottest);
 // Fuser routes
 app.get("/fusers", FBAuth, getUserFuserList);
-app.post("/fuse-with/:fuser", FBAuth, sendFuseRequest);
+app.get("/fuse-with/:fuser", FBAuth, sendFuseRequest);
 app.get("/requested-fuses", FBAuth, getAllRequestedFuses);
 app.get("/sent-fuses", FBAuth, getAllSentFuses);
 app.get("/fetch/:reqId", FBAuth, fetchOneRequest);

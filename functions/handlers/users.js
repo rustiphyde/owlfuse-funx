@@ -17,6 +17,7 @@ exports.signup = (req, res) => {
 		email: req.body.email,
 		password: req.body.password,
 		confirmPassword: req.body.confirmPassword,
+		alias: req.body.alias,
 		clozang: ">" + req.body.alias.replace(/\s/g, "-").toLowerCase()
 	};
 
@@ -53,7 +54,7 @@ exports.signup = (req, res) => {
 				imageUrl: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
 				userId,
 				silenced: [],
-				fusers: []
+				fusers: [""]
 			};
 			return db.doc(`/Users/${newUser.clozang}`).set(userCredentials);
 		})

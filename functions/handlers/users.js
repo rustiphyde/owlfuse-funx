@@ -196,23 +196,6 @@ exports.getUserDetails = (req, res) => {
           garnish: doc.data().garnish
         })
 	  });
-	  return db
-	  .collection("Requests")
-	  .where("sender", "==", req.user.clozang)
-	  .orderBy("sentAt", "desc")
-	  .get();
-	})
-	.then(data => {
-		userData.sentrequests = []
-		data.forEach(doc => {
-			userData.sentrequests.push({
-				sender: doc.data().sender,
-				requested: doc.data().requested,
-				sentAt: doc.data().sentAt,
-				accepted: doc.data().accepted,
-				rejected: doc.data().rejected
-			})
-		})
       return db
         .collection("Okelists")
         .where("userClozang", "==", req.params.clozang)

@@ -65,7 +65,7 @@ exports.sendFuseRequest = (req, res) => {
 									const resReq = newRequest;
 									resReq.reqId = doc.id;
 									return res.status(200).json({
-										message: `Your request to ${req.params.fuser} has been sent.`,
+										message: `Your request to fuse with ${req.params.fuser} has been sent.`,
 										details: resReq
 									});
 								});

@@ -292,6 +292,42 @@ exports.getAuthenticatedUser = (req, res) => {
 					clinkId: doc.id
 				});
 			});
+			return db
+				.collection("Requests")
+				.where("requested", "==", req.user.clozang)
+				.orderBy("sentAt", "desc")
+				.get();
+		})
+		.then(data => {
+			userData.fuserequests = [];
+			data.forEach(doc => {
+				userData.fuserequests.push({
+					requested: doc.data().requested,
+					sender: doc.data().sender,
+					sentAt: doc.data().sentAt,
+					reqId: doc.id,
+					accepted: doc.data().accepted,
+					rejected: doc.data().rejected
+				});
+			});
+			return db
+				.collection("Requests")
+				.where("sender", "==", req.user.clozang)
+				.orderBy("sentAt", "desc")
+				.get();
+		})
+		.then(data => {
+			userData.sentrequests = [];
+			data.forEach(doc => {
+				userData.sentrequests.push({
+					requested: doc.data().requested,
+					sender: doc.data().sender,
+					sentAt: doc.data().sentAt,
+					reqId: doc.id,
+					accepted: doc.data().accepted,
+					rejected: doc.data().rejected
+				});
+			});
 			return res.json(userData);
 		})
 		.catch(err => {

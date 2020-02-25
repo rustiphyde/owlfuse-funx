@@ -453,3 +453,14 @@ exports.onHowlSilence = functions.firestore
 			})
 			.catch(err => console.log(err));
 	});
+
+exports.removeAcceptedRequest = functions.firestore
+.document("/Requests/{id}")
+.onUpdate(change => {
+	if(change.after.data().accepted === true){
+		return db
+				.doc(`/Requests/${change.before.id}`)
+				.delete()
+				.catch(err => console.log(err));
+		} else return;
+})

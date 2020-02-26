@@ -53,7 +53,7 @@ exports.signup = (req, res) => {
 				createdAt: new Date().toISOString(),
 				imageUrl: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
 				userId,
-				silenced: [],
+				silenced: [""],
 				fusers: [""]
 			};
 			return db.doc(`/Users/${newUser.clozang}`).set(userCredentials);
@@ -215,42 +215,6 @@ exports.getUserDetails = (req, res) => {
           songCount: doc.data().songCount
         });
 	  });
-	  return db
-				.collection("Requests")
-				.where("requested", "==", req.params.clozang)
-				.orderBy("sentAt", "desc")
-				.get();
-		})
-		.then(data => {
-			userData.fuserequests = [];
-			data.forEach(doc => {
-				userData.fuserequests.push({
-					requested: doc.data().requested,
-					sender: doc.data().sender,
-					sentAt: doc.data().sentAt,
-					reqId: doc.id,
-					accepted: doc.data().accepted,
-					rejected: doc.data().rejected
-				});
-			});
-			return db
-				.collection("Requests")
-				.where("sender", "==", req.params.clozang)
-				.orderBy("sentAt", "desc")
-				.get();
-		})
-		.then(data => {
-			userData.sentrequests = [];
-			data.forEach(doc => {
-				userData.sentrequests.push({
-					requested: doc.data().requested,
-					sender: doc.data().sender,
-					sentAt: doc.data().sentAt,
-					reqId: doc.id,
-					accepted: doc.data().accepted,
-					rejected: doc.data().rejected
-				});
-			});
       return res.json(userData);
     })
     .catch(err => {

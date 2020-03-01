@@ -284,7 +284,7 @@ exports.onUserImageChange = functions.firestore
 					return db
 						.collection("Toasts")
 						.where("userClozang", "==", change.before.data().clozang)
-		      			.get();
+						.get();
 				})
 				.then(data => {
 					data.forEach(doc => {
@@ -337,7 +337,8 @@ exports.sparkToFire = functions.firestore
 	.onUpdate(change => {
 		if (
 			change.before.data().heatCount !== change.after.data().heatCount &&
-			change.after.data().heatCount > 99 && change.after.data().heatCount < 10000 &&
+			change.after.data().heatCount > 99 &&
+			change.after.data().heatCount < 10000 &&
 			change.before.data().fire === false
 		) {
 			return db
@@ -350,7 +351,7 @@ exports.sparkToFire = functions.firestore
 		} else return;
 	});
 
-	exports.fireToInfernal = functions.firestore
+exports.fireToInfernal = functions.firestore
 	.document("/Sparks/{sparkId}")
 	.onUpdate(change => {
 		if (
@@ -455,12 +456,23 @@ exports.onHowlSilence = functions.firestore
 	});
 
 exports.removeAcceptedRequest = functions.firestore
-.document("/Requests/{id}")
-.onUpdate(change => {
-	if(change.after.data().accepted === true){
-		return db
+	.document("/Requests/{id}")
+	.onUpdate(change => {
+		if (change.after.data().accepted === true) {
+			return db
 				.doc(`/Requests/${change.before.id}`)
 				.delete()
 				.catch(err => console.log(err));
 		} else return;
-})
+	});
+
+exports.removeRejectedRequest = functions.firestore
+	.document("/Requests/{id}")
+	.onUpdate(change => {
+		if (change.after.data().rejected === true) {
+			return db
+				.doc(`/Requests/${change.before.id}`)
+				.delete()
+				.catch(err => console.log(err));
+		} else return;
+	});

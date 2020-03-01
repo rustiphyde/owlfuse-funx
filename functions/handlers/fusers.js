@@ -32,6 +32,12 @@ exports.sendFuseRequest = (req, res) => {
 		rejected: false
 	};
 
+	if(req.params.fuser === req.user.clozang){
+		return res.status(403).json({
+			error: "You cannot send yourself a fuse request"
+		})
+	}
+
 	db.doc(`/Users/${req.user.clozang}`)
 		.get()
 		.then(doc => {

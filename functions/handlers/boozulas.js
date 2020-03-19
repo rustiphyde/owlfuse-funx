@@ -14,7 +14,6 @@ exports.buildNewBoozula = (req, res) => {
   const newBoozula = {
     drinkName: req.body.drinkName,
     mainAlcohol: req.body.mainAlcohol,
-    userAlias: req.user.alias,
     userClozang: req.user.clozang,
     boozImage: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
     createdAt: new Date().toISOString(),
@@ -100,7 +99,6 @@ exports.getAllBoozulas = (req, res) => {
           boozId: doc.id,
           drinkName: doc.data().drinkName,
           mainAlcohol: doc.data().mainAlcohol,
-          userAlias: doc.data().userAlias,
           userClozang: doc.data().userClozang,
           boozImage: doc.data().boozImage,
           createdAt: doc.data().createdAt,
@@ -163,7 +161,7 @@ exports.addBoozDetails = (req, res) => {
 exports.addCheers = (req, res) => {
   const cheersDoc = db
     .collection("Cheers")
-    .where("userAlias", "==", req.user.alias)
+    .where("userClozang", "==", req.user.clozang)
     .where("boozId", "==", req.params.boozId)
     .limit(1);
 
@@ -188,7 +186,7 @@ exports.addCheers = (req, res) => {
           .collection("Cheers")
           .add({
             boozId: req.params.boozId,
-            userAlias: req.user.alias
+            userClozang: req.user.clozang
           })
           .then(() => {
             boozData.cheersCount++;
@@ -210,7 +208,7 @@ exports.addCheers = (req, res) => {
 exports.removeCheers = (req, res) => {
   const cheersDoc = db
     .collection("Cheers")
-    .where("userAlias", "==", req.user.alias)
+    .where("userClozang", "==", req.user.clozang)
     .where("boozId", "==", req.params.boozId)
     .limit(1);
 
@@ -259,7 +257,7 @@ exports.emptyBoozula = (req, res) => {
     .then(doc => {
       if (!doc.exists) {
         return res.status(404).json({ error: "Boozula not found" });
-      } else if (doc.data().userAlias !== req.user.alias) {
+      } else if (doc.data().userClozang !== req.user.clozang) {
         return res
           .status(403)
           .json({ error: "This action is not permitted by this account" });
@@ -284,7 +282,6 @@ exports.toastBoozula = (req, res) => {
     body: req.body.body,
     createdAt: new Date().toISOString(),
     boozId: req.params.boozId,
-    userAlias: req.user.alias,
     userClozang: req.user.clozang,
     userImage: req.user.imageUrl
   };

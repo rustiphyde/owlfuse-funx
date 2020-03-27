@@ -3,15 +3,14 @@ const { db } = require("../util/admin");
 exports.postNewHowl = (req, res) => {
 	if (req.body.howlBody.trim() === "")
 		return res.status(400).json({ howlBody: "Field must not be empty" });
-
-
+	
 	const newDocKey = [req.user.clozang, req.params.friend].sort().join("::");
 
 	const newHowl = {
 		docKey: newDocKey,
 		howlers: [req.params.friend, req.user.clozang],
 		createdAt: new Date().toISOString(),
-		howlCount: 1
+		howlCount: 1,
 	};
 
 	newHowling = {
@@ -20,7 +19,8 @@ exports.postNewHowl = (req, res) => {
 		howlBody: req.body.howlBody,
 		sentBy: req.user.clozang,
 		receiverHasRead: false,
-		sentTo: req.params.friend
+		sentTo: req.params.friend,
+		avatar: req.user.imageUrl
 	};
 
 	db.collection("Howls")

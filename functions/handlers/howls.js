@@ -13,8 +13,6 @@ exports.postNewHowl = (req, res) => {
 		howlers: [req.params.friend, req.user.clozang],
 		createdAt: new Date().toISOString(),
 		howlCount: 1,
-		sentTo: req.params.friend,
-		sentBy: req.user.clozang
 	};
 
 	newHowling = {
@@ -66,9 +64,7 @@ exports.fetchUserHowls = (req, res) => {
 					receiverHasRead: doc.data().receiverHasRead,
 					docKey: doc.data().docKey,
 					createdAt: doc.data().createdAt,
-					howlCount: doc.data().howlCount,
-					sentTo: doc.data().sentTo,
-					sentBy: doc.data().sentBy
+					howlCount: doc.data().howlCount
 				});
 			});
 			return res.json(howls);

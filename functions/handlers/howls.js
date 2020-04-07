@@ -8,11 +8,17 @@ exports.postNewHowl = (req, res) => {
 	 	
 	const newDocKey = [req.user.clozang, req.params.friend].sort().join("::");
 
+	const frevatar = db.collection('Users').where('clozang', '==', req.params.friend).get()
+	.then(doc => {
+		return doc.data().imageUrl
+	});
+
 	const newHowl = {
 		docKey: newDocKey,
 		howlers: [req.params.friend, req.user.clozang],
 		createdAt: new Date().toISOString(),
 		howlCount: 1,
+		avatars: [frevatar, req.user.imageUrl]
 	};
 
 	newHowling = {
@@ -64,7 +70,8 @@ exports.fetchUserHowls = (req, res) => {
 					receiverHasRead: doc.data().receiverHasRead,
 					docKey: doc.data().docKey,
 					createdAt: doc.data().createdAt,
-					howlCount: doc.data().howlCount
+					howlCount: doc.data().howlCount,
+					avatars: doc.data().avatars
 				});
 			});
 			return res.json(howls);

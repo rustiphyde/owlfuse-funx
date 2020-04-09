@@ -3,22 +3,25 @@ const { db } = require("../util/admin");
 exports.postNewHowl = (req, res) => {
 	if (req.body.howlBody.trim() === "")
 		return res.status(400).json({ howlBody: "Field must not be empty" });
-	
-    const resHowl = {};
-	 	
+
+	const resHowl = {};
+
 	const newDocKey = [req.user.clozang, req.params.friend].sort().join("::");
 
-	const frevatar = db.collection('Users').where('clozang', '==', req.params.friend).get()
-	.then(doc => {
-		return doc.data().imageUrl
-	});
+	const frevatar = db
+		.collection("Users")
+		.where("clozang", "==", req.params.friend)
+		.get()
+		.then((doc) => {
+			return doc.data().imageUrl;
+		});
 
 	const newHowl = {
 		docKey: newDocKey,
 		howlers: [req.params.friend, req.user.clozang],
 		createdAt: new Date().toISOString(),
 		howlCount: 1,
-		avatars: [frevatar, req.user.imageUrl]
+		avatars: [frevatar, req.user.imageUrl],
 	};
 
 	newHowling = {
@@ -28,13 +31,13 @@ exports.postNewHowl = (req, res) => {
 		sentBy: req.user.clozang,
 		receiverHasRead: false,
 		sentTo: req.params.friend,
-		avatar: req.user.imageUrl
+		avatar: req.user.imageUrl,
 	};
 
 	db.collection("Howls")
 		.doc(newHowl.docKey)
 		.get()
-		.then(doc => {
+		.then((doc) => {
 			if (doc.exists) {
 				doc.ref.update({ howlCount: doc.data().howlCount + 1 });
 				resHowl.howlData = doc.data();
@@ -47,12 +50,12 @@ exports.postNewHowl = (req, res) => {
 		.then(() => {
 			return db.collection("Howlings").add(newHowling);
 		})
-		.then(doc => {
+		.then((doc) => {
 			resHowl.howlingData = newHowling;
 			resHowl.howlingData.howlId = doc.id;
 			res.json(resHowl);
 		})
-		.catch(err => {
+		.catch((err) => {
 			res.status(500).json({ error: "something went wrong" });
 			console.error(err);
 		});
@@ -62,21 +65,21 @@ exports.fetchUserHowls = (req, res) => {
 	db.collection("Howls")
 		.where("howlers", "array-contains", req.user.clozang)
 		.get()
-		.then(data => {
+		.then((data) => {
 			let howls = [];
-			data.forEach(doc => {
+			data.forEach((doc) => {
 				howls.push({
 					howlers: doc.data().howlers,
 					receiverHasRead: doc.data().receiverHasRead,
 					docKey: doc.data().docKey,
 					createdAt: doc.data().createdAt,
 					howlCount: doc.data().howlCount,
-					avatars: doc.data().avatars
+					avatars: doc.data().avatars,
 				});
 			});
 			return res.json(howls);
 		})
-		.catch(err => {
+		.catch((err) => {
 			console.error(err);
 			res.status(500).json({ error: err.code });
 		});
@@ -86,7 +89,7 @@ exports.fetchSingleHowl = (req, res) => {
 	let howlData = {};
 	db.doc(`/Howls/${req.params.docKey}`)
 		.get()
-		.then(doc => {
+		.then((doc) => {
 			if (!doc.exists) {
 				return res.status(404).json({ error: "Howl does not exist" });
 			} else if (!doc.data().howlers.includes(req.user.clozang)) {
@@ -95,21 +98,35 @@ exports.fetchSingleHowl = (req, res) => {
 					.json({ error: "This action is forbidden to this account" });
 			} else {
 				howlData = doc.data();
-				return db
-					.collection("Howlings")
-					.where("docKey", "==", req.params.docKey)
-					.orderBy("createdAt", "asc")
-					.get();
 			}
-		})
-		.then(data => {
-			howlData.howlings = [];
-			data.forEach(doc => {
-				howlData.howlings.push(doc.data());
-			});
 			return res.json(howlData);
 		})
-		.catch(err => {
+		.catch((err) => {
+			console.error(err);
+			res.status(500).json({ error: err.code });
+		});
+};
+
+exports.fetchHowlHowlings = (req, res) => {
+	db.collection("Howlings")
+		.where("docKey", "==", req.params.docKey)
+		.get()
+		.then((data) => {
+			let howlings = [];
+			data.forEach((doc) => {
+				howlings.push({
+					createdAt: doc.data().createdAt,
+					docKey: doc.data().docKey,
+					howlBody: doc.data().howlBody,
+					sentBy: doc.data().sentBy,
+					receiverHasRead: doc.data().receiverHasRead,
+					sentTo: doc.data().sentTo,
+					avatar: doc.data().avatar
+				});
+			});
+			return res.json(howlings);
+		})
+		.catch((err) => {
 			console.error(err);
 			res.status(500).json({ error: err.code });
 		});
@@ -119,7 +136,7 @@ exports.silenceAHowling = (req, res) => {
 	const howlingToSilence = db.doc(`/Howlings/${req.params.howlId}`);
 	howlingToSilence
 		.get()
-		.then(doc => {
+		.then((doc) => {
 			if (!doc.exists) {
 				return res.status(404).json({ error: "Howling not found" });
 			} else if (doc.data().sentBy !== req.user.clozang) {
@@ -133,7 +150,7 @@ exports.silenceAHowling = (req, res) => {
 		.then(() => {
 			return res.json({ message: "Howling silenced completely" });
 		})
-		.catch(err => {
+		.catch((err) => {
 			console.error(err);
 			return res.status(500).json({ error: err.code });
 		});
@@ -143,7 +160,7 @@ exports.silenceAHowl = (req, res) => {
 	const howlToSilence = db.doc(`/Howls/${req.params.docKey}`);
 	howlToSilence
 		.get()
-		.then(doc => {
+		.then((doc) => {
 			if (!doc.exists) {
 				return res.status(404).json({ error: "Howl not found" });
 			} else if (!doc.data().howlers.includes(req.user.clozang)) {
@@ -157,33 +174,33 @@ exports.silenceAHowl = (req, res) => {
 		.then(() => {
 			return res.json({ message: "Howl silenced completely" });
 		})
-		.catch(err => {
+		.catch((err) => {
 			console.error(err);
 			return res.status(500).json({ error: err.code });
 		});
 };
 
 exports.editAHowling = (req, res) => {
-	if(req.body.edit.trim() === ""){
+	if (req.body.edit.trim() === "") {
 		return res.status(400).json({ edit: "Field must not be empty" });
-    }
-    db.doc(`/Howlings/${req.params.howlId}`)
-        .get()
-        .then(doc => {
-            if(!doc.exists){
-                return res.status(404).json({ error: "Howl not found"});
-            }
-            else if(doc.data().sentBy !== req.user.clozang){
-                return res.status(403).json({ error: "This action is forbidden by this user"});
-            }
-            else {
-           doc.ref.update({ howlBody: req.body.edit })
-            }
-        })
-        .then(() => {
-            res.json({ message: "howling changed to: " + req.body.edit})
-        })
-		.catch(err => {
+	}
+	db.doc(`/Howlings/${req.params.howlId}`)
+		.get()
+		.then((doc) => {
+			if (!doc.exists) {
+				return res.status(404).json({ error: "Howl not found" });
+			} else if (doc.data().sentBy !== req.user.clozang) {
+				return res
+					.status(403)
+					.json({ error: "This action is forbidden by this user" });
+			} else {
+				doc.ref.update({ howlBody: req.body.edit });
+			}
+		})
+		.then(() => {
+			res.json({ message: "howling changed to: " + req.body.edit });
+		})
+		.catch((err) => {
 			console.error({ error: err.code });
 			res.status(500).json({ error: "Something went wrong" });
 		});

@@ -30,7 +30,8 @@ const {
 	fetchSingleHowl,
 	silenceAHowling,
 	silenceAHowl,
-	editAHowling
+	editAHowling,
+	fetchHowlings
 } = require("./handlers/howls");
 
 const {
@@ -109,7 +110,7 @@ app.get("/unsilence/:fuser", FBAuth, unsilenceFuser);
 app.post("/howl/:friend", FBAuth, postNewHowl);
 app.get("/howls", FBAuth, fetchUserHowls);
 app.get("/howl/:docKey", FBAuth, fetchSingleHowl);
-app.get("howlings/:docKey", FBAuth, fetchHowlHowlings);
+app.get("howlings/:docKey", FBAuth, fetchHowlings);
 app.delete("/howling/:howlId", FBAuth, silenceAHowling);
 app.delete("/howl/:docKey", FBAuth, silenceAHowl);
 app.post("/howling/edit/:howlId", FBAuth, editAHowling);

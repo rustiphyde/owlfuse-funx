@@ -107,7 +107,7 @@ exports.fetchSingleHowl = (req, res) => {
 		});
 };
 
-exports.fetchHowlHowlings = (req, res) => {
+exports.fetchHowlings = (req, res) => {
 	db.collection("Howlings")
 		.where("docKey", "==", req.params.docKey)
 		.get()

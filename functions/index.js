@@ -28,10 +28,9 @@ const {
 	postNewHowl,
 	fetchUserHowls,
 	fetchSingleHowl,
-	silenceAHowling,
 	silenceAHowl,
-	editAHowling,
-	fetchHowlings
+	editAHowl,
+	fetchFuserHowls
 } = require("./handlers/howls");
 
 const {
@@ -110,10 +109,9 @@ app.get("/unsilence/:fuser", FBAuth, unsilenceFuser);
 app.post("/howl/:friend", FBAuth, postNewHowl);
 app.get("/howls", FBAuth, fetchUserHowls);
 app.get("/howl/:docKey", FBAuth, fetchSingleHowl);
-app.get("/howlings/:docKey", FBAuth, fetchHowlings);
-app.delete("/howling/:howlId", FBAuth, silenceAHowling);
 app.delete("/howl/:docKey", FBAuth, silenceAHowl);
-app.post("/howling/edit/:howlId", FBAuth, editAHowling);
+app.post("/howling/edit/:howlId", FBAuth, editAHowl);
+app.get("/howls/:fuser", FBAuth, fetchFuserHowls);
 // User routes
 app.post("/signup", signup);
 app.post("/login", login);
@@ -429,32 +427,6 @@ exports.onBoozulaEmpty = functions.firestore
 				return batch.commit();
 			})
 			.catch(err => console.error(err));
-	});
-
-exports.removeHowlCount = functions.firestore
-	.document("/Howlings/{id}")
-	.onDelete(snap => {
-		return db
-			.doc(`/Howls/${snap.data().docKey}`)
-			.get()
-			.then(doc => {
-				doc.ref.update({ howlCount: doc.data().howlCount - 1 });
-			})
-			.catch(err => console.log(err));
-	});
-
-exports.onHowlSilence = functions.firestore
-	.document("/Howls/{id}")
-	.onDelete(snap => {
-		db.collection("Howlings")
-			.where("docKey", "==", snap.data().docKey)
-			.get()
-			.then(data => {
-				data.forEach(doc => {
-					doc.ref.delete();
-				});
-			})
-			.catch(err => console.log(err));
 	});
 
 exports.removeAcceptedRequest = functions.firestore

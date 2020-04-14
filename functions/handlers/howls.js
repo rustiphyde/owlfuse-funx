@@ -4,8 +4,6 @@ exports.postNewHowl = (req, res) => {
 	if (req.body.howlBody.trim() === "")
 		return res.status(400).json({ howlBody: "Field must not be empty" });
 
-	const resHowl = {};
-
 	const newDocKey = [req.user.clozang, req.params.friend].sort().join("::");
 
 	const newHowl = {
@@ -16,13 +14,13 @@ exports.postNewHowl = (req, res) => {
 		sentBy: req.user.clozang,
 		sentTo: req.params.friend,
 		receiverHasRead: false,
+		avatar: req.user.imageUrl
 	};
 
 	db.collection("Howls")
-		.doc()
-		.set(newHowl)
+		.add(newHowl)
 		.then((doc) => {
-			resHowl = newHowl;
+			const resHowl = newHowl;
 			resHowl.howlId = doc.id;
 			res.json(resHowl);
 		})
@@ -47,6 +45,7 @@ exports.fetchUserHowls = (req, res) => {
 					howlBody: doc.data().howlBody,
 					sentTo: doc.data().sentTo,
 					sentBy: doc.data().sentBy,
+					avatar: doc.data().avatar
 				});
 			});
 			return res.json(howls);
@@ -60,8 +59,7 @@ exports.fetchUserHowls = (req, res) => {
 exports.fetchFuserHowls = (req, res) => {
 	let fuserHowls = [];
 	db.collection("Howls")
-		.where("howlers", "array-contains", req.params.fuser)
-		.where("howlers", "array-contains", req.user.clozang)
+		.where("docKey", "==", [req.user.clozang, req.params.fuser].sort().join("::"))
 		.orderBy("createdAt", "asc")
 		.get()
 		.then((data) => {
@@ -72,19 +70,20 @@ exports.fetchFuserHowls = (req, res) => {
 				else {
 				fuserHowls.push({
 					howlers: doc.data().howlers,
-					howlBody: doc.data.howlBody,
+					howlBody: doc.data().howlBody,
 					sentTo: doc.data().sentTo,
 					sentBy: doc.data().sentBy,
 					receiverHasRead: doc.data().receiverHAsRead,
 					createdAt: doc.data().createdAt,
 					docKey: doc.data().docKey,
+					avatar: doc.data().avatar
 				});
 			}
 			});
 			return res.status(200).json(fuserHowls);
 		})
 		.catch((err) => {
-			return res.status(500).json({ error: err.code });
+			return res.status(500).json({ error: err.message });
 		});
 };
 

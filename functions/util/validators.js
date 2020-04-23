@@ -80,3 +80,11 @@ exports.reduceBoozDetails = data => {
   return boozDetails;
 };
 
+exports.reduceHowlDetails = data => {
+  let howlDetails = {};
+
+  if(!isEmpty(data.howlBody.trim())) howlDetails.howlBody = data.howlBody;
+
+  return howlBody;
+}
+

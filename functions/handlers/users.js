@@ -196,27 +196,7 @@ exports.getUserDetails = (req, res) => {
           garnish: doc.data().garnish
         })
 	  });
-	  return db
-	  .collection("Howls")
-	  .where("howlers", "array-contains", req.params.clozang)
-	  .orderBy("createdAt", "asc")
-	  .get();
-	})
-	.then(data => {
-		userData.howls = [];
-		data.forEach(doc => {
-		  userData.howls.push({
-			createdAt: doc.data().createdAt,
-			sentBy: doc.data().sentBy,
-			avatar: doc.data().avatar,
-			howlId: doc.id,
-			receiverHasRead: doc.data().receiverHasRead,
-			howlers: doc.data().howlers,
-			sentTo: doc.data().sentTo,
-			docKey: doc.data().docKey,
-			howlBody: doc.data().howlBody
-		  });
-		});	
+	  
       return db
         .collection("Okelists")
         .where("userClozang", "==", req.params.clozang)

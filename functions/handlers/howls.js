@@ -117,7 +117,7 @@ exports.silenceAHowl = (req, res) => {
 		.get()
 		.then((doc) => {
 			if (!doc.exists) {
-				return res.status(404).json({ error: "Howling not found" });
+				return res.status(404).json({ error: "Howl not found" });
 			} else if (doc.data().sentBy !== req.user.clozang) {
 				return res
 					.status(403)

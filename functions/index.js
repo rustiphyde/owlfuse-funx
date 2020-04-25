@@ -111,7 +111,7 @@ app.get("/fused/:fuser", FBAuth, fetchOneFuser);
 app.post("/howl/:friend", FBAuth, postNewHowl);
 app.get("/howls", FBAuth, fetchUserHowls);
 app.get("/howl/:docKey", FBAuth, fetchSingleHowl);
-app.delete("/howl/:docKey", FBAuth, silenceAHowl);
+app.delete("/howl/:howlId", FBAuth, silenceAHowl);
 app.post("/howl/edit/:howlId", FBAuth, editAHowl);
 app.get("/howls/:fuser", FBAuth, fetchFuserHowls);
 // User routes

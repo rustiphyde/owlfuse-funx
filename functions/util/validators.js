@@ -85,6 +85,6 @@ exports.reduceHowlDetails = data => {
 
   if(!isEmpty(data.howlBody.trim())) howlDetails.howlBody = data.howlBody;
 
-  return howlBody;
+  return howlDetails;
 }
 

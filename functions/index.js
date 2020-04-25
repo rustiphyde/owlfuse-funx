@@ -112,7 +112,7 @@ app.post("/howl/:friend", FBAuth, postNewHowl);
 app.get("/howls", FBAuth, fetchUserHowls);
 app.get("/howl/:docKey", FBAuth, fetchSingleHowl);
 app.delete("/howl/:docKey", FBAuth, silenceAHowl);
-app.post("/howling/edit/:howlId", FBAuth, editAHowl);
+app.post("/howl/edit/:howlId", FBAuth, editAHowl);
 app.get("/howls/:fuser", FBAuth, fetchFuserHowls);
 // User routes
 app.post("/signup", signup);

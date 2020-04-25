@@ -1,5 +1,4 @@
 const { db } = require("../util/admin");
-const { reduceHowlDetails } = require("../util/validators");
 
 exports.postNewHowl = (req, res) => {
 	if (req.body.howlBody.trim() === "")
@@ -46,7 +45,8 @@ exports.fetchUserHowls = (req, res) => {
 					howlBody: doc.data().howlBody,
 					sentTo: doc.data().sentTo,
 					sentBy: doc.data().sentBy,
-					avatar: doc.data().avatar
+					avatar: doc.data().avatar,
+					howlId: doc.id
 				});
 			});
 			return res.json(howls);
@@ -77,7 +77,8 @@ exports.fetchFuserHowls = (req, res) => {
 					receiverHasRead: doc.data().receiverHAsRead,
 					createdAt: doc.data().createdAt,
 					docKey: doc.data().docKey,
-					avatar: doc.data().avatar
+					avatar: doc.data().avatar,
+					howlId: doc.id
 				});
 			}
 			});
@@ -135,17 +136,29 @@ exports.silenceAHowl = (req, res) => {
 };
 
 exports.editAHowl = (req, res) => {
-	let howlDetails = reduceHowlDetails(req.body);
-  
+	if (req.body.howlBody.trim() === "") {
+		return res.status(400).json({ howlBody: "Field must not be empty" });
+	}
 	db.doc(`/Howls/${req.params.howlId}`)
-	  .update(howlDetails)
-	  .then(() => {
-		return res.json({ message: "Details added successfully" });
-	  })
-	  .catch(err => {
-		console.error(err);
-		return res.status(500).json({ error: err.code });
-	  });
-  };
+		.get()
+		.then((doc) => {
+			if (!doc.exists) {
+				return res.status(404).json({ error: "Howl not found" });
+			} else if (doc.data().sentBy !== req.user.clozang) {
+				return res
+					.status(403)
+					.json({ error: "This action is forbidden by this user" });
+			} else {
+				doc.ref.update({ howlBody: req.body.howlBody });
+			}
+		})
+		.then(() => {
+			res.json({ message: "howl changed to: " + req.body.howlBody });
+		})
+		.catch((err) => {
+			console.error({ error: err.code });
+			res.status(500).json({ error: "Something went wrong" });
+		});
+};
 
 // TODO create blocking functionality

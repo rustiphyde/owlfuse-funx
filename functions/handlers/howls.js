@@ -91,19 +91,24 @@ exports.fetchFuserHowls = (req, res) => {
 
 exports.fetchSingleHowl = (req, res) => {
 	let howlData = {};
-	db.doc(`/Howls/${req.params.howlId}`)
+	db.doc("Howls").where("docKey", "==", req.params.docKey)
 		.get()
-		.then((doc) => {
-			if (!doc.exists) {
-				return res.status(404).json({ error: "Howl does not exist" });
-			} else if (!doc.data().howlers.includes(req.user.clozang)) {
-				return res
-					.status(403)
-					.json({ error: "This action is forbidden to this account" });
-			} else {
-				howlData = doc.data();
-			}
-			return res.json(howlData);
+		.then((data) => {
+			let howlings = [];
+			data.forEach(doc => {
+				howlings.push({
+					howlers: doc.data().howlers,
+					receiverHasRead: doc.data().receiverHasRead,
+					docKey: doc.data().docKey,
+					createdAt: doc.data().createdAt,
+					howlBody: doc.data().howlBody,
+					sentTo: doc.data().sentTo,
+					sentBy: doc.data().sentBy,
+					avatar: doc.data().avatar,
+					howlId: doc.id
+				});
+			})
+			return res.json(howlings);
 		})
 		.catch((err) => {
 			console.error(err);

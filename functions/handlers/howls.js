@@ -91,7 +91,7 @@ exports.fetchFuserHowls = (req, res) => {
 
 exports.fetchSingleHowl = (req, res) => {
 	let howlData = {};
-	db.doc("Howls").where("docKey", "==", req.params.docKey)
+	db.collection("Howls").where("docKey", "==", req.params.docKey)
 		.get()
 		.then((data) => {
 			let howlings = [];

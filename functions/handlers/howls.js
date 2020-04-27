@@ -128,23 +128,11 @@ exports.fetchFuserHowls = (req, res) => {
 
 exports.fetchSingleHowl = (req, res) => {
 	let howlData = {};
-	db.collection("Howlings").where("docKey", "==", req.params.docKey)
-	.orderBy("createdAt", "asc")	
+	db.doc(`/Howls/${req.params.docKey}`)
 	.get()
-		.then((data) => {
-			let howlings = [];
-			data.forEach(doc => {
-				howlings.push({
-					docKey: doc.data().docKey,
-					createdAt: doc.data().createdAt,
-					howlBody: doc.data().howlBody,
-					sentTo: doc.data().sentTo,
-					sentBy: doc.data().sentBy,
-					avatar: doc.data().avatar,
-					howlId: doc.id
-				});
-			})
-			return res.json(howlings);
+		.then((doc) => {
+			howlData = doc.data();
+			return res.json(howlData);
 		})
 		.catch((err) => {
 			console.error(err);

@@ -456,3 +456,4 @@ exports.decreaseHowlCount = functions.firestore
 			})
 			.catch((err) => console.log(err.code));
 	});
+

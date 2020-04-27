@@ -31,7 +31,8 @@ const {
 	fetchSingleHowl,
 	silenceAHowl,
 	editAHowl,
-	fetchFuserHowls
+	fetchFuserHowls,
+	fetchCurrentHowlings
 } = require("./handlers/howls");
 
 const {
@@ -114,6 +115,7 @@ app.get("/howl/:docKey", FBAuth, fetchSingleHowl);
 app.delete("/howl/:howlId", FBAuth, silenceAHowl);
 app.post("/howl/edit/:howlId", FBAuth, editAHowl);
 app.get("/howls/:fuser", FBAuth, fetchFuserHowls);
+app.get("/howlings/:docKey", FBAuth, fetchCurrentHowlings);
 // User routes
 app.post("/signup", signup);
 app.post("/login", login);

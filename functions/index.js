@@ -22,7 +22,7 @@ const {
 	silenceFuser,
 	fetchUserSilencedList,
 	unsilenceFuser,
-	fetchOneFuser
+	fetchOneFuser,
 } = require("./handlers/fusers");
 
 const {
@@ -32,7 +32,7 @@ const {
 	silenceAHowl,
 	editAHowl,
 	fetchFuserHowls,
-	fetchCurrentHowlings
+	fetchCurrentHowlings,
 } = require("./handlers/howls");
 
 const {
@@ -43,7 +43,7 @@ const {
 	addHeat,
 	removeHeat,
 	extinguishSpark,
-	getOnlyHottest
+	getOnlyHottest,
 } = require("./handlers/sparks");
 
 const {
@@ -58,7 +58,7 @@ const {
 	choozByArtist,
 	choozByClozang,
 	choozFromAllSongs,
-	eraseOkelist
+	eraseOkelist,
 } = require("./handlers/okelists");
 
 const {
@@ -70,7 +70,7 @@ const {
 	removeCheers,
 	toastBoozula,
 	addBoozDetails,
-	emptyBoozula
+	emptyBoozula,
 } = require("./handlers/boozulas");
 
 const {
@@ -82,7 +82,7 @@ const {
 	getUserDetails,
 	markSizzlesRead,
 	markClinksRead,
-	resetPassword
+	resetPassword,
 } = require("./handlers/users");
 
 // Spark routes
@@ -157,11 +157,11 @@ exports.api = functions.https.onRequest(app);
 
 exports.createSizzleOnHeat = functions.firestore
 	.document("Heat/{id}")
-	.onCreate(snap => {
+	.onCreate((snap) => {
 		return db
 			.doc(`/Sparks/${snap.data().sparkId}`)
 			.get()
-			.then(doc => {
+			.then((doc) => {
 				if (doc.exists && doc.data().userClozang !== snap.data().userClozang) {
 					return db.doc(`/Sizzles/${snap.id}`).set({
 						createdAt: new Date().toISOString(),
@@ -170,20 +170,20 @@ exports.createSizzleOnHeat = functions.firestore
 						type: "heat",
 						read: false,
 						sparkId: doc.id,
-						sizzleId: snap.id
+						sizzleId: snap.id,
 					});
 				}
 			})
-			.catch(err => console.error(err));
+			.catch((err) => console.error(err));
 	});
 
 exports.createClinkOnCheers = functions.firestore
 	.document("Cheers/{id}")
-	.onCreate(snap => {
+	.onCreate((snap) => {
 		return db
 			.doc(`/Boozulas/${snap.data().boozId}`)
 			.get()
-			.then(doc => {
+			.then((doc) => {
 				if (doc.exists && doc.data().userClozang !== snap.data().userClozang) {
 					return db.doc(`/Clinks/${snap.id}`).set({
 						createdAt: new Date().toISOString(),
@@ -192,20 +192,20 @@ exports.createClinkOnCheers = functions.firestore
 						type: "cheers",
 						read: false,
 						boozId: doc.id,
-						clinkId: snap.id
+						clinkId: snap.id,
 					});
 				}
 			})
-			.catch(err => console.error(err));
+			.catch((err) => console.error(err));
 	});
 
 exports.createSizzleOnStoke = functions.firestore
 	.document("Stokes/{id}")
-	.onCreate(snap => {
+	.onCreate((snap) => {
 		return db
 			.doc(`/Sparks/${snap.data().sparkId}`)
 			.get()
-			.then(doc => {
+			.then((doc) => {
 				if (doc.exists && doc.data().userClozang !== snap.data().userClozang) {
 					return db.doc(`/Sizzles/${snap.id}`).set({
 						createdAt: new Date().toISOString(),
@@ -214,20 +214,20 @@ exports.createSizzleOnStoke = functions.firestore
 						type: "stoke",
 						read: false,
 						sparkId: doc.id,
-						sizzleId: snap.id
+						sizzleId: snap.id,
 					});
 				}
 			})
-			.catch(err => console.error(err));
+			.catch((err) => console.error(err));
 	});
 
 exports.createClinkOnToast = functions.firestore
 	.document("Toasts/{id}")
-	.onCreate(snap => {
+	.onCreate((snap) => {
 		return db
 			.doc(`/Boozulas/${snap.data().boozId}`)
 			.get()
-			.then(doc => {
+			.then((doc) => {
 				if (doc.exists && doc.data().userClozang !== snap.data().userClozang) {
 					return db.doc(`/Clinks/${snap.id}`).set({
 						createdAt: new Date().toISOString(),
@@ -236,42 +236,42 @@ exports.createClinkOnToast = functions.firestore
 						type: "toast",
 						read: false,
 						boozId: doc.id,
-						clinkId: snap.id
+						clinkId: snap.id,
 					});
 				}
 			})
-			.catch(err => console.error(err));
+			.catch((err) => console.error(err));
 	});
 
 exports.removeHeatSizzle = functions.firestore
 	.document("Heat/{id}")
-	.onDelete(snap => {
+	.onDelete((snap) => {
 		return db
 			.doc(`/Sizzles/${snap.id}`)
 			.delete()
-			.catch(err => console.error(err));
+			.catch((err) => console.error(err));
 	});
 
 exports.removeCheersClink = functions.firestore
 	.document("Cheers/{id}")
-	.onDelete(snap => {
+	.onDelete((snap) => {
 		return db
 			.doc(`/Clinks/${snap.id}`)
 			.delete()
-			.catch(err => console.error(err));
+			.catch((err) => console.error(err));
 	});
 
 exports.onUserImageChange = functions.firestore
 	.document("/Users/{Id}")
-	.onUpdate(change => {
+	.onUpdate((change) => {
 		if (change.before.data().imageUrl !== change.after.data().imageUrl) {
 			const batch = db.batch();
 			return db
 				.collection("Sparks")
 				.where("userClozang", "==", change.before.data().clozang)
 				.get()
-				.then(data => {
-					data.forEach(doc => {
+				.then((data) => {
+					data.forEach((doc) => {
 						const spark = db.doc(`/Sparks/${doc.id}`);
 						batch.update(spark, { userImage: change.after.data().imageUrl });
 					});
@@ -280,8 +280,8 @@ exports.onUserImageChange = functions.firestore
 						.where("userClozang", "==", change.before.data().clozang)
 						.get();
 				})
-				.then(data => {
-					data.forEach(doc => {
+				.then((data) => {
+					data.forEach((doc) => {
 						const stoke = db.doc(`/Stokes/${doc.id}`);
 						batch.update(stoke, { userImage: change.after.data().imageUrl });
 					});
@@ -290,8 +290,8 @@ exports.onUserImageChange = functions.firestore
 						.where("userClozang", "==", change.before.data().clozang)
 						.get();
 				})
-				.then(data => {
-					data.forEach(doc => {
+				.then((data) => {
+					data.forEach((doc) => {
 						const toast = db.doc(`/Toasts/${doc.id}`);
 						batch.update(toast, { userImage: change.after.data().imageUrl });
 					});
@@ -309,36 +309,30 @@ exports.onSparkExtinguish = functions.firestore
 			.collection("Stokes")
 			.where("sparkId", "==", sparkId)
 			.get()
-			.then(data => {
-				data.forEach(doc => {
+			.then((data) => {
+				data.forEach((doc) => {
 					batch.delete(db.doc(`/Stokes/${doc.id}`));
 				});
-				return db
-					.collection("/Heat")
-					.where("sparkId", "==", sparkId)
-					.get();
+				return db.collection("/Heat").where("sparkId", "==", sparkId).get();
 			})
-			.then(data => {
-				data.forEach(doc => {
+			.then((data) => {
+				data.forEach((doc) => {
 					batch.delete(db.doc(`/Heat/${doc.id}`));
 				});
-				return db
-					.collection("/Sizzles")
-					.where("sparkId", "==", sparkId)
-					.get();
+				return db.collection("/Sizzles").where("sparkId", "==", sparkId).get();
 			})
-			.then(data => {
-				data.forEach(doc => {
+			.then((data) => {
+				data.forEach((doc) => {
 					batch.delete(db.doc(`/Sizzles/${doc.id}`));
 				});
 				return batch.commit();
 			})
-			.catch(err => console.error(err));
+			.catch((err) => console.error(err));
 	});
 
 exports.sparkToFire = functions.firestore
 	.document("/Sparks/{sparkId}")
-	.onUpdate(change => {
+	.onUpdate((change) => {
 		if (
 			change.before.data().heatCount !== change.after.data().heatCount &&
 			change.after.data().heatCount > 99 &&
@@ -348,16 +342,16 @@ exports.sparkToFire = functions.firestore
 			return db
 				.doc(`/Sparks/${change.before.id}`)
 				.get()
-				.then(doc => {
+				.then((doc) => {
 					doc.ref.update({ fire: true, infernal: false });
 				})
-				.catch(err => console.error(err));
+				.catch((err) => console.error(err));
 		} else return;
 	});
 
 exports.fireToInfernal = functions.firestore
 	.document("/Sparks/{sparkId}")
-	.onUpdate(change => {
+	.onUpdate((change) => {
 		if (
 			change.before.data().heatCount !== change.after.data().heatCount &&
 			change.after.data().heatCount > 9999 &&
@@ -366,16 +360,16 @@ exports.fireToInfernal = functions.firestore
 			return db
 				.doc(`/Sparks/${change.before.id}`)
 				.get()
-				.then(doc => {
+				.then((doc) => {
 					doc.ref.update({ fire: false, infernal: true });
 				})
-				.catch(err => console.error(err));
+				.catch((err) => console.error(err));
 		} else return;
 	});
 
 exports.snuffOutFire = functions.firestore
 	.document("/Sparks/{id}")
-	.onUpdate(change => {
+	.onUpdate((change) => {
 		if (
 			change.before.data().heatCount !== change.after.data().heatCount &&
 			change.after.data().heatCount < 1 &&
@@ -384,17 +378,17 @@ exports.snuffOutFire = functions.firestore
 			return db
 				.doc(`/Sparks/${change.before.id}`)
 				.delete()
-				.catch(err => console.log(err));
+				.catch((err) => console.log(err));
 		} else return;
 	});
 
 exports.onOkelistErase = functions.firestore
 	.document("Okelists/{id}")
-	.onDelete(snap => {
+	.onDelete((snap) => {
 		return db
 			.doc(`/Songs/${snap.data().okeId}`)
 			.delete()
-			.catch(err => console.error(err));
+			.catch((err) => console.error(err));
 	});
 
 exports.onBoozulaEmpty = functions.firestore
@@ -406,51 +400,59 @@ exports.onBoozulaEmpty = functions.firestore
 			.collection("Toasts")
 			.where("boozId", "==", boozId)
 			.get()
-			.then(data => {
-				data.forEach(doc => {
+			.then((data) => {
+				data.forEach((doc) => {
 					batch.delete(db.doc(`/Toasts/${doc.id}`));
 				});
-				return db
-					.collection("/Cheers")
-					.where("boozId", "==", boozId)
-					.get();
+				return db.collection("/Cheers").where("boozId", "==", boozId).get();
 			})
-			.then(data => {
-				data.forEach(doc => {
+			.then((data) => {
+				data.forEach((doc) => {
 					batch.delete(db.doc(`/Cheers/${doc.id}`));
 				});
-				return db
-					.collection("/Clinks")
-					.where("boozId", "==", boozId)
-					.get();
+				return db.collection("/Clinks").where("boozId", "==", boozId).get();
 			})
-			.then(data => {
-				data.forEach(doc => {
+			.then((data) => {
+				data.forEach((doc) => {
 					batch.delete(db.doc(`/Clinks/${doc.id}`));
 				});
 				return batch.commit();
 			})
-			.catch(err => console.error(err));
+			.catch((err) => console.error(err));
 	});
 
 exports.removeAcceptedRequest = functions.firestore
 	.document("/Requests/{id}")
-	.onUpdate(change => {
+	.onUpdate((change) => {
 		if (change.after.data().accepted === true) {
 			return db
 				.doc(`/Requests/${change.before.id}`)
 				.delete()
-				.catch(err => console.log(err));
+				.catch((err) => console.log(err));
 		} else return;
 	});
 
 exports.removeRejectedRequest = functions.firestore
 	.document("/Requests/{id}")
-	.onUpdate(change => {
+	.onUpdate((change) => {
 		if (change.after.data().rejected === true) {
 			return db
 				.doc(`/Requests/${change.before.id}`)
 				.delete()
-				.catch(err => console.log(err));
+				.catch((err) => console.log(err));
 		} else return;
+	});
+
+exports.decreaseHowlCount = functions.firestore
+	.document("/Howlings/{id}")
+	.onDelete((snap) => {
+		return db
+			.doc(`/Howls/${snap.data().docKey}`)
+			.get()
+			.then((doc) => {
+				if (doc.ref.howlCount > 1) {
+					doc.ref.update({ howlCount: doc.data().howlCount - 1 });
+				} else doc.ref.delete();
+			})
+			.catch((err) => console.log(err.code));
 	});

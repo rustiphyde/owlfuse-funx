@@ -6,7 +6,7 @@ exports.postNewHowl = (req, res) => {
 
 	const newDocKey = [req.user.clozang, req.params.friend].sort().join("::");
 
-	let howlData = {}
+	let resHowl = {}
 
 	const newHowl = {
 		docKey: newDocKey,

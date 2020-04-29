@@ -4,49 +4,48 @@ exports.postNewHowl = (req, res) => {
 	if (req.body.howlBody.trim() === "")
 		return res.status(400).json({ howlBody: "Field must not be empty" });
 
-	const newDocKey = [req.user.clozang, req.params.friend].sort().join("::");
+	let resHowl = {};
+	let resCount = {};
 
-	let resHowl = {}
+	const newDocKey = [req.user.clozang, req.params.friend].sort().join("::");
 
 	const newHowl = {
 		docKey: newDocKey,
 		howlers: [req.params.friend, req.user.clozang],
 		createdAt: new Date().toISOString(),
-		howlCount: 1,
-		receiverHasRead: false	
-	};
-
-	const newHowling = {
-		docKey: newDocKey,
-		createdAt: new Date().toISOString(),
 		howlBody: req.body.howlBody,
 		sentBy: req.user.clozang,
 		sentTo: req.params.friend,
-		avatar: req.user.imageUrl 
-	}
+		receiverHasRead: false,
+		avatar: req.user.imageUrl
+	};
+
+	const newHowlCount = {
+		docKey: newDocKey,
+		howlCount: 1
+	};
 
 	db.collection("Howls")
-		.doc(newHowl.docKey)
-		.get()
+		.add(newHowl)
+		.then((doc) => {
+			resHowl = newHowl;
+			resHowl.howlId = doc.id;
+
+	db.collection("HowlCounts").where("docKey", "==", newDocKey)
+	.get();
+		})
 		.then(doc => {
-			if (doc.exists) {
+			if(doc.exists){
 				doc.ref.update({ howlCount: doc.data().howlCount + 1 });
-				resHowl.howlData = doc.data();
-				resHowl.howlData.howlCount = doc.data().howlCount + 1;
-			} else {
-				doc.ref.set(newHowl);
-				resHowl.howlData = newHowl;
 			}
+			else {
+				doc.ref.add(newHowlCount);
+				resCount = newHowlCount;
+				resCount.countId = doc.id;
+			}
+			return res.json(resHowl, resCount);
 		})
-		.then(() => {
-			return db.collection("Howlings").add(newHowling);
-		})
-		.then(doc => {
-			resHowl.howlingData = newHowling;
-			resHowl.howlingData.howlId = doc.id;
-			res.json(resHowl);
-		})
-		.catch(err => {
+		.catch((err) => {
 			res.status(500).json({ error: "something went wrong" });
 			console.error(err);
 		});
@@ -64,7 +63,8 @@ exports.fetchUserHowls = (req, res) => {
 					receiverHasRead: doc.data().receiverHasRead,
 					docKey: doc.data().docKey,
 					createdAt: doc.data().createdAt,
-					howlCount: doc.data().howlCount
+					howlCount: doc.data().howlCount,
+
 				});
 			});
 			return res.json(howls);
@@ -75,30 +75,10 @@ exports.fetchUserHowls = (req, res) => {
 		});
 };
 
-exports.fetchCurrentHowlings = (req, res) => {
-	db.collection("Howlings")
-	.where("docKey", "==", req.params.docKey)
-	.orderBy("createdAt", "asc")
-	.get()
-	.then(data => {
-		let currentHowlings = [];
-		data.forEach(doc => {
-			currentHowlings.push({
-				docKey: doc.data().docKey,
-				howlId: doc.id,
-				sentTo: doc.data().sentTo,
-				sentBy: doc.data().sentBy,
-				avatar: doc.data().avatar,
-				cratedAt: doc.data().createdAt,
-				howlBody: doc.data().howlBody
-			})
-		})
-	})
-}
 
 exports.fetchFuserHowls = (req, res) => {
 	let fuserHowls = [];
-	db.collection("Howlings")
+	db.collection("Howls")
 		.where("docKey", "==", [req.user.clozang, req.params.fuser].sort().join("::"))
 		.orderBy("createdAt", "asc")
 		.get()
@@ -168,7 +148,7 @@ exports.editAHowl = (req, res) => {
 	if (req.body.howlBody.trim() === "") {
 		return res.status(400).json({ howlBody: "Field must not be empty" });
 	}
-	db.doc(`/Howlings/${req.params.howlId}`)
+	db.doc(`/Howls/${req.params.howlId}`)
 		.get()
 		.then((doc) => {
 			if (!doc.exists) {
@@ -189,5 +169,28 @@ exports.editAHowl = (req, res) => {
 			res.status(500).json({ error: "Something went wrong" });
 		});
 };
+
+exports.getHowlCount = (req, res) => {
+	db.collection("HowlCounts")
+	.where("docKey", "==", req.params.docKey)
+	.get()
+	.then(data => {
+		let count = [];
+	data.forEach(doc => {
+		if(doc.data().howlCount > 0){
+		count.push({
+			docKey: doc.data().docKey,
+			howlCount: doc.data().howlCount,
+			countId: doc.id
+		});
+	}
+	else {
+		return res.json({ message: "Now Howls yet."})
+	}
+	})
+	return res.json(count);
+	})
+	.catch(err => console.log(err));
+}
 
 // TODO create blocking functionality

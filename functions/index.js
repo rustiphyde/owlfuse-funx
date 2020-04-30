@@ -444,7 +444,7 @@ exports.removeRejectedRequest = functions.firestore
 	});
 
 exports.decreaseHowlCount = functions.firestore
-	.document("/Howlings/{id}")
+	.document("/Howls/{id}")
 	.onDelete((snap) => {
 		return db
 			.collection("HowlCounts").where("docKey", "==", snap.data().docKey)

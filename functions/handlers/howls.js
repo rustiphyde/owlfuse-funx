@@ -64,6 +64,10 @@ exports.fetchUserHowls = (req, res) => {
 					docKey: doc.data().docKey,
 					createdAt: doc.data().createdAt,
 					howlCount: doc.data().howlCount,
+					howlId: doc.id,
+					sentTo: doc.data().sentTo,
+					sentBy: doc.data().sentBy,
+					avatar: doc.data().avatar
 
 				});
 			});
@@ -95,7 +99,9 @@ exports.fetchFuserHowls = (req, res) => {
 					createdAt: doc.data().createdAt,
 					docKey: doc.data().docKey,
 					avatar: doc.data().avatar,
-					howlId: doc.id
+					howlId: doc.id,
+					howlers: doc.data().howlers,
+					receiverHasRead: doc.data().receiverHasRead
 				});
 			}
 			});
@@ -107,11 +113,24 @@ exports.fetchFuserHowls = (req, res) => {
 };
 
 exports.fetchSingleHowl = (req, res) => {
-	let howlData = {};
-	db.doc(`/Howls/${req.params.docKey}`)
+	let howlData = [];
+	db.collection(`/Howls/`).where('docKey', "==", req.params.docKey)
+	.orderBy("createdAt", "asc")
 	.get()
-		.then((doc) => {
-			howlData = doc.data();
+		.then((data) => {
+			data.forEach(doc => {
+				howlData.push({
+					howlBody: doc.data().howlBody,
+					sentTo: doc.data().sentTo,
+					sentBy: doc.data().sentBy,
+					createdAt: doc.data().createdAt,
+					docKey: doc.data().docKey,
+					avatar: doc.data().avatar,
+					howlId: doc.id,
+					howlers: doc.data().howlers,
+					receiverHasRead: doc.data().receiverHasRead
+				})
+			})
 			return res.json(howlData);
 		})
 		.catch((err) => {
@@ -121,7 +140,7 @@ exports.fetchSingleHowl = (req, res) => {
 };
 
 exports.silenceAHowl = (req, res) => {
-	const howlToSilence = db.doc(`/Howlings/${req.params.howlId}`);
+	const howlToSilence = db.doc(`/Howls/${req.params.howlId}`);
 	howlToSilence
 		.get()
 		.then((doc) => {

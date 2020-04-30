@@ -198,20 +198,18 @@ exports.getHowlCount = (req, res) => {
 	db.collection("HowlCounts")
 	.where("docKey", "==", req.params.docKey)
 	.get()
-	.then(data => {
-		let count = [];
-	data.forEach(doc => {
+	.then(doc => {
+		let count = {};
 		if(doc.data().howlCount > 0){
-		count.push({
+		count = ({
 			docKey: doc.data().docKey,
 			howlCount: doc.data().howlCount,
 			countId: doc.id
 		});
-	}
+		}
 	else {
-		return res.json({ message: "Now Howls yet."})
+		return res.json({ message: "No Howls yet."})
 	}
-	})
 	return res.json(count);
 	})
 	.catch(err => console.log(err));

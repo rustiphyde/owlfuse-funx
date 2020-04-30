@@ -461,7 +461,7 @@ exports.decreaseHowlCount = functions.firestore
 	});
 
 exports.increaseHowlCount = functions
-	.firestore()
+	.firestore
 	.document("/Howls/{id}")
 	.onCreate((snap) => {
 		db.collection("HowlCounts")

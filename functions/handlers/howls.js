@@ -38,9 +38,12 @@ exports.postNewHowl = (req, res) => {
 				doc.ref.update({ howlCount: doc.data().howlCount + 1 });
 			}
 			else {
-				doc.ref.add(newHowlCount);
+				dbcollection("HowlCounts").add(newHowlCount)
+				.then(() => {
 				resCount = newHowlCount;
 				resCount.countId = doc.id;
+				})
+				
 			}
 			res.json(resHowl);
 			res.json(resCount);

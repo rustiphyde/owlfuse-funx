@@ -451,7 +451,7 @@ exports.decreaseHowlCount = functions.firestore
 			.get()
 			.then((data) => {
 				data.forEach(doc => {
-					if (doc.ref.howlCount > 0) {
+					if (doc.data().howlCount > 0) {
 						doc.ref.update({ howlCount: doc.data().howlCount - 1 });
 					} else return doc.data();
 				})

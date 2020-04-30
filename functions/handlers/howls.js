@@ -30,8 +30,8 @@ exports.postNewHowl = (req, res) => {
 		.then((doc) => {
 			resHowl = newHowl;
 			resHowl.howlId = doc.id;
-
-	db.collection("HowlCounts").where("docKey", "==", newDocKey)
+		}).then(() => {
+			db.collection("HowlCounts").where("docKey", "==", newDocKey)
 	.get()
 		.then(doc => {
 			if(doc.exists){
@@ -44,6 +44,8 @@ exports.postNewHowl = (req, res) => {
 			}
 			res.json(resHowl);
 			res.json(resCount);
+		})
+	
 		})
 		.catch((err) => {
 			res.status(500).json({ error: "something went wrong" });

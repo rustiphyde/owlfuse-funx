@@ -201,11 +201,9 @@ exports.getHowlCount = (req, res) => {
 	.then(doc => {
 		let count = {};
 		if(doc.data().howlCount > 0){
-		count = ({
-			docKey: doc.data().docKey,
-			howlCount: doc.data().howlCount,
-			countId: doc.id
-		});
+			count.docKey = doc.data().docKey;
+			count.howlCount = doc.data().howlCount;
+			count.countId = doc.id;
 		}
 	else {
 		return res.json({ message: "No Howls yet."})

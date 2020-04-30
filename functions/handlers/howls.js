@@ -5,7 +5,6 @@ exports.postNewHowl = (req, res) => {
 		return res.status(400).json({ howlBody: "Field must not be empty" });
 
 	let resHowl = {};
-	let resCount = {};
 
 	const newDocKey = [req.user.clozang, req.params.friend].sort().join("::");
 
@@ -20,35 +19,12 @@ exports.postNewHowl = (req, res) => {
 		avatar: req.user.imageUrl
 	};
 
-	const newHowlCount = {
-		docKey: newDocKey,
-		howlCount: 1
-	};
-
 	db.collection("Howls")
 		.add(newHowl)
 		.then((doc) => {
 			resHowl = newHowl;
-			resHowl.howlId = doc.id;
-		}).then(() => {
-			db.collection("HowlCounts").where("docKey", "==", newDocKey)
-	.get()
-		.then(doc => {
-			if(doc.exists){
-				doc.ref.update({ howlCount: doc.data().howlCount + 1 });
-			}
-			else {
-				db.collection("HowlCounts").add(newHowlCount)
-				.then(() => {
-				resCount = newHowlCount;
-				resCount.countId = doc.id;
-				})
-				
-			}
-			res.json(resHowl);
-			res.json(resCount);
-		})
-	
+			resHowl.howlId = doc.id;		
+			res.json(resHowl);	
 		})
 		.catch((err) => {
 			res.status(500).json({ error: "something went wrong" });

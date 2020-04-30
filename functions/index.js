@@ -32,7 +32,7 @@ const {
 	silenceAHowl,
 	editAHowl,
 	fetchFuserHowls,
-	getHowlCount
+	getHowlCount,
 } = require("./handlers/howls");
 
 const {
@@ -447,16 +447,41 @@ exports.decreaseHowlCount = functions.firestore
 	.document("/Howls/{id}")
 	.onDelete((snap) => {
 		return db
-			.collection("HowlCounts").where("docKey", "==", snap.data().docKey)
+			.collection("HowlCounts")
+			.where("docKey", "==", snap.data().docKey)
 			.get()
 			.then((data) => {
-				data.forEach(doc => {
+				data.forEach((doc) => {
 					if (doc.data().howlCount > 0) {
 						doc.ref.update({ howlCount: doc.data().howlCount - 1 });
 					} else return doc.data();
-				})
-				
+				});
 			})
 			.catch((err) => console.log(err.code));
 	});
 
+exports.increaseHowlCount = functions
+	.firestore()
+	.document("/Howls/{id}")
+	.onCreate((snap) => {
+		db.collection("HowlCounts")
+			.where("docKey", "==", snap.data().docKey)
+			.get()
+			.then((doc) => {
+				if (doc.exists) {
+					doc.ref.update({ howlCount: doc.data().howlCount + 1 });
+				} else {
+					db.collection("HowlCounts")
+						.add({
+							howlCount: 1,
+							docKey: snap.data().docKey,
+						})
+						.then((doc) => {
+							const resCount = doc.data();
+							resCount.id = doc.id;
+							resCount.json(resCount);
+						});
+				}
+			})
+			.catch((err) => console.log(err));
+	});

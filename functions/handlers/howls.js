@@ -59,6 +59,7 @@ exports.postNewHowl = (req, res) => {
 exports.fetchUserHowls = (req, res) => {
 	db.collection("Howls")
 		.where("howlers", "array-contains", req.user.clozang)
+		.orderBy("createdAt", "asc")
 		.get()
 		.then(data => {
 			let howls = [];

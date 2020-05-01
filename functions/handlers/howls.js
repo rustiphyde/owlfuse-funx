@@ -171,23 +171,25 @@ exports.editAHowl = (req, res) => {
 		});
 };
 
+
 exports.getHowlCount = (req, res) => {
-	db.collection("HowlCounts")
-	.where("docKey", "==", req.params.docKey)
-	.get()
-	.then(doc => {
-		let count = {};
-		if(doc.data().howlCount > 0){
-			count.docKey = doc.data().docKey;
-			count.howlCount = doc.data().howlCount;
-			count.countId = doc.id;
-		}
-	else {
-		return res.json({ message: "No Howls yet."})
-	}
-	return res.json(count);
-	})
-	.catch(err => console.log(err));
-}
+	let countData = {};
+	db.collection("HowlCounts").where("docKey", "==", req.params.docKey)
+	  .get()
+	  .then(data => {
+		data.forEach(doc => {
+			if (!doc.exists) {
+				return res.status(404).json({ error: "No count not found" });
+			  }
+			  countData = doc.data();
+			  countData.countId = doc.id;
+		})
+		return res.json(countData);
+	  })
+	  .catch(err => {
+		console.error(err);
+		res.status(500).json({ error: err.code });
+	  });
+  };
 
 // TODO create blocking functionality

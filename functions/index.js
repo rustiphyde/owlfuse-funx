@@ -32,6 +32,7 @@ const {
 	silenceAHowl,
 	editAHowl,
 	fetchFuserHowls,
+	increaseHowlCount,
 	getHowlCount,
 } = require("./handlers/howls");
 
@@ -116,6 +117,7 @@ app.delete("/howl/:howlId", FBAuth, silenceAHowl);
 app.post("/howl/edit/:howlId", FBAuth, editAHowl);
 app.get("/howls/:fuser", FBAuth, fetchFuserHowls);
 app.get("/count/:docKey", FBAuth, getHowlCount);
+app.get("/addCount/:docKey", FBAuth, increaseHowlCount);
 // User routes
 app.post("/signup", signup);
 app.post("/login", login);
@@ -460,28 +462,4 @@ exports.decreaseHowlCount = functions.firestore
 			.catch((err) => console.log(err.code));
 	});
 
-exports.increaseHowlCount = functions
-	.firestore
-	.document("/Howls/{id}")
-	.onCreate((snap) => {
-		db.collection("HowlCounts")
-			.where("docKey", "==", snap.data().docKey)
-			.get()
-			.then((doc) => {
-				if (doc.exists) {
-					doc.ref.update({ howlCount: doc.data().howlCount + 1 });
-				} else {
-					db.collection("HowlCounts")
-						.add({
-							howlCount: 1,
-							docKey: snap.data().docKey,
-						})
-						.then((doc) => {
-							const resCount = doc.data();
-							resCount.id = doc.id;
-							resCount.json(resCount);
-						});
-				}
-			})
-			.catch((err) => console.log(err));
-	});
+

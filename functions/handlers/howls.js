@@ -171,6 +171,33 @@ exports.editAHowl = (req, res) => {
 		});
 };
 
+exports.increaseHowlCount = (req, res) => {
+	
+	const newCount = {
+		docKey: req.params.docKey,
+		howlCount: 1
+	};
+	
+	db.collection("HowlCounts").where("docKey", "==", req.params.docKey).get()
+	.then(data => {
+		let resCount = {};
+		data.forEach(doc => {
+			if(doc.exists){
+				doc.ref.update({ howlCount: doc.data().howlCount + 1});
+			}
+			else{
+				db.collection("HowlCounts").add(newCount)
+				.then(doc => {
+					resCount = newCount;
+					resCount.countId = doc.id;
+					res.json(resCount);
+				})
+			}
+		})
+	})
+	.catch(err => console.error(err.code));
+}
+
 
 exports.getHowlCount = (req, res) => {
 	let countData = {};

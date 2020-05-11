@@ -266,30 +266,9 @@ exports.getAuthenticatedUser = (req, res) => {
 					recipient: doc.data().recipient,
 					sender: doc.data().sender,
 					createdAt: doc.data().createdAt,
-					sparkId: doc.data().sparkId,
 					type: doc.data().type,
 					read: doc.data().read,
 					sizzleId: doc.id
-				});
-			});
-			return db
-				.collection("Clinks")
-				.where("recipient", "==", req.user.clozang)
-				.orderBy("createdAt", "desc")
-				.limit(16)
-				.get();
-		})
-		.then(data => {
-			userData.clinks = [];
-			data.forEach(doc => {
-				userData.clinks.push({
-					recipient: doc.data().recipient,
-					sender: doc.data().sender,
-					createdAt: doc.data().createdAt,
-					boozId: doc.data().boozId,
-					type: doc.data().type,
-					read: doc.data().read,
-					clinkId: doc.id
 				});
 			});
 			return res.json(userData);
@@ -361,23 +340,6 @@ exports.markSizzlesRead = (req, res) => {
 		.commit()
 		.then(() => {
 			return res.json({ message: "Sizzles marked read" });
-		})
-		.catch(err => {
-			console.error(err);
-			return res.status(500).json({ error: err.code });
-		});
-};
-
-exports.markClinksRead = (req, res) => {
-	let batch = db.batch();
-	req.body.forEach(clinkId => {
-		const clink = db.doc(`/Clinks/${clinkId}`);
-		batch.update(clink, { read: true });
-	});
-	batch
-		.commit()
-		.then(() => {
-			return res.json({ message: "Clinks marked read" });
 		})
 		.catch(err => {
 			console.error(err);

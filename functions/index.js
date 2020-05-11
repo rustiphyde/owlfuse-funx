@@ -82,7 +82,6 @@ const {
 	getAuthenticatedUser,
 	getUserDetails,
 	markSizzlesRead,
-	markClinksRead,
 	resetPassword,
 } = require("./handlers/users");
 
@@ -125,7 +124,6 @@ app.post("/user/image", FBAuth, uploadImage);
 app.post("/user", FBAuth, addUserDetails);
 app.get("/user", FBAuth, getAuthenticatedUser);
 app.post("/sizzles", FBAuth, markSizzlesRead);
-app.post("/clinks", FBAuth, markClinksRead);
 app.get("/user/:clozang", getUserDetails);
 app.post("/reset", resetPassword);
 
@@ -171,15 +169,14 @@ exports.createSizzleOnHeat = functions.firestore
 						sender: snap.data().userClozang,
 						type: "heat",
 						read: false,
-						sparkId: doc.id,
-						sizzleId: snap.id,
+						sizzleId: doc.id,
 					});
 				}
 			})
 			.catch((err) => console.error(err));
 	});
 
-exports.createClinkOnCheers = functions.firestore
+exports.createSizzleOnCheers = functions.firestore
 	.document("Cheers/{id}")
 	.onCreate((snap) => {
 		return db
@@ -187,14 +184,13 @@ exports.createClinkOnCheers = functions.firestore
 			.get()
 			.then((doc) => {
 				if (doc.exists && doc.data().userClozang !== snap.data().userClozang) {
-					return db.doc(`/Clinks/${snap.id}`).set({
+					return db.doc(`/Sizzles/${snap.id}`).set({
 						createdAt: new Date().toISOString(),
 						recipient: doc.data().userClozang,
 						sender: snap.data().userClozang,
 						type: "cheers",
 						read: false,
-						boozId: doc.id,
-						clinkId: snap.id,
+						sizzleId: snap.id,
 					});
 				}
 			})
@@ -215,7 +211,6 @@ exports.createSizzleOnStoke = functions.firestore
 						sender: snap.data().userClozang,
 						type: "stoke",
 						read: false,
-						sparkId: doc.id,
 						sizzleId: snap.id,
 					});
 				}
@@ -223,7 +218,7 @@ exports.createSizzleOnStoke = functions.firestore
 			.catch((err) => console.error(err));
 	});
 
-exports.createClinkOnToast = functions.firestore
+exports.createSizzleOnToast = functions.firestore
 	.document("Toasts/{id}")
 	.onCreate((snap) => {
 		return db
@@ -231,14 +226,13 @@ exports.createClinkOnToast = functions.firestore
 			.get()
 			.then((doc) => {
 				if (doc.exists && doc.data().userClozang !== snap.data().userClozang) {
-					return db.doc(`/Clinks/${snap.id}`).set({
+					return db.doc(`/Sizzles/${snap.id}`).set({
 						createdAt: new Date().toISOString(),
 						recipient: doc.data().userClozang,
 						sender: snap.data().userClozang,
 						type: "toast",
 						read: false,
-						boozId: doc.id,
-						clinkId: snap.id,
+						sizzleId: snap.id,
 					});
 				}
 			})
@@ -254,11 +248,11 @@ exports.removeHeatSizzle = functions.firestore
 			.catch((err) => console.error(err));
 	});
 
-exports.removeCheersClink = functions.firestore
+exports.removeCheersSizzle = functions.firestore
 	.document("Cheers/{id}")
 	.onDelete((snap) => {
 		return db
-			.doc(`/Clinks/${snap.id}`)
+			.doc(`/Sizzles/${snap.id}`)
 			.delete()
 			.catch((err) => console.error(err));
 	});
@@ -346,6 +340,14 @@ exports.sparkToFire = functions.firestore
 				.get()
 				.then((doc) => {
 					doc.ref.update({ fire: true, infernal: false });
+					return db.doc(`/Sizzles/change.before.id`).set({
+						createdAt: new Date().toISOString(),
+						recipient: change.before.data().userClozang,
+						sender: "",
+						type: "fire",
+						read: false,
+						sizzleId: change.before.id,
+					})
 				})
 				.catch((err) => console.error(err));
 		} else return;
@@ -364,6 +366,14 @@ exports.fireToInfernal = functions.firestore
 				.get()
 				.then((doc) => {
 					doc.ref.update({ fire: false, infernal: true });
+					return db.doc(`/Sizzles/change.before.id`).set({
+						createdAt: new Date().toISOString(),
+						recipient: change.before.data().userClozang,
+						sender: "",
+						type: "infernal",
+						read: false,
+						sizzleId: change.before.id
+					})
 				})
 				.catch((err) => console.error(err));
 		} else return;
@@ -380,6 +390,16 @@ exports.snuffOutFire = functions.firestore
 			return db
 				.doc(`/Sparks/${change.before.id}`)
 				.delete()
+				.then(() => {
+					return db.doc(`/Sizzles/change.before.id`).set({
+						createdAt: new Date().toISOString(),
+						recipient: change.before.data().userClozang,
+						sender: "",
+						type: "snuff",
+						read: false,
+						sizzleId: change.before.id,
+					})
+				})
 				.catch((err) => console.log(err));
 		} else return;
 	});
@@ -412,11 +432,11 @@ exports.onBoozulaEmpty = functions.firestore
 				data.forEach((doc) => {
 					batch.delete(db.doc(`/Cheers/${doc.id}`));
 				});
-				return db.collection("/Clinks").where("boozId", "==", boozId).get();
+				return db.collection("/Sizzles").where("sizzleId", "==", boozId).get();
 			})
 			.then((data) => {
 				data.forEach((doc) => {
-					batch.delete(db.doc(`/Clinks/${doc.id}`));
+					batch.delete(db.doc(`/Sizzles/${doc.id}`));
 				});
 				return batch.commit();
 			})

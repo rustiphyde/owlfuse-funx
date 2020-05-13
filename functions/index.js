@@ -239,6 +239,20 @@ exports.createSizzleOnToast = functions.firestore
 			.catch((err) => console.error(err));
 	});
 
+	exports.createSizzleOnRequest = functions.firestore
+	.document("Requests/{id}")
+	.onCreate((snap) => {
+		return db.doc(`/Sizzles/${snap.id}`).set({
+						createdAt: new Date().toISOString(),
+						recipient: snap.data().requested,
+						sender: snap.data().sender,
+						type: "request",
+						read: false,
+						sizzleId: snap.id,
+					})
+			.catch((err) => console.error(err));
+	});
+
 exports.removeHeatSizzle = functions.firestore
 	.document("Heat/{id}")
 	.onDelete((snap) => {
@@ -447,9 +461,18 @@ exports.removeAcceptedRequest = functions.firestore
 	.document("/Requests/{id}")
 	.onUpdate((change) => {
 		if (change.after.data().accepted === true) {
-			return db
+			db.doc(`/Sizzles/${change.before.id}`).set({
+				createdAt: new Date().toISOString(),
+				recipient: change.before.data().sender,
+				sender: change.before.data().requested,
+				type: "accept",
+				read: false,
+				sizzleId: change.before.id,
+			}).then(() => {
+				return db
 				.doc(`/Requests/${change.before.id}`)
 				.delete()
+			})			
 				.catch((err) => console.log(err));
 		} else return;
 	});
@@ -458,9 +481,18 @@ exports.removeRejectedRequest = functions.firestore
 	.document("/Requests/{id}")
 	.onUpdate((change) => {
 		if (change.after.data().rejected === true) {
-			return db
+			db.doc(`/Sizzles/${change.before.id}`).set({
+				createdAt: new Date().toISOString(),
+				recipient: change.before.data().sender,
+				sender: change.before.data().requested,
+				type: "reject",
+				read: false,
+				sizzleId: change.before.id,
+			}).then(() => {
+				return db
 				.doc(`/Requests/${change.before.id}`)
 				.delete()
+			})			
 				.catch((err) => console.log(err));
 		} else return;
 	});

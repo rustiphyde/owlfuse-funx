@@ -43,7 +43,7 @@ exports.signup = (req, res) => {
 		})
 		.then(data => {
 			userId = data.user.uid;
-			return data.user.getIdToken();
+			return data.user.getIdToken(true);
 		})
 		.then(idToken => {
 			token = idToken;
@@ -146,7 +146,8 @@ exports.getUserDetails = (req, res) => {
 					fire: doc.data().fire,
 					sparkId: doc.id,
 					emberable: doc.data().emberable,
-					infernal: doc.data().infernal
+					infernal: doc.data().infernal,
+					sparkImage: doc.data().sparkImage
 				});
 		});
 	  return db
@@ -169,7 +170,8 @@ exports.getUserDetails = (req, res) => {
 					fire: doc.data().fire,
 					sparkId: doc.id,
 					emberable: doc.data().emberable,
-					infernal: doc.data().infernal
+					infernal: doc.data().infernal,
+					sparkImage: doc.data().sparkImage
 				});
 			});
       return db

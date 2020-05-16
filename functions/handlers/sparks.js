@@ -320,7 +320,7 @@ exports.uploadSparkImage = (req, res) => {
 				}
 			})
 			.then(() => {
-				const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
+				const sparkImage = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
 				return db.doc(`/Spark/${req.params.sparkId}`).update({ sparkImage });
 			})
 			.then(() => {

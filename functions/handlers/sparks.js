@@ -341,14 +341,10 @@ exports.uploadSparkImage = (req, res) => {
 };
 
 exports.fetchSparkImage = (req, res) => {
-  db.collection("SparkImages").where("sparkID", "==", req.params.sparkId )
-  .get()
+  db.collection("SparkImages").get()
   .then(data => {
     let imgArr = [];
     data.forEach(doc => {
-      if (!doc.exists) {
-        return res.status(404).json({ error: "Spark Image not found" });
-      }
       imgArr.push(doc.data())
     })
     return res.status(200).json(imgArr)

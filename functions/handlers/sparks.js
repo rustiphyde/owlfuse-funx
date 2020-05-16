@@ -321,7 +321,13 @@ exports.uploadSparkImage = (req, res) => {
 			})
 			.then(() => {
 				const sparkImage = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
-				return db.doc(`/Spark/${req.params.sparkId}`).update({ sparkImage });
+				return db.collection("SparkImages").add({
+          sparkID: req.params.sparkId,
+          url: sparkImage
+        })
+        .then(() => {
+          return db.doc(`/Sparks/${req.params.sparkId}`).update({ sparkImage: true })
+        })
 			})
 			.then(() => {
 				return res.json({ message: "Image uploaded successfully" });

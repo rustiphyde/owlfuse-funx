@@ -45,7 +45,8 @@ const {
 	removeHeat,
 	extinguishSpark,
 	getOnlyHottest,
-	uploadSparkImage
+	uploadSparkImage,
+	fetchSparkImage
 } = require("./handlers/sparks");
 
 const {
@@ -96,6 +97,7 @@ app.get("/spark/:sparkId/snuff", FBAuth, removeHeat);
 app.delete("/spark/:sparkId", FBAuth, extinguishSpark);
 app.get("/hot/sparks", getOnlyHottest);
 app.post("/image/spark/:sparkId", FBAuth, uploadSparkImage);
+app.get("/sparkimages/:sparkId", FBAuth, fetchSparkImage)
 // Fuser routes
 app.get("/fusers", FBAuth, getUserFuserList);
 app.get("/fuse-with/:fuser", FBAuth, sendFuseRequest);

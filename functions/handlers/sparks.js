@@ -339,3 +339,23 @@ exports.uploadSparkImage = (req, res) => {
 	});
 	busboy.end(req.rawBody);
 };
+
+exports.fetchSparkImage = (req, res) => {
+  db.collection("SparkImages").where("sparkID", "==", req.params.sparkId )
+  .get()
+  .then(data => {
+    let imgArr = [];
+    data.forEach(doc => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: "Spark Image not found" });
+      }
+      imgArr.push(doc.data())
+    })
+    return res.status(200).json(imgArr)
+  })
+  .catch(err => {
+    console.log(err);
+  })
+}
+
+

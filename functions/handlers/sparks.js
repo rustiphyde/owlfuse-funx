@@ -75,7 +75,7 @@ exports.postOneSpark = (req, res) => {
     fire: false,
     emberable: false,
     infernal: false,
-    sparkImage: false,
+    sparkImage: "",
     sparkVideo: false,
     sparkLink: false
   };
@@ -326,7 +326,7 @@ exports.uploadSparkImage = (req, res) => {
           url: sparkImage
         })
         .then(() => {
-          return db.doc(`/Sparks/${req.params.sparkId}`).update({ sparkImage: true })
+          return db.doc(`/Sparks/${req.params.sparkId}`).update({ sparkImage: sparkImage });
         })
 			})
 			.then(() => {

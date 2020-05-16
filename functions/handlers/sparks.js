@@ -18,7 +18,9 @@ exports.getAllSparks = (req, res) => {
           fire: doc.data().fire,
           emberable: doc.data().emberable,
           infernal: doc.data().infernal,
-          sparkImage: doc.data().sparkImage
+          sparkImage: doc.data().sparkImage,
+          sparkVideo: doc.data().sparkVideo,
+          sparkLink: doc.data().sparkLink
         });
       });
       return res.json(sparks);
@@ -72,7 +74,9 @@ exports.postOneSpark = (req, res) => {
     fire: false,
     emberable: false,
     infernal: false,
-    sparkImage: ""
+    sparkImage: "",
+    sparkVideo: "",
+    sparkLink: ""
   };
 
   db.collection("Sparks")
@@ -265,7 +269,9 @@ exports.getOnlyHottest = (req, res) => {
         fire: doc.data().fire,
         emberable: doc.data().emberable,
         infernal: doc.data().infernal,
-        sparkImage: doc.data().sparkImage
+        sparkImage: doc.data().sparkImage,
+        sparkVideo: doc.data().sparkVideo,
+        sparkLink: doc.data().sparkLink
       });
     });
     return res.json(hotSparks);

@@ -340,22 +340,3 @@ exports.uploadSparkImage = (req, res) => {
 	busboy.end(req.rawBody);
 };
 
-exports.fetchSparkImage = (req, res) => {
-  db.collection("SparkImages").get()
-  .then(data => {
-    let imgArr = [];
-    data.forEach(doc => {
-      imgArr.push({
-        sparkID: doc.data().sparkID,
-        url: doc.data().url,
-        imgID: doc.id
-      })
-    })
-    return res.status(200).json(imgArr)
-  })
-  .catch(err => {
-    console.log(err);
-  })
-}
-
-

@@ -345,7 +345,11 @@ exports.fetchSparkImage = (req, res) => {
   .then(data => {
     let imgArr = [];
     data.forEach(doc => {
-      imgArr.push(doc.data())
+      imgArr.push({
+        sparkID: doc.data().sparkID,
+        url: doc.data().url,
+        imgID: doc.id
+      })
     })
     return res.status(200).json(imgArr)
   })

@@ -1,4 +1,5 @@
-const { db } = require("../util/admin");
+const { db, admin } = require("../util/admin");
+const config = require("../util/config");
 
 exports.getAllSparks = (req, res) => {
   db.collection("Sparks")

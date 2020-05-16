@@ -75,9 +75,9 @@ exports.postOneSpark = (req, res) => {
     fire: false,
     emberable: false,
     infernal: false,
-    sparkImage: "",
-    sparkVideo: "",
-    sparkLink: ""
+    sparkImage: false,
+    sparkVideo: false,
+    sparkLink: false
   };
 
   db.collection("Sparks")

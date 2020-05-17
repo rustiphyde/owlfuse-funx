@@ -1,63 +1,6 @@
 const { db } = require("../util/admin");
 
-// exports.postNewHowl = (req, res) => {
-// 	if (req.body.howlBody.trim() === "")
-// 		return res.status(400).json({ howl: "Field must not be empty" });
 
-// 	let resHowl = {};
-
-// 	const newDocKey = [req.user.clozang, req.params.fuser].sort().join("::");
-
-// 	const newHowl = {
-// 		docKey: newDocKey,
-// 		howlers: [req.user.clozang, req.params.fuser],
-// 		howlCount: 1,
-// 		receiverHasread: false,
-// 		howlings: [
-// 			{
-// 				sentBy: req.user.clozang,
-// 				sentTo: req.params.fuser,
-// 				avatar: req.user.imageUrl,
-// 				howlBody: req.body.howlBody,
-// 				createdAt: new Date().toISOString(),
-// 			},
-// 		],
-// 	};
-
-// 	db.collection("Howls")
-// 		.doc(newDocKey)
-// 		.get()
-// 		.then((doc) => {
-// 			if (doc.exists) {
-// 				doc.ref
-// 					.update({
-// 						howlCount: doc.data().howlCount + 1,
-// 						howlings: firebase.firestore.FieldValue.arrayUnion({
-// 							sentBy: req.user.clozang,
-// 							sentTo: req.params.fuser,
-// 							avatar: req.user.imageUrl,
-// 							howlBody: req.body.howlBody,
-// 							createdAt: new Date().toISOString(),
-// 						}),
-// 					})
-// 					.then((doc) => {
-// 						resHowl = doc.data();
-// 						res.status(200).json(resHowl);
-// 					});
-// 			} else {
-// 				db.collection("Howls")
-// 					.doc(newDocKey)
-// 					.set(newHowl)
-// 					.then(() => {
-// 						resHowl = newHowl;
-// 						res.status(200).json(resHowl);
-// 					});
-// 			}
-// 		})
-// 		.catch((err) => {
-// 			res.status(500).json({ error: err.message });
-// 		});
-// };
 exports.postNewHowl = (req, res) => {
 	if (req.body.howlBody.trim() === "")
 		return res.status(400).json({ howlBody: "Field must not be empty" });

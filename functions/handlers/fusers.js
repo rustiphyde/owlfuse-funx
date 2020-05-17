@@ -417,3 +417,19 @@ exports.fetchOneFuser = (req, res) => {
 		})
 		.catch((err) => console.log(err));
 };
+
+
+exports.getSilencedUserList = (req, res) => {
+	db.collection("Users").where("silenced", "array-contains", req.user.clozang)
+	.get()
+	.then(data => {
+		let silArr = [];
+		data.forEach(doc => {
+			silArr.push(doc.data().clozang);
+		})
+		return res.json(silArr);
+	})
+	.catch(err => {
+		console.log(err.code);
+	})
+}

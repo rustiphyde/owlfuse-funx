@@ -23,6 +23,7 @@ const {
 	fetchUserSilencedList,
 	unsilenceFuser,
 	fetchOneFuser,
+	getSilencedUserList
 } = require("./handlers/fusers");
 
 const {
@@ -110,6 +111,7 @@ app.get("/silence/:fuser", FBAuth, silenceFuser);
 app.get("/silenced", FBAuth, fetchUserSilencedList);
 app.get("/unsilence/:fuser", FBAuth, unsilenceFuser);
 app.get("/fused/:fuser", FBAuth, fetchOneFuser);
+app.get("silencedUser", FBAuth, getSilencedUserList);
 // Howl routes
 app.post("/howl/:friend", FBAuth, postNewHowl);
 app.get("/howls", FBAuth, fetchUserHowls);

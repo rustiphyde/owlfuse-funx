@@ -1,5 +1,6 @@
 const { db, admin } = require("../util/admin");
 const config = require("../util/config");
+const { reduceSparkDetails } = require("../util/validators");
 
 exports.getAllSparks = (req, res) => {
   db.collection("Sparks")
@@ -436,5 +437,31 @@ exports.postSparkVideoLink = (req, res) => {
   .catch(err => {
     console.log(err.code);
   });
+};
+
+exports.editASpark = (req, res) => {
+	if (req.body.body.trim() === "") {
+		return res.status(400).json({ body: "Field must not be empty" });
+	}
+	db.doc(`/Sparks/${req.params.sparkId}`)
+		.get()
+		.then((doc) => {
+			if (!doc.exists) {
+				return res.status(404).json({ error: "Spark not found" });
+			} else if (doc.data().userClozang !== req.user.clozang) {
+				return res
+					.status(403)
+					.json({ error: "This action is forbidden by this user" });
+			} else {
+				doc.ref.update({ body: req.body.body });
+			}
+		})
+		.then(() => {
+			res.json({ message: "spark body changed to: " + req.body.body });
+		})
+		.catch((err) => {
+			console.error({ error: err.code });
+			res.status(500).json({ error: "Something went wrong" });
+		});
 };
 

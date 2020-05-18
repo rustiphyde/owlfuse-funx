@@ -88,3 +88,11 @@ exports.reduceHowlDetails = data => {
   return howlDetails;
 }
 
+exports.reduceSparkDetails = data => {
+  let sparkDetails = {};
+
+  if(!isEmpty(data.body.trim())) sparkDetails.body = data.body;
+
+  return sparkDetails;
+}
+

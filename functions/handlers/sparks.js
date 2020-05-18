@@ -83,6 +83,7 @@ exports.postOneSpark = (req, res) => {
   db.collection("Sparks")
     .add(newSpark)
     .then(doc => {
+      doc.update({ sparkId: doc.id });
       const resSpark = newSpark;
         resSpark.sparkId = doc.id;
         res.json(resSpark);
@@ -321,7 +322,8 @@ exports.uploadSparkImage = (req, res) => {
 			})
 			.then(() => {
 				const sparkImage = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
-				return db.collection("Sparks").add({
+        
+        const newSparkImage = {
           body: req.body.body,
           userClozang: req.user.clozang,
           createdAt: new Date().toISOString(),
@@ -334,14 +336,18 @@ exports.uploadSparkImage = (req, res) => {
           sparkImage: sparkImage,
           sparkVideo: "",
           sparkLink: ""
-        })
+        }
+        
+        db.collection("Sparks").add(newSparkImage)
         .then((doc) => {
-          doc.update({ sparkId: doc.id })
+          doc.update({ sparkId: doc.id });
+          const resImg = newSparkImage;
+          resImg.sparkId = doc.id;
         
         })
 			})
 			.then(() => {
-				return res.json({ message: "Image uploaded successfully" });
+				return res.status(200).json(resImg);
 			})
 			.catch(err => {
 				console.error(err);

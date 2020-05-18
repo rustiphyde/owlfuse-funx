@@ -352,7 +352,7 @@ exports.uploadSparkVideo = (req, res) => {
 	let videoFileName;
 
 	busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
-		if (mimetype !== "video/mp4" && mimetype !== "video/webm") {
+		if (mimetype !== "video/mp4" && mimetype !== "video/webm" && mimetype !== "video/3gp") {
 			return res.status(400).json({ error: "Wrong file type submitted" });
 		}
 		const videoExtension = filename.split(".")[filename.split(".").length - 1];

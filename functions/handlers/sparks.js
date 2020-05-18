@@ -440,9 +440,6 @@ exports.postSparkVideoLink = (req, res) => {
 };
 
 exports.editASpark = (req, res) => {
-	if (req.body.body.trim() === "") {
-		return res.status(400).json({ body: "Field must not be empty" });
-	}
 	db.doc(`/Sparks/${req.params.sparkId}`)
 		.get()
 		.then((doc) => {

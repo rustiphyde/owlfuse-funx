@@ -396,3 +396,28 @@ exports.uploadSparkVideo = (req, res) => {
 	busboy.end(req.rawBody);
 };
 
+exports.postSparkVideoLink = (req, res) => {
+  if (req.body.link.trim() === '') return res.status(400).json({ link: 'Field must not be empty' });
+
+  newVideoLink = {
+    link: req.body.link,
+    sparkId: req.params.sparkId
+  }
+
+  db.collection("SparkVideos").add({
+    sparkID: newVideoLink.sparkId,
+    url: newVideoLink.link
+  })
+  .then(() => {
+    db.doc(`/Sparks/${req.params.sparkId}`).update({
+      sparkVideo: newVideoLink.link
+    })
+  })
+  .then(() => {
+    res.status(200).json({ message: 'Video link saved'})
+  })
+  .catch(err => {
+    console.log(err.code);
+  });
+};
+

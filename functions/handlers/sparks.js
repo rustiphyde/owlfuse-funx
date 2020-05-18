@@ -324,7 +324,7 @@ exports.uploadSparkImage = (req, res) => {
 				const sparkImage = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
         
         const newSparkImage = {
-          body: req.body.body,
+          body: "",
           userClozang: req.user.clozang,
           createdAt: new Date().toISOString(),
           heatCount: 0,

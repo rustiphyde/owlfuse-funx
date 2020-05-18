@@ -76,8 +76,8 @@ exports.postOneSpark = (req, res) => {
     emberable: false,
     infernal: false,
     sparkImage: "",
-    sparkVideo: false,
-    sparkLink: false
+    sparkVideo: "",
+    sparkLink: ""
   };
 
   db.collection("Sparks")
@@ -331,6 +331,62 @@ exports.uploadSparkImage = (req, res) => {
 			})
 			.then(() => {
 				return res.json({ message: "Image uploaded successfully" });
+			})
+			.catch(err => {
+				console.error(err);
+				return res.status(500).json({ error: err.code });
+			});
+	});
+	busboy.end(req.rawBody);
+};
+
+exports.uploadSparkVideo = (req, res) => {
+	const BusBoy = require("busboy");
+	const path = require("path");
+	const os = require("os");
+	const fs = require("fs");
+
+	const busboy = new BusBoy({ headers: req.headers });
+
+	let videoToBeUploaded = {};
+	let videoFileName;
+
+	busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+		if (mimetype !== "video/mp4" && mimetype !== "video/webm") {
+			return res.status(400).json({ error: "Wrong file type submitted" });
+		}
+		const videoExtension = filename.split(".")[filename.split(".").length - 1];
+		videoFileName = `${Math.round(
+			Math.random() * 10000000000000
+		).toString()}.${videoExtension}`;
+		const filepath = path.join(os.tmpdir(), videoFileName);
+		videoToBeUploaded = { filepath, mimetype };
+		file.pipe(fs.createWriteStream(filepath));
+	});
+	busboy.on("finish", () => {
+		const buckethead = admin.storage().bucket();
+
+		buckethead
+			.upload(videoToBeUploaded.filepath, {
+				resumable: false,
+				metadata: {
+					metadata: {
+						contentType: videoToBeUploaded.mimetype
+					}
+				}
+			})
+			.then(() => {
+				const sparkVideo = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${videoFileName}?alt=media`;
+				return db.collection("SparkVideos").add({
+          sparkID: req.params.sparkId,
+          url: sparkVideo
+        })
+        .then(() => {
+          return db.doc(`/Sparks/${req.params.sparkId}`).update({ sparkVideo: sparkVideo });
+        })
+			})
+			.then(() => {
+				return res.json({ message: "Video uploaded successfully" });
 			})
 			.catch(err => {
 				console.error(err);

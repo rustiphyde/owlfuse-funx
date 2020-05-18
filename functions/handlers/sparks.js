@@ -321,12 +321,23 @@ exports.uploadSparkImage = (req, res) => {
 			})
 			.then(() => {
 				const sparkImage = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
-				return db.collection("SparkImages").add({
-          sparkID: req.params.sparkId,
-          url: sparkImage
+				return db.collection("Sparks").add({
+          body: req.body.body,
+          userClozang: req.user.clozang,
+          createdAt: new Date().toISOString(),
+          heatCount: 0,
+          stokeCount: 0,
+          userImage: req.user.imageUrl,
+          fire: false,
+          emberable: false,
+          infernal: false,
+          sparkImage: sparkImage,
+          sparkVideo: "",
+          sparkLink: ""
         })
-        .then(() => {
-          return db.doc(`/Sparks/${req.params.sparkId}`).update({ sparkImage: sparkImage });
+        .then((doc) => {
+          doc.update({ sparkId: doc.id })
+        
         })
 			})
 			.then(() => {

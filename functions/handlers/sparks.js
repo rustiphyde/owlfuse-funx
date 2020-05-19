@@ -1,6 +1,5 @@
 const { db, admin } = require("../util/admin");
 const config = require("../util/config");
-const { reduceSparkDetails } = require("../util/validators");
 
 exports.getAllSparks = (req, res) => {
   db.collection("Sparks")
@@ -84,7 +83,6 @@ exports.postOneSpark = (req, res) => {
   db.collection("Sparks")
     .add(newSpark)
     .then(doc => {
-      doc.update({ sparkId: doc.id });
       const resSpark = newSpark;
         resSpark.sparkId = doc.id;
         res.json(resSpark);
@@ -323,32 +321,16 @@ exports.uploadSparkImage = (req, res) => {
 			})
 			.then(() => {
 				const sparkImage = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
-        
-        const newSparkImage = {
-          body: "",
-          userClozang: req.user.clozang,
-          createdAt: new Date().toISOString(),
-          heatCount: 0,
-          stokeCount: 0,
-          userImage: req.user.imageUrl,
-          fire: false,
-          emberable: false,
-          infernal: false,
-          sparkImage: sparkImage,
-          sparkVideo: "",
-          sparkLink: ""
-        }
-        
-        db.collection("Sparks").add(newSparkImage)
-        .then((doc) => {
-          doc.update({ sparkId: doc.id });
-          const resImg = newSparkImage;
-          resImg.sparkId = doc.id;
-        
+				return db.collection("SparkImages").add({
+          sparkID: req.params.sparkId,
+          url: sparkImage
+        })
+        .then(() => {
+          return db.doc(`/Sparks/${req.params.sparkId}`).update({ sparkImage: sparkImage });
         })
 			})
 			.then(() => {
-				return res.status(200).json(resImg);
+				return res.json({ message: "Image uploaded successfully" });
 			})
 			.catch(err => {
 				console.error(err);
@@ -438,27 +420,3 @@ exports.postSparkVideoLink = (req, res) => {
     console.log(err.code);
   });
 };
-
-exports.editASpark = (req, res) => {
-	db.doc(`/Sparks/${req.params.sparkId}`)
-		.get()
-		.then((doc) => {
-			if (!doc.exists) {
-				return res.status(404).json({ error: "Spark not found" });
-			} else if (doc.data().userClozang !== req.user.clozang) {
-				return res
-					.status(403)
-					.json({ error: "This action is forbidden by this user" });
-			} else {
-				doc.ref.update({ body: req.body.body });
-			}
-		})
-		.then(() => {
-			res.json({ message: "spark body changed to: " + req.body.body });
-		})
-		.catch((err) => {
-			console.error({ error: err.code });
-			res.status(500).json({ error: "Something went wrong" });
-		});
-};
-

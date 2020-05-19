@@ -49,7 +49,6 @@ const {
 	uploadSparkImage,
 	uploadSparkVideo,
 	postSparkVideoLink,
-	editASpark
 } = require("./handlers/sparks");
 
 const {
@@ -102,7 +101,6 @@ app.get("/hot/sparks", getOnlyHottest);
 app.post("/image/spark", FBAuth, uploadSparkImage);
 app.post("/video/spark/:sparkId", FBAuth, uploadSparkVideo);
 app.post("/video/link/:sparkId", FBAuth, postSparkVideoLink);
-app.post("spark/edit/:sparkId", FBAuth, editASpark);
 // Fuser routes
 app.get("/fusers", FBAuth, getUserFuserList);
 app.get("/fuse-with/:fuser", FBAuth, sendFuseRequest);

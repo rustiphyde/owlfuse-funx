@@ -99,7 +99,7 @@ app.get("/spark/:sparkId/snuff", FBAuth, removeHeat);
 app.delete("/spark/:sparkId", FBAuth, extinguishSpark);
 app.get("/hot/sparks", getOnlyHottest);
 app.post("/image/spark", FBAuth, uploadSparkImage);
-app.post("/video/spark/:sparkId", FBAuth, uploadSparkVideo);
+app.post("/video/spark", FBAuth, uploadSparkVideo);
 app.post("/video/link/:sparkId", FBAuth, postSparkVideoLink);
 // Fuser routes
 app.get("/fusers", FBAuth, getUserFuserList);

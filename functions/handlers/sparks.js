@@ -411,21 +411,31 @@ exports.uploadSparkVideo = (req, res) => {
 			})
 			.then(() => {
 				const sparkVideo = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${videoFileName}?alt=media`;
-				return db
-					.collection("SparkVideos")
-					.add({
-						sparkID: req.params.sparkId,
-						url: sparkVideo,
-					})
-					.then(() => {
-						return db
-							.doc(`/Sparks/${req.params.sparkId}`)
-							.update({ sparkVideo: sparkVideo });
-					});
-			})
-			.then(() => {
-				return res.json({ message: "Video uploaded successfully" });
-			})
+        
+        const newSpark = {
+					body: "",
+					userClozang: req.user.clozang,
+					createdAt: new Date().toISOString(),
+					heatCount: 0,
+					stokeCount: 0,
+					userImage: req.user.imageUrl,
+					fire: false,
+					emberable: false,
+					infernal: false,
+					sparkImage: "",
+					sparkVideo: sparkVideo,
+					sparkLink: "",
+				};
+
+				db.collection("Sparks")
+					.add(newSpark)
+					.then((doc) => {
+            doc.update({ sparkId: doc.id});
+          const resVid = newSpark;
+          resVid.sparkId = doc.id;
+          res.status(200).json(resVid);
+      })
+    })
 			.catch((err) => {
 				console.error(err);
 				return res.status(500).json({ error: err.code });

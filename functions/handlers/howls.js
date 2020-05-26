@@ -5,6 +5,20 @@ exports.postNewHowl = (req, res) => {
 	if (req.body.howlBody.trim() === "")
 		return res.status(400).json({ howlBody: "Field must not be empty" });
 
+	let silencedArr = [];
+	
+	db.doc(`/Users/${req.params.friend}`).get()
+	.then(doc => {
+		if(!doc.exists){
+			return res.status(400).json({ message: "Fuser not found"});
+		}
+		else{
+			doc.data().silenced.forEach(sil => {
+				silencedArr.push(sil);
+			})
+		}
+	})
+
 	let resHowl = {};
 
 	const newDocKey = [req.user.clozang, req.params.friend].sort().join("::");
@@ -21,7 +35,11 @@ exports.postNewHowl = (req, res) => {
 		howlId: ""
 	};
 
-	db.collection("Howls")
+	if(silencedArr.includes(req.user.clozang)){
+		return res.json({ message: "This fuser has you silenced right now."});
+	}
+	else{
+		db.collection("Howls")
 		.add(newHowl)
 		.then((doc) => {
 			doc.update({ howlId: doc.id });
@@ -33,6 +51,7 @@ exports.postNewHowl = (req, res) => {
 			res.status(500).json({ error: "something went wrong" });
 			console.error(err);
 		});
+	}	
 };
 
 exports.fetchUserHowls = (req, res) => {

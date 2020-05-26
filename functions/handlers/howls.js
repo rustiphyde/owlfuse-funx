@@ -36,6 +36,7 @@ exports.postNewHowl = (req, res) => {
 	};
 
 	if(silencedArr.includes(req.user.clozang)){
+		console.log("This fuser has you silenced");
 		return res.json({ message: "This fuser has you silenced right now."});
 	}
 	else{

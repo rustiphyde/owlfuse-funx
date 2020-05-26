@@ -46,10 +46,10 @@ exports.postNewHowl = (req, res) => {
 		.then(() => {
 			if (silencedArr.includes(req.user.clozang)) {
 				console.log("This fuser has you silenced");
-				return res.json({ message: "This fuser has you silenced right now." });
+				res.json({ message: "This fuser has you silenced right now." });
 			} else if (userSilent.includes(req.params.friend)) {
 				console.log("You have this fuser silenced");
-				return res.json({ message: "You hav this fuser silenced" });
+				res.json({ message: "You hav this fuser silenced" });
 			} else {
 				db.collection("Howls")
 					.add(newHowl)

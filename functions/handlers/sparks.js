@@ -305,7 +305,12 @@ exports.uploadSparkImage = (req, res) => {
 	const busboy = new BusBoy({ headers: req.headers });
 
 	let imageToBeUploaded = {};
+	let fields = {};
 	let imageFileName;
+
+	busboy.on('field', (key, value) => {
+		fields[key] = value;
+	})
 
 	busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
 		if (
@@ -324,6 +329,7 @@ exports.uploadSparkImage = (req, res) => {
 		file.pipe(fs.createWriteStream(filepath));
 	});
 	busboy.on("finish", () => {
+		req.body = fields;
 		const buckethead = admin.storage().bucket();
 
 		buckethead
@@ -339,7 +345,7 @@ exports.uploadSparkImage = (req, res) => {
 				const sparkImage = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
 
 				const newSpark = {
-					body: "",
+					body: req.body.body,
 					userClozang: req.user.clozang,
 					createdAt: new Date().toISOString(),
 					heatCount: 0,

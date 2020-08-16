@@ -7,7 +7,7 @@ const FBAuth = require("./util/fbAuth");
 const cors = require("cors");
 app.use(cors());
 
-const { db } = require("./util/admin");
+const { db, admin } = require("./util/admin");
 
 const {
 	getUserFuserList,
@@ -521,5 +521,4 @@ exports.decreaseHowlCount = functions.firestore
 			})
 			.catch((err) => console.log(err.code));
 	});
-
 

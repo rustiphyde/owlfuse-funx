@@ -253,10 +253,14 @@ exports.extinguishSpark = (req, res) => {
 					.status(403)
 					.json({ error: "This action is not permitted by this account" });
 			} else {
+				let splitter = doc.data().sparkImage.split('/')[7].split('?')[0];
+				const bucket = admin.storage().bucket();
+                bucket.file(`${splitter}`).delete();
 				return docToExtinguish.delete();
 			}
 		})
 		.then(() => {
+
 			return res.json({ message: "Spark extinguished completely" });
 		})
 		.catch((err) => {

@@ -531,7 +531,7 @@ exports.removeAttachedMedia = functions.firestore
 	.onDelete((snap) => {
 		const bucket = admin.storage().bucket();
 		let splitter = "";
-		if(embered !== true){
+		if(snap.data().embered !== true){
 			if (snap.data().sparkImage !== "") {
 				splitter = snap.data().sparkImage.split("/")[7].split("?")[0];
 			} else if (snap.data().sparkVideo !== ""){

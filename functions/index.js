@@ -23,7 +23,7 @@ const {
 	fetchUserSilencedList,
 	unsilenceFuser,
 	fetchOneFuser,
-	getSilencedUserList
+	getSilencedUserList,
 } = require("./handlers/fusers");
 
 const {
@@ -48,6 +48,7 @@ const {
 	getOnlyHottest,
 	uploadSparkImage,
 	uploadSparkVideo,
+	uploadSparkAudio,
 	postSparkVideoLink,
 } = require("./handlers/sparks");
 
@@ -100,6 +101,7 @@ app.delete("/spark/:sparkId", FBAuth, extinguishSpark);
 app.get("/hot/sparks", getOnlyHottest);
 app.post("/image/spark", FBAuth, uploadSparkImage);
 app.post("/video/spark", FBAuth, uploadSparkVideo);
+app.post("/audio/spark", FBAuth, uploadSparkAudio);
 app.post("/video/link/:sparkId", FBAuth, postSparkVideoLink);
 // Fuser routes
 app.get("/fusers", FBAuth, getUserFuserList);
@@ -247,17 +249,19 @@ exports.createSizzleOnToast = functions.firestore
 			.catch((err) => console.error(err));
 	});
 
-	exports.createSizzleOnRequest = functions.firestore
+exports.createSizzleOnRequest = functions.firestore
 	.document("Requests/{id}")
 	.onCreate((snap) => {
-		return db.doc(`/Sizzles/${snap.id}`).set({
-						createdAt: new Date().toISOString(),
-						recipient: snap.data().requested,
-						sender: snap.data().sender,
-						type: "request",
-						read: false,
-						sizzleId: snap.id,
-					})
+		return db
+			.doc(`/Sizzles/${snap.id}`)
+			.set({
+				createdAt: new Date().toISOString(),
+				recipient: snap.data().requested,
+				sender: snap.data().sender,
+				type: "request",
+				read: false,
+				sizzleId: snap.id,
+			})
 			.catch((err) => console.error(err));
 	});
 
@@ -369,7 +373,7 @@ exports.sparkToFire = functions.firestore
 						type: "fire",
 						read: false,
 						sizzleId: change.before.id,
-					})
+					});
 				})
 				.catch((err) => console.error(err));
 		} else return;
@@ -394,8 +398,8 @@ exports.fireToInfernal = functions.firestore
 						sender: "",
 						type: "infernal",
 						read: false,
-						sizzleId: change.before.id
-					})
+						sizzleId: change.before.id,
+					});
 				})
 				.catch((err) => console.error(err));
 		} else return;
@@ -420,7 +424,7 @@ exports.snuffOutFire = functions.firestore
 						type: "snuff",
 						read: false,
 						sizzleId: change.before.id,
-					})
+					});
 				})
 				.catch((err) => console.log(err));
 		} else return;
@@ -469,18 +473,18 @@ exports.removeAcceptedRequest = functions.firestore
 	.document("/Requests/{id}")
 	.onUpdate((change) => {
 		if (change.after.data().accepted === true) {
-			db.doc(`/Sizzles/${change.before.id}`).set({
-				createdAt: new Date().toISOString(),
-				recipient: change.before.data().sender,
-				sender: change.before.data().requested,
-				type: "accept",
-				read: false,
-				sizzleId: change.before.id,
-			}).then(() => {
-				return db
-				.doc(`/Requests/${change.before.id}`)
-				.delete()
-			})			
+			db.doc(`/Sizzles/${change.before.id}`)
+				.set({
+					createdAt: new Date().toISOString(),
+					recipient: change.before.data().sender,
+					sender: change.before.data().requested,
+					type: "accept",
+					read: false,
+					sizzleId: change.before.id,
+				})
+				.then(() => {
+					return db.doc(`/Requests/${change.before.id}`).delete();
+				})
 				.catch((err) => console.log(err));
 		} else return;
 	});
@@ -489,18 +493,18 @@ exports.removeRejectedRequest = functions.firestore
 	.document("/Requests/{id}")
 	.onUpdate((change) => {
 		if (change.after.data().rejected === true) {
-			db.doc(`/Sizzles/${change.before.id}`).set({
-				createdAt: new Date().toISOString(),
-				recipient: change.before.data().sender,
-				sender: change.before.data().requested,
-				type: "reject",
-				read: false,
-				sizzleId: change.before.id,
-			}).then(() => {
-				return db
-				.doc(`/Requests/${change.before.id}`)
-				.delete()
-			})			
+			db.doc(`/Sizzles/${change.before.id}`)
+				.set({
+					createdAt: new Date().toISOString(),
+					recipient: change.before.data().sender,
+					sender: change.before.data().requested,
+					type: "reject",
+					read: false,
+					sizzleId: change.before.id,
+				})
+				.then(() => {
+					return db.doc(`/Requests/${change.before.id}`).delete();
+				})
 				.catch((err) => console.log(err));
 		} else return;
 	});
@@ -522,3 +526,26 @@ exports.decreaseHowlCount = functions.firestore
 			.catch((err) => console.log(err.code));
 	});
 
+exports.removeAttachedMedia = functions.firestore
+	.document("/Sparks/{id}")
+	.onDelete((snap) => {
+		const bucket = admin.storage().bucket();
+		let splitter = "";
+		if(embered !== true){
+			if (snap.data().sparkImage !== "") {
+				splitter = snap.data().sparkImage.split("/")[7].split("?")[0];
+			} else if (snap.data().sparkVideo !== ""){
+				splitter = snap.data().sparkVideo.split("/")[7].split("?")[0];
+			} else if (snap.data().sparkAudio !== ""){
+				splitter = snap.data().sparkAudio.split("/")[7].split("?")[0];
+			} 
+			bucket
+					.file(`${splitter}`)
+					.delete()
+					.then(function () {
+						console.log("Media Removed Successfully!");
+					})
+					.catch((err) => console.log(err.code));
+		}
+
+	});

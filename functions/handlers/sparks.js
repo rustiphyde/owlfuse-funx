@@ -18,9 +18,11 @@ exports.getAllSparks = (req, res) => {
 					userImage: doc.data().userImage,
 					fire: doc.data().fire,
 					emberable: doc.data().emberable,
+					embered: doc.data().embered,
 					infernal: doc.data().infernal,
 					sparkImage: doc.data().sparkImage,
 					sparkVideo: doc.data().sparkVideo,
+					sparkAudio: doc.data().sparkAudio,
 					sparkLink: doc.data().sparkLink,
 				});
 			});
@@ -77,9 +79,11 @@ exports.postOneSpark = (req, res) => {
 		userImage: req.user.imageUrl,
 		fire: false,
 		emberable: false,
+		embered: false,
 		infernal: false,
 		sparkImage: "",
 		sparkVideo: "",
+		sparkAudio: "",
 		sparkLink: "",
 	};
 
@@ -253,9 +257,6 @@ exports.extinguishSpark = (req, res) => {
 					.status(403)
 					.json({ error: "This action is not permitted by this account" });
 			} else {
-				let splitter = doc.data().sparkImage.split('/')[7].split('?')[0];
-				const bucket = admin.storage().bucket();
-                bucket.file(`${splitter}`).delete();
 				return docToExtinguish.delete();
 			}
 		})
@@ -286,9 +287,11 @@ exports.getOnlyHottest = (req, res) => {
 					userImage: doc.data().userImage,
 					fire: doc.data().fire,
 					emberable: doc.data().emberable,
+					embered: doc.data().embered,
 					infernal: doc.data().infernal,
 					sparkImage: doc.data().sparkImage,
 					sparkVideo: doc.data().sparkVideo,
+					sparkAudio: doc.data().sparkAudio,
 					sparkLink: doc.data().sparkLink,
 				});
 			});
@@ -357,9 +360,11 @@ exports.uploadSparkImage = (req, res) => {
 					userImage: req.user.imageUrl,
 					fire: false,
 					emberable: false,
+					embered: false,
 					infernal: false,
 					sparkImage: sparkImage,
 					sparkVideo: "",
+					sparkAudio: "",
 					sparkLink: "",
 				};
 
@@ -389,7 +394,12 @@ exports.uploadSparkVideo = (req, res) => {
 	const busboy = new BusBoy({ headers: req.headers });
 
 	let videoToBeUploaded = {};
+	let fields = {};
 	let videoFileName;
+
+	busboy.on('field', (key, value) => {
+		fields[key] = value;
+	})
 
 	busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
 		if (
@@ -423,7 +433,7 @@ exports.uploadSparkVideo = (req, res) => {
 				const sparkVideo = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${videoFileName}?alt=media`;
         
         const newSpark = {
-					body: "",
+					body: req.body.body,
 					userClozang: req.user.clozang,
 					createdAt: new Date().toISOString(),
 					heatCount: 0,
@@ -431,9 +441,11 @@ exports.uploadSparkVideo = (req, res) => {
 					userImage: req.user.imageUrl,
 					fire: false,
 					emberable: false,
+					embered: false,
 					infernal: false,
 					sparkImage: "",
 					sparkVideo: sparkVideo,
+					sparkAudio: "",
 					sparkLink: "",
 				};
 
@@ -444,6 +456,85 @@ exports.uploadSparkVideo = (req, res) => {
           const resVid = newSpark;
           resVid.sparkId = doc.id;
           res.status(200).json(resVid);
+      })
+    })
+			.catch((err) => {
+				console.error(err);
+				return res.status(500).json({ error: err.code });
+			});
+	});
+	busboy.end(req.rawBody);
+};
+
+exports.uploadSparkAudio = (req, res) => {
+	const BusBoy = require("busboy");
+	const path = require("path");
+	const os = require("os");
+	const fs = require("fs");
+
+	const busboy = new BusBoy({ headers: req.headers });
+
+	let audioToBeUploaded = {};
+	let fields = {};
+	let audioFileName;
+
+	busboy.on('field', (key, value) => {
+		fields[key] = value;
+	})
+
+	busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+		if (
+			mimetype !== "audio/mp3"
+		) {
+			return res.status(400).json({ error: "Wrong file type submitted" });
+		}
+		const audioExtension = filename.split(".")[filename.split(".").length - 1];
+		audioFileName = `${Math.round(
+			Math.random() * 10000000000000
+		).toString()}.${audioExtension}`;
+		const filepath = path.join(os.tmpdir(), audioFileName);
+		audioToBeUploaded = { filepath, mimetype };
+		file.pipe(fs.createWriteStream(filepath));
+	});
+	busboy.on("finish", () => {
+		const buckethead = admin.storage().bucket();
+
+		buckethead
+			.upload(audioToBeUploaded.filepath, {
+				resumable: false,
+				metadata: {
+					metadata: {
+						contentType: audioToBeUploaded.mimetype,
+					},
+				},
+			})
+			.then(() => {
+				const sparkAudio = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${audioFileName}?alt=media`;
+        
+        const newSpark = {
+					body: req.body.body,
+					userClozang: req.user.clozang,
+					createdAt: new Date().toISOString(),
+					heatCount: 0,
+					stokeCount: 0,
+					userImage: req.user.imageUrl,
+					fire: false,
+					emberable: false,
+					embered: false,
+					infernal: false,
+					sparkImage: "",
+					sparkVideo: "",
+					sparkAudio: sparkAudio,
+					sparkLink: "",
+				};
+
+				db.collection("Sparks")
+					.add(newSpark)
+					.then((doc) => {
+            doc.update({ sparkId: doc.id});
+          const resAud = newSpark;
+          resAud.sparkId = doc.id;
+          res.status(200).json(resAud);
       })
     })
 			.catch((err) => {

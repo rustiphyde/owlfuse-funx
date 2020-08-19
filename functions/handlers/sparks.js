@@ -1,5 +1,6 @@
 const { db, admin } = require("../util/admin");
 const config = require("../util/config");
+const firebase = require("firebase");
 
 exports.getAllSparks = (req, res) => {
 	db.collection("Sparks")
@@ -261,7 +262,6 @@ exports.extinguishSpark = (req, res) => {
 			}
 		})
 		.then(() => {
-
 			return res.json({ message: "Spark extinguished completely" });
 		})
 		.catch((err) => {
@@ -315,9 +315,9 @@ exports.uploadSparkImage = (req, res) => {
 	let fields = {};
 	let imageFileName;
 
-	busboy.on('field', (key, value) => {
+	busboy.on("field", (key, value) => {
 		fields[key] = value;
-	})
+	});
 
 	busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
 		if (
@@ -371,12 +371,12 @@ exports.uploadSparkImage = (req, res) => {
 				db.collection("Sparks")
 					.add(newSpark)
 					.then((doc) => {
-            doc.update({ sparkId: doc.id});
-          const resImg = newSpark;
-          resImg.sparkId = doc.id;
-          res.status(200).json(resImg);
-      })
-    })
+						doc.update({ sparkId: doc.id });
+						const resImg = newSpark;
+						resImg.sparkId = doc.id;
+						res.status(200).json(resImg);
+					});
+			})
 			.catch((err) => {
 				console.error(err);
 				return res.status(500).json({ error: err.code });
@@ -386,84 +386,47 @@ exports.uploadSparkImage = (req, res) => {
 };
 
 exports.uploadSparkVideo = (req, res) => {
-	const BusBoy = require("busboy");
-	const path = require("path");
-	const os = require("os");
-	const fs = require("fs");
+	if (req.body.body.trim() === "")
+		return res
+			.status(400)
+			.json({ spark: "Can't start a fire without a spark" });
+	if (req.body.embedLink.trim() === "")
+		return res.status(400).json({ embedLink: "Field must not be empty" });
+	
+	const youtubeLink = req.body.embedLink.split("?v=");
+	
+	if (youtubeLink[0] === "https://www.youtube.com/watch") {
+		req.body.embedLink = `https://youtube.com/embed/${youtubeLink[1]}`;
+	}
 
-	const busboy = new BusBoy({ headers: req.headers });
+	const newSpark = {
+		body: req.body.body,
+		userClozang: req.user.clozang,
+		createdAt: new Date().toISOString(),
+		heatCount: 0,
+		stokeCount: 0,
+		userImage: req.user.imageUrl,
+		fire: false,
+		emberable: false,
+		embered: false,
+		infernal: false,
+		sparkImage: "",
+		sparkVideo: req.body.embedLink,
+		sparkAudio: "",
+		sparkLink: "",
+	};
 
-	let videoToBeUploaded = {};
-	let fields = {};
-	let videoFileName;
-
-	busboy.on('field', (key, value) => {
-		fields[key] = value;
-	})
-
-	busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
-		if (
-			mimetype !== "video/mp4" &&
-			mimetype !== "video/webm" &&
-			mimetype !== "video/3gp"
-		) {
-			return res.status(400).json({ error: "Wrong file type submitted" });
-		}
-		const videoExtension = filename.split(".")[filename.split(".").length - 1];
-		videoFileName = `${Math.round(
-			Math.random() * 10000000000000
-		).toString()}.${videoExtension}`;
-		const filepath = path.join(os.tmpdir(), videoFileName);
-		videoToBeUploaded = { filepath, mimetype };
-		file.pipe(fs.createWriteStream(filepath));
-	});
-	busboy.on("finish", () => {
-		const buckethead = admin.storage().bucket();
-
-		buckethead
-			.upload(videoToBeUploaded.filepath, {
-				resumable: false,
-				metadata: {
-					metadata: {
-						contentType: videoToBeUploaded.mimetype,
-					},
-				},
-			})
-			.then(() => {
-				const sparkVideo = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${videoFileName}?alt=media`;
-        
-        const newSpark = {
-					body: req.body.body,
-					userClozang: req.user.clozang,
-					createdAt: new Date().toISOString(),
-					heatCount: 0,
-					stokeCount: 0,
-					userImage: req.user.imageUrl,
-					fire: false,
-					emberable: false,
-					embered: false,
-					infernal: false,
-					sparkImage: "",
-					sparkVideo: sparkVideo,
-					sparkAudio: "",
-					sparkLink: "",
-				};
-
-				db.collection("Sparks")
-					.add(newSpark)
-					.then((doc) => {
-            doc.update({ sparkId: doc.id});
-          const resVid = newSpark;
-          resVid.sparkId = doc.id;
-          res.status(200).json(resVid);
-      })
-    })
-			.catch((err) => {
-				console.error(err);
-				return res.status(500).json({ error: err.code });
-			});
-	});
-	busboy.end(req.rawBody);
+	db.collection("Sparks")
+		.add(newSpark)
+		.then((doc) => {
+			const resSpark = newSpark;
+			resSpark.sparkId = doc.id;
+			res.json(resSpark);
+		})
+		.catch((err) => {
+			res.status(500).json({ error: "something went wrong" });
+			console.error(err);
+		});
 };
 
 exports.uploadSparkAudio = (req, res) => {
@@ -478,14 +441,12 @@ exports.uploadSparkAudio = (req, res) => {
 	let fields = {};
 	let audioFileName;
 
-	busboy.on('field', (key, value) => {
+	busboy.on("field", (key, value) => {
 		fields[key] = value;
-	})
+	});
 
 	busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
-		if (
-			mimetype !== "audio/mp3"
-		) {
+		if (mimetype !== "audio/mpeg") {
 			return res.status(400).json({ error: "Wrong file type submitted" });
 		}
 		const audioExtension = filename.split(".")[filename.split(".").length - 1];
@@ -497,6 +458,7 @@ exports.uploadSparkAudio = (req, res) => {
 		file.pipe(fs.createWriteStream(filepath));
 	});
 	busboy.on("finish", () => {
+		req.body = fields;
 		const buckethead = admin.storage().bucket();
 
 		buckethead
@@ -510,8 +472,8 @@ exports.uploadSparkAudio = (req, res) => {
 			})
 			.then(() => {
 				const sparkAudio = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${audioFileName}?alt=media`;
-        
-        const newSpark = {
+
+				const newSpark = {
 					body: req.body.body,
 					userClozang: req.user.clozang,
 					createdAt: new Date().toISOString(),
@@ -531,12 +493,12 @@ exports.uploadSparkAudio = (req, res) => {
 				db.collection("Sparks")
 					.add(newSpark)
 					.then((doc) => {
-            doc.update({ sparkId: doc.id});
-          const resAud = newSpark;
-          resAud.sparkId = doc.id;
-          res.status(200).json(resAud);
-      })
-    })
+						doc.update({ sparkId: doc.id });
+						const resAud = newSpark;
+						resAud.sparkId = doc.id;
+						res.status(200).json(resAud);
+					});
+			})
 			.catch((err) => {
 				console.error(err);
 				return res.status(500).json({ error: err.code });

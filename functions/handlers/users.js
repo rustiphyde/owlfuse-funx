@@ -146,8 +146,12 @@ exports.getUserDetails = (req, res) => {
 					fire: doc.data().fire,
 					sparkId: doc.id,
 					emberable: doc.data().emberable,
+					embered: doc.data().embered,
 					infernal: doc.data().infernal,
-					sparkImage: doc.data().sparkImage
+					sparkImage: doc.data().sparkImage,
+					sparkVideo: doc.data().sparkVideo,
+					sparkAudio: doc.data().sparkAudio,
+					sparkLink: doc.data().sparkLink
 				});
 		});
 	  return db
@@ -170,8 +174,12 @@ exports.getUserDetails = (req, res) => {
 					fire: doc.data().fire,
 					sparkId: doc.id,
 					emberable: doc.data().emberable,
+					embered: doc.data().embered,
 					infernal: doc.data().infernal,
-					sparkImage: doc.data().sparkImage
+					sparkImage: doc.data().sparkImage,
+					sparkVideo: doc.data().sparkVideo,
+					sparkAudio: doc.data().sparkAudio,
+					sparkLink: doc.data().sparkLink
 				});
 			});
       return db

@@ -152,7 +152,15 @@ exports.getUserDetails = (req, res) => {
 					sparkImage: doc.data().sparkImage,
 					sparkVideo: doc.data().sparkVideo,
 					sparkAudio: doc.data().sparkAudio,
-					sparkLink: doc.data().sparkLink
+					sparkLink: doc.data().sparkLink,
+					emberId: doc.data().emberId,
+					emberBody: doc.data().emberBody,
+					emberPoster: doc.data().emberPoster,
+					emberDate: doc.data().emberDate,
+					emberVideo: doc.data().emberVideo,
+					emberImage: doc.data().emberImage,
+					emberAudio: doc.data().emberAudio,
+					emberLink: doc.data().emberLink,
 				});
 		});
 	  return db
@@ -181,7 +189,15 @@ exports.getUserDetails = (req, res) => {
 					sparkImage: doc.data().sparkImage,
 					sparkVideo: doc.data().sparkVideo,
 					sparkAudio: doc.data().sparkAudio,
-					sparkLink: doc.data().sparkLink
+					sparkLink: doc.data().sparkLink,
+					emberId: doc.data().emberId,
+					emberBody: doc.data().emberBody,
+					emberPoster: doc.data().emberPoster,
+					emberDate: doc.data().emberDate,
+					emberVideo: doc.data().emberVideo,
+					emberImage: doc.data().emberImage,
+					emberAudio: doc.data().emberAudio,
+					emberLink: doc.data().emberLink,
 				});
 			});
       return db

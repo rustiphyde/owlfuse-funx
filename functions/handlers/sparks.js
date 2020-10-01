@@ -26,6 +26,15 @@ exports.getAllSparks = (req, res) => {
 					sparkVideo: doc.data().sparkVideo,
 					sparkAudio: doc.data().sparkAudio,
 					sparkLink: doc.data().sparkLink,
+					emberId: doc.data().emberId,
+					emberBody: doc.data().emberBody,
+					emberPoster: doc.data().emberPoster,
+					emberDate: doc.data().emberDate,
+					emberVideo: doc.data().emberVideo,
+					emberImage: doc.data().emberImage,
+					emberAudio: doc.data().emberAudio,
+					emberLink: doc.data().emberLink,
+
 				});
 			});
 			return res.json(sparks);
@@ -88,6 +97,14 @@ exports.postOneSpark = (req, res) => {
 		sparkVideo: "",
 		sparkAudio: "",
 		sparkLink: "",
+		emberId: "",
+		emberBody: "",
+		emberPoster: "",
+		emberDate: "",
+		emberVideo: "",
+		emberImage: "",
+		emberAudio: "",
+		emberLink: "",
 	};
 
 	db.collection("Sparks")
@@ -296,6 +313,14 @@ exports.getOnlyHottest = (req, res) => {
 					sparkVideo: doc.data().sparkVideo,
 					sparkAudio: doc.data().sparkAudio,
 					sparkLink: doc.data().sparkLink,
+					emberId: doc.data().emberId,
+					emberBody: doc.data().emberBody,
+					emberPoster: doc.data().emberPoster,
+					emberDate: doc.data().emberDate,
+					emberVideo: doc.data().emberVideo,
+					emberImage: doc.data().emberImage,
+					emberAudio: doc.data().emberAudio,
+					emberLink: doc.data().emberLink,
 				});
 			});
 			return res.json(hotSparks);
@@ -370,6 +395,15 @@ exports.uploadSparkImage = (req, res) => {
 					sparkVideo: "",
 					sparkAudio: "",
 					sparkLink: "",
+					emberId: "",
+					emberBody: "",
+					emberPoster: "",
+					emberDate: "",
+					emberVideo: "",
+					emberImage: "",
+					emberAudio: "",
+					emberLink: "",
+					
 				};
 
 				db.collection("Sparks")
@@ -419,6 +453,14 @@ exports.uploadSparkVideo = (req, res) => {
 		sparkVideo: req.body.embedLink,
 		sparkAudio: "",
 		sparkLink: "",
+		emberId: "",
+		emberBody: "",
+		emberPoster: "",
+		emberDate: "",
+		emberVideo: "",
+		emberImage: "",
+		emberAudio: "",
+		emberLink: "",
 	};
 
 	db.collection("Sparks")
@@ -494,6 +536,14 @@ exports.uploadSparkAudio = (req, res) => {
 					sparkVideo: "",
 					sparkAudio: sparkAudio,
 					sparkLink: "",
+					emberId: "",
+					emberBody: "",
+					emberPoster: "",
+					emberDate: "",
+					emberVideo: "",
+					emberImage: "",
+					emberAudio: "",
+					emberLink: "",
 				};
 
 				db.collection("Sparks")

@@ -18,7 +18,6 @@ exports.getAllSparks = (req, res) => {
 					heatCount: doc.data().heatCount,
 					userImage: doc.data().userImage,
 					fire: doc.data().fire,
-					emberable: doc.data().emberable,
 					embered: doc.data().embered,
 					emberCount: doc.data().emberCount,
 					infernal: doc.data().infernal,
@@ -34,7 +33,6 @@ exports.getAllSparks = (req, res) => {
 					emberImage: doc.data().emberImage,
 					emberAudio: doc.data().emberAudio,
 					emberLink: doc.data().emberLink,
-
 				});
 			});
 			return res.json(sparks);
@@ -89,7 +87,6 @@ exports.postOneSpark = (req, res) => {
 		stokeCount: 0,
 		userImage: req.user.imageUrl,
 		fire: false,
-		emberable: false,
 		embered: false,
 		emberCount: 0,
 		infernal: false,
@@ -110,6 +107,7 @@ exports.postOneSpark = (req, res) => {
 	db.collection("Sparks")
 		.add(newSpark)
 		.then((doc) => {
+			doc.update({ sparkId: doc.id });
 			const resSpark = newSpark;
 			resSpark.sparkId = doc.id;
 			res.json(resSpark);
@@ -305,7 +303,6 @@ exports.getOnlyHottest = (req, res) => {
 					heatCount: doc.data().heatCount,
 					userImage: doc.data().userImage,
 					fire: doc.data().fire,
-					emberable: doc.data().emberable,
 					embered: doc.data().embered,
 					emberCount: doc.data().emberCount,
 					infernal: doc.data().infernal,
@@ -387,7 +384,6 @@ exports.uploadSparkImage = (req, res) => {
 					stokeCount: 0,
 					userImage: req.user.imageUrl,
 					fire: false,
-					emberable: false,
 					embered: false,
 					emberCount: 0,
 					infernal: false,
@@ -403,7 +399,6 @@ exports.uploadSparkImage = (req, res) => {
 					emberImage: "",
 					emberAudio: "",
 					emberLink: "",
-					
 				};
 
 				db.collection("Sparks")
@@ -430,9 +425,9 @@ exports.uploadSparkVideo = (req, res) => {
 			.json({ spark: "Can't start a fire without a spark" });
 	if (req.body.embedLink.trim() === "")
 		return res.status(400).json({ embedLink: "Field must not be empty" });
-	
+
 	const youtubeLink = req.body.embedLink.split("?v=");
-	
+
 	if (youtubeLink[0] === "https://www.youtube.com/watch") {
 		req.body.embedLink = `https://youtube.com/embed/${youtubeLink[1]}`;
 	}
@@ -445,7 +440,6 @@ exports.uploadSparkVideo = (req, res) => {
 		stokeCount: 0,
 		userImage: req.user.imageUrl,
 		fire: false,
-		emberable: false,
 		embered: false,
 		emberCount: 0,
 		infernal: false,
@@ -466,6 +460,7 @@ exports.uploadSparkVideo = (req, res) => {
 	db.collection("Sparks")
 		.add(newSpark)
 		.then((doc) => {
+			doc.update({ sparkId: doc.id });
 			const resSpark = newSpark;
 			resSpark.sparkId = doc.id;
 			res.json(resSpark);
@@ -528,7 +523,6 @@ exports.uploadSparkAudio = (req, res) => {
 					stokeCount: 0,
 					userImage: req.user.imageUrl,
 					fire: false,
-					emberable: false,
 					embered: false,
 					emberCount: 0,
 					infernal: false,
@@ -587,5 +581,58 @@ exports.postSparkVideoLink = (req, res) => {
 		})
 		.catch((err) => {
 			console.log(err.code);
+		});
+};
+
+exports.postEmberSpark = (req, res) => {
+	let sparkStuff = {};
+
+	db.doc(`/Sparks/${req.params.emberId}`)
+		.get()
+		.then((doc) => {
+			sparkStuff = doc.data();
+		}).then(() => {
+			const newEmber = {
+				userClozang: req.user.clozang,
+				userImage: req.user.imageUrl,
+				heatCount: 0,
+				stokeCount: 0,
+				body: req.body.body,
+				createdAt: new Date().toISOString(),
+				fire: false,
+				embered: false,
+				emberCount: 0,
+				infernal: false,
+				sparkImage: "",
+				sparkVideo: "",
+				sparkAudio: "",
+				sparkLink: "",
+				emberId: req.params.emberId,
+				emberBody: sparkStuff.body,
+				emberPoster: sparkStuff.userClozang,
+				emberDate: sparkStuff.createdAt,
+				emberVideo: sparkStuff.sparkVideo,
+				emberImage: sparkStuff.sparkImage,
+				emberAudio: sparkStuff.sparkAudio,
+				emberLink: sparkStuff.sparkLink,
+			};
+
+			db.collection("Embers").add({
+				emberId: newEmber.emberId
+			})
+
+			db.collection("Sparks")
+				.add(newEmber)
+				.then((doc) => {
+					doc.update({ sparkId: doc.id });
+					const resEmber = newEmber;
+					resEmber.sparkId = doc.id;
+					res.json(resEmber);
+				})
+				
+		})
+		.catch((err) => {
+			console.error(err);
+			res.status(500).json({ error: err.code });
 		});
 };

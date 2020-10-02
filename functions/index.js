@@ -50,6 +50,7 @@ const {
 	uploadSparkVideo,
 	uploadSparkAudio,
 	postSparkVideoLink,
+	postEmberSpark
 } = require("./handlers/sparks");
 
 const {
@@ -103,6 +104,7 @@ app.post("/image/spark", FBAuth, uploadSparkImage);
 app.post("/video/spark", FBAuth, uploadSparkVideo);
 app.post("/audio/spark", FBAuth, uploadSparkAudio);
 app.post("/video/link/:sparkId", FBAuth, postSparkVideoLink);
+app.post("/ember/:emberId", FBAuth, postEmberSpark);
 // Fuser routes
 app.get("/fusers", FBAuth, getUserFuserList);
 app.get("/fuse-with/:fuser", FBAuth, sendFuseRequest);
@@ -549,3 +551,17 @@ exports.removeAttachedMedia = functions.firestore
 		}
 
 	});
+
+exports.addEmberToSpark = functions.firestore.document("/Embers/{id}")
+.onCreate(snap => {
+	db.doc(`/Sparks/${snap.data().emberId}`)
+	.get()
+	.then(doc => {
+		doc.ref.update({ 
+			embered: true,
+			emberCount: doc.data().emberCount + 1,
+			heatCount: doc.data().heatCount + 1		
+		})
+	})
+	.catch((err) => console.error(err));
+});

@@ -329,6 +329,16 @@ exports.onSparkExtinguish = functions.firestore
 	.onDelete((snap, context) => {
 		const sparkId = context.params.sparkId;
 		const batch = db.batch();
+		if(snap.data().emberId !== ""){
+			db.doc(`/Sparks/${snap.data().emberId}`).get()
+			.then(doc => {
+				doc.ref.update({ heatCount: doc.data().heatCount - (snap.data().heatCount + 1),
+				emberCount: doc.data().emberCount - 1
+				}).then(() => {
+					db.collection("Embers").where("emberId", "==", snap.data().emberId).where("emberClozang", "==", snap.data().userClozang).delete();
+				})
+			})
+		}
 		return db
 			.collection("Stokes")
 			.where("sparkId", "==", sparkId)

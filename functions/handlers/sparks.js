@@ -134,32 +134,26 @@ exports.stokeSpark = (req, res) => {
 		.then((doc) => {
 			if (!doc.exists) {
 				return res.status(404).json({ error: "Spark has been extinguished" });
-			} else if (
-				doc.data().fire === true &&
-				doc.data().userClozang !== req.user.clozang
-			) {
-				return doc.ref.update({
-					stokeCount: doc.data().stokeCount + 1,
-					heatCount: doc.data().heatCount + 1,
-				});
-			} else if (
-				doc.data().infernal === true &&
-				doc.data().userClozang !== req.user.clozang
-			) {
-				return doc.ref.update({
-					stokeCount: doc.data().stokeCount + 1,
-					heatCount: doc.data().heatCount + 1,
-				});
 			} else {
-				return doc.ref.update({
+				doc.ref.update({
 					stokeCount: doc.data().stokeCount + 1,
+					heatCount: doc.data().heatCount + 1,
 				});
+				if(doc.data().emberId !== ""){
+					db.doc(`Sparks/${doc.data().emberId}`)
+					.get().then((emberDoc) => {
+						emberDoc.ref.update({
+							heatCount: emberDoc.data().heatCount + 1
+						})
+					})
+				}
 			}
 		})
 		.then(() => {
 			return db.collection("Stokes").add(newStoke);
 		})
 		.then(() => {
+			
 			res.json(newStoke);
 		})
 		.catch((err) => {
@@ -200,8 +194,16 @@ exports.addHeat = (req, res) => {
 						userClozang: req.user.clozang,
 					})
 					.then(() => {
+						if(sparkData.emberId !== ""){
+							db.doc(`Sparks/${sparkData.emberId}`)
+							.get().then((doc) => {
+								doc.ref.update({
+									heatCount: doc.data().heatCount + 1
+								})
+							})
+						}
 						sparkData.heatCount++;
-						return sparkDoc.update({ heatCount: sparkData.heatCount });
+						sparkDoc.update({ heatCount: sparkData.heatCount });
 					})
 					.then(() => {
 						return res.json(sparkData);
@@ -248,6 +250,14 @@ exports.removeHeat = (req, res) => {
 					.doc(`/Heat/${data.docs[0].id}`)
 					.delete()
 					.then(() => {
+						if(sparkData.emberId !== ""){
+							db.doc(`Sparks/${sparkData.emberId}`)
+							.get().then((doc) => {
+								doc.ref.update({
+									heatCount: doc.data().heatCount - 1
+								})
+							})
+						}
 						sparkData.heatCount--;
 						return sparkDoc.update({ heatCount: sparkData.heatCount });
 					})
@@ -618,7 +628,8 @@ exports.postEmberSpark = (req, res) => {
 			};
 
 			db.collection("Embers").add({
-				emberId: newEmber.emberId
+				emberId: newEmber.emberId,
+				emberClozang: req.user.clozang
 			})
 
 			db.collection("Sparks")

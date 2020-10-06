@@ -50,7 +50,7 @@ const {
 	uploadSparkVideo,
 	uploadSparkAudio,
 	postSparkVideoLink,
-	postEmberSpark
+	postEmberSpark,
 } = require("./handlers/sparks");
 
 const {
@@ -329,15 +329,16 @@ exports.onSparkExtinguish = functions.firestore
 	.onDelete((snap, context) => {
 		const sparkId = context.params.sparkId;
 		const batch = db.batch();
-		if(snap.data().emberId !== ""){
-			db.doc(`/Sparks/${snap.data().emberId}`).get()
-			.then(doc => {
-				doc.ref.update({ heatCount: doc.data().heatCount - (snap.data().heatCount + 1),
-				emberCount: doc.data().emberCount - 1
-				}).then(() => {
-					db.collection("Embers").where("emberId", "==", snap.data().emberId).where("emberClozang", "==", snap.data().userClozang).delete();
-				})
-			})
+		if (snap.data().emberId !== "") {
+			db.doc(`/Sparks/${snap.data().emberId}`)
+				.get()
+				.then((doc) => {
+					doc.ref
+						.update({
+							heatCount: doc.data().heatCount - (snap.data().heatCount + 1),
+							emberCount: doc.data().emberCount - 1,
+						})
+				});
 		}
 		return db
 			.collection("Stokes")
@@ -352,6 +353,33 @@ exports.onSparkExtinguish = functions.firestore
 			.then((data) => {
 				data.forEach((doc) => {
 					batch.delete(db.doc(`/Heat/${doc.id}`));
+				});
+				return db.collection("/Embers").where("emberId", "==", sparkId).get();
+			})
+			.then((data) => {
+				data.forEach((doc) => {
+					batch.delete(db.doc(`/Embers/${doc.id}`));
+				});
+				return db.collection("/Embers").where("emberId", "==", snap.data().emberId)
+				.where("emberClozang", "==", snap.data().userClozang)
+				.where("emberTime", "==", snap.data().createdAt)
+				.get();
+			})
+			.then((data) => {
+				data.forEach((doc) => {
+					batch.delete(db.doc(`/Embers/${doc.id}`));
+				});
+				return db.collection("/Heat").where("sparkId", "==", sparkId).get();
+			})
+			.then((data) => {
+				data.forEach((doc) => {
+					batch.delete(db.doc(`/Heat/${doc.id}`));
+				});
+				return db.collection("/Sparks").where("emberId", "==", sparkId).get();
+			})
+			.then((data) => {
+				data.forEach((doc) => {
+					batch.delete(db.doc(`/Sparks/${doc.id}`));
 				});
 				return db.collection("/Sizzles").where("sparkId", "==", sparkId).get();
 			})
@@ -543,35 +571,35 @@ exports.removeAttachedMedia = functions.firestore
 	.onDelete((snap) => {
 		const bucket = admin.storage().bucket();
 		let splitter = "";
-		if(snap.data().embered !== true){
+		if (snap.data().embered !== true) {
 			if (snap.data().sparkImage !== "") {
 				splitter = snap.data().sparkImage.split("/")[7].split("?")[0];
-			} else if (snap.data().sparkVideo !== ""){
+			} else if (snap.data().sparkVideo !== "") {
 				splitter = snap.data().sparkVideo.split("/")[7].split("?")[0];
-			} else if (snap.data().sparkAudio !== ""){
+			} else if (snap.data().sparkAudio !== "") {
 				splitter = snap.data().sparkAudio.split("/")[7].split("?")[0];
-			} 
+			}
 			bucket
-					.file(`${splitter}`)
-					.delete()
-					.then(function () {
-						console.log("Media Removed Successfully!");
-					})
-					.catch((err) => console.log(err.code));
+				.file(`${splitter}`)
+				.delete()
+				.then(function () {
+					console.log("Media Removed Successfully!");
+				})
+				.catch((err) => console.log(err.code));
 		}
-
 	});
 
-exports.addEmberToSpark = functions.firestore.document("/Embers/{id}")
-.onCreate(snap => {
-	db.doc(`/Sparks/${snap.data().emberId}`)
-	.get()
-	.then(doc => {
-		doc.ref.update({ 
-			embered: true,
-			emberCount: doc.data().emberCount + 1,
-			heatCount: doc.data().heatCount + 1		
-		})
-	})
-	.catch((err) => console.error(err));
-});
+exports.addEmberToSpark = functions.firestore
+	.document("/Embers/{id}")
+	.onCreate((snap) => {
+		db.doc(`/Sparks/${snap.data().emberId}`)
+			.get()
+			.then((doc) => {
+				doc.ref.update({
+					embered: true,
+					emberCount: doc.data().emberCount + 1,
+					heatCount: doc.data().heatCount + 1,
+				});
+			})
+			.catch((err) => console.error(err));
+	});

@@ -179,6 +179,7 @@ exports.createSizzleOnHeat = functions.firestore
 						createdAt: new Date().toISOString(),
 						recipient: doc.data().userClozang,
 						sender: snap.data().userClozang,
+						extraInfo: "",
 						type: "heat",
 						read: false,
 						sizzleId: snap.data().sparkId,
@@ -200,6 +201,7 @@ exports.createSizzleOnCheers = functions.firestore
 						createdAt: new Date().toISOString(),
 						recipient: doc.data().userClozang,
 						sender: snap.data().userClozang,
+						extraInfo: "",
 						type: "cheers",
 						read: false,
 						sizzleId: snap.data().boozId,
@@ -221,6 +223,7 @@ exports.createSizzleOnStoke = functions.firestore
 						createdAt: new Date().toISOString(),
 						recipient: doc.data().userClozang,
 						sender: snap.data().userClozang,
+						extraInfo: "",
 						type: "stoke",
 						read: false,
 						sizzleId: snap.data().sparkId,
@@ -242,6 +245,7 @@ exports.createSizzleOnToast = functions.firestore
 						createdAt: new Date().toISOString(),
 						recipient: doc.data().userClozang,
 						sender: snap.data().userClozang,
+						extraInfo: "",
 						type: "toast",
 						read: false,
 						sizzleId: snap.data().boozId,
@@ -260,12 +264,31 @@ exports.createSizzleOnRequest = functions.firestore
 				createdAt: new Date().toISOString(),
 				recipient: snap.data().requested,
 				sender: snap.data().sender,
+				extraInfo: "",
 				type: "request",
 				read: false,
 				sizzleId: snap.id,
 			})
 			.catch((err) => console.error(err));
 	});
+
+
+exports.createSizzleOnEmber = functions.firestore.
+document("Embers/{id}")
+.onCreate((snap) => {
+	return db.doc(`/Sizzles/{snap.id}`)
+	.set({
+		createdAt: new Date().toISOString(),
+		recipient: snap.data().emberOwner,
+		sender: snap.data().emberClozang,
+		extraInfo: snap.data().emberId,
+		type: "ember",
+		read: false,
+		sizzleId: snap.id
+	})
+	.catch((err) => console.error(err));
+})
+
 
 exports.removeHeatSizzle = functions.firestore
 	.document("Heat/{id}")
@@ -333,11 +356,10 @@ exports.onSparkExtinguish = functions.firestore
 			db.doc(`/Sparks/${snap.data().emberId}`)
 				.get()
 				.then((doc) => {
-					doc.ref
-						.update({
-							heatCount: doc.data().heatCount - (snap.data().heatCount + 1),
-							emberCount: doc.data().emberCount - 1,
-						})
+					doc.ref.update({
+						heatCount: doc.data().heatCount - (snap.data().heatCount + 1),
+						emberCount: doc.data().emberCount - 1,
+					});
 				});
 		}
 		return db
@@ -360,10 +382,12 @@ exports.onSparkExtinguish = functions.firestore
 				data.forEach((doc) => {
 					batch.delete(db.doc(`/Embers/${doc.id}`));
 				});
-				return db.collection("/Embers").where("emberId", "==", snap.data().emberId)
-				.where("emberClozang", "==", snap.data().userClozang)
-				.where("emberTime", "==", snap.data().createdAt)
-				.get();
+				return db
+					.collection("/Embers")
+					.where("emberId", "==", snap.data().emberId)
+					.where("emberClozang", "==", snap.data().userClozang)
+					.where("emberTime", "==", snap.data().createdAt)
+					.get();
 			})
 			.then((data) => {
 				data.forEach((doc) => {
@@ -381,7 +405,13 @@ exports.onSparkExtinguish = functions.firestore
 				data.forEach((doc) => {
 					batch.delete(db.doc(`/Sparks/${doc.id}`));
 				});
-				return db.collection("/Sizzles").where("sparkId", "==", sparkId).get();
+				return db.collection("/Sizzles").where("sizzleId", "==", sparkId).get();
+			})
+			.then((data) => {
+				data.forEach((doc) => {
+					batch.delete(db.doc(`/Sizzles/${doc.id}`));
+				});
+				return db.collection("/Sizzles").where("extraInfo", "==", snap.data().emberId).get();
 			})
 			.then((data) => {
 				data.forEach((doc) => {
@@ -410,6 +440,7 @@ exports.sparkToFire = functions.firestore
 						createdAt: new Date().toISOString(),
 						recipient: change.before.data().userClozang,
 						sender: "",
+						extraInfo: "",
 						type: "fire",
 						read: false,
 						sizzleId: change.before.id,
@@ -436,6 +467,7 @@ exports.fireToInfernal = functions.firestore
 						createdAt: new Date().toISOString(),
 						recipient: change.before.data().userClozang,
 						sender: "",
+						extraInfo: "",
 						type: "infernal",
 						read: false,
 						sizzleId: change.before.id,
@@ -461,6 +493,7 @@ exports.snuffOutFire = functions.firestore
 						createdAt: new Date().toISOString(),
 						recipient: change.before.data().userClozang,
 						sender: "",
+						extraInfo: "",
 						type: "snuff",
 						read: false,
 						sizzleId: change.before.id,
@@ -518,6 +551,7 @@ exports.removeAcceptedRequest = functions.firestore
 					createdAt: new Date().toISOString(),
 					recipient: change.before.data().sender,
 					sender: change.before.data().requested,
+					extraInfo: "",
 					type: "accept",
 					read: false,
 					sizzleId: change.before.id,
@@ -538,6 +572,7 @@ exports.removeRejectedRequest = functions.firestore
 					createdAt: new Date().toISOString(),
 					recipient: change.before.data().sender,
 					sender: change.before.data().requested,
+					extraInfo: "",
 					type: "reject",
 					read: false,
 					sizzleId: change.before.id,

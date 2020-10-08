@@ -630,7 +630,8 @@ exports.postEmberSpark = (req, res) => {
 			db.collection("Embers").add({
 				emberId: newEmber.emberId,
 				emberClozang: req.user.clozang,
-				emberTime: newEmber.createdAt
+				emberTime: newEmber.createdAt,
+				emberOwner: newEmber.emberPoster
 			})
 
 			db.collection("Sparks")

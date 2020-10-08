@@ -114,6 +114,7 @@ exports.addOneSong = (req, res) => {
 exports.getSongsByList = (req, res) => {
   db.collection("Songs")
     .where("okeId", "==", req.params.okeId)
+    .orderBy("songTitle", "ASC")
     .get()
     .then(data => {
       let listSongs = [];

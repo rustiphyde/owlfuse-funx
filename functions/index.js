@@ -276,7 +276,7 @@ exports.createSizzleOnRequest = functions.firestore
 exports.createSizzleOnEmber = functions.firestore.
 document("Embers/{id}")
 .onCreate((snap) => {
-	return db.doc(`/Sizzles/{snap.id}`)
+	return db.doc(`/Sizzles/${snap.id}`)
 	.set({
 		createdAt: new Date().toISOString(),
 		recipient: snap.data().emberOwner,
